@@ -1,4 +1,4 @@
-package com.dnd4th.pickitalki;
+package com.dnd12th_4.pickitalki;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
