@@ -30,7 +30,7 @@ public class Question {
     @JoinColumn(name = "author_id", nullable = false)
     private Member author;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String content;
 
     @Column(nullable = false)
