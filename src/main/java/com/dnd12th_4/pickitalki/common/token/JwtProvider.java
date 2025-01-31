@@ -12,22 +12,33 @@ import java.util.Date;
 public class JwtProvider {
 
     private final Key key;
-    private final long expirationTime;
+    private final long accessTokenExpiration;
+    private final long refreshTokenExpiration;
 
     public JwtProvider(
             @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.expiration-time}")long expirationTime){
+            @Value("${jwt.access-expiration-time}")long accessTokenExpiration,
+            @Value("${jwt.refresh-token-expiration}")long refreshTokenExpiration){
 
 
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        this.expirationTime = expirationTime;
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String createToken(String email){
+    public String createAccessToken(Long userId){
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userId.toString())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis()+accessTokenExpiration))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String createRefreshToken() {
+        return Jwts.builder()
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -46,7 +57,22 @@ public class JwtProvider {
         }
     }
 
-    public String getEmailFromToken(String token){
-        return validateToken(token).getSubject();
+    public boolean isTokenExpired(String token){
+        try{
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date()); //토근이 만료 되면 true반환
+        }catch(ExpiredJwtException e){
+            return true;
+        }catch (JwtException e) {
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public Long getUserIdFromToken(String token){
+        return Long.valueOf(validateToken(token).getSubject());
     }
 }
