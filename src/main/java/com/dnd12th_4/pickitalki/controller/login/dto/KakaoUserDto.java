@@ -1,0 +1,16 @@
+package com.dnd12th_4.pickitalki.controller.login.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+@Builder
+public class KakaoUserDto {
+
+    private String id;
+    private String email;
+    private String nickname;
+    private String profileImageUrl;
+}

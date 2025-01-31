@@ -1,4 +1,7 @@
 kakao:
   auth-url: "https://kauth.kakao.com/oauth/authorize"
   client-id: "? ??? ???? ??? ??? ? api key? ?? ???? ?? ?? ?????."
+  client-id2: "8210230982a87f6176f7e8edcd519e63"
   redirect-uri: "http://localhost:8080/auth/kakao/callback"
+  token-url: "https://kauth.kakao.com/oauth/token"
+  user-info-url: "https://kapi.kakao.com/v2/user/me"
