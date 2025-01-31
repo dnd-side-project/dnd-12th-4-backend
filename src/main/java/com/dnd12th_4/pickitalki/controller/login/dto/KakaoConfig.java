@@ -21,4 +21,7 @@ public class KakaoConfig {
 
     @Value("${kakao.user-info-url}")
     private String userInfoUrl;
+
+    @Value("${kakao.client-secret}")
+    private String clientSecret;
 }

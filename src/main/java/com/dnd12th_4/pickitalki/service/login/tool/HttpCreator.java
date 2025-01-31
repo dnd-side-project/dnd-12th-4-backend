@@ -26,6 +26,7 @@ public class HttpCreator {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type","authorization_code");
         body.add("client_id",kakaoConfig.getClientId());
+        body.add("client_secret",kakaoConfig.getClientSecret());
         body.add("redirect_uri",kakaoConfig.getRedirectUri());
         body.add("code",code);
 
