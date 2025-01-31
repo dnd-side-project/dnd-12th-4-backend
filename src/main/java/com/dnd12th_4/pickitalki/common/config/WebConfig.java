@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.common.config;
 
 import com.dnd12th_4.pickitalki.common.interceptor.JwtInterceptor;
-import com.dnd12th_4.pickitalki.common.resolver.UserEmailResolver;
+import com.dnd12th_4.pickitalki.common.resolver.MemberIdResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -15,7 +15,7 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     private final JwtInterceptor jwtInterceptor;
-    private final UserEmailResolver userEmailResolver;
+    private final MemberIdResolver memberIdResolver;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -26,6 +26,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(userEmailResolver);
+        resolvers.add(memberIdResolver);
     }
 }
