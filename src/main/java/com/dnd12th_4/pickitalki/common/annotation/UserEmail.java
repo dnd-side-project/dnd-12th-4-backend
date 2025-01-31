@@ -5,5 +5,5 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@interface UserEmail {
+public @interface UserEmail {
 }

@@ -1,4 +1,4 @@
-package com.dnd12th_4.pickitalki.common;
+package com.dnd12th_4.pickitalki.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
