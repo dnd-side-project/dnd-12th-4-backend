@@ -2,7 +2,7 @@ package com.dnd12th_4.pickitalki.controller.login;
 
 import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
-import com.dnd12th_4.pickitalki.domain.member.MemberEntity;
+import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class TokenAuthController {
             @CookieValue("refreshToken") String refreshToken,
             HttpServletResponse response) {
 
-        MemberEntity user = kaKaoSignUpService.findUser(refreshToken);
+        Member user = kaKaoSignUpService.findUser(refreshToken);
 
         if (jwtProvider.isTokenExpired(user.getRefreshToken())) {
             executeExpiredCookie(response, user);
@@ -43,7 +43,7 @@ public class TokenAuthController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
-    private void executeExpiredCookie(HttpServletResponse response, MemberEntity user) {
+    private void executeExpiredCookie(HttpServletResponse response, Member user) {
         Cookie cookie = cookieProvider.makeExpiredCookie("refreshToken", null);
         response.addCookie(cookie);
 

@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
-import com.dnd12th_4.pickitalki.domain.member.MemberEntity;
+import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,14 +16,14 @@ public class KaKaoSignUpService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public MemberEntity registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto) {
-        Optional<MemberEntity> existingUser = memberRepository.findByKakaoId(Long.valueOf(kakaoUserDto.getId()));
+    public Member registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto) {
+        Optional<Member> existingUser = memberRepository.findByKakaoId(Long.valueOf(kakaoUserDto.getId()));
 
         if(existingUser.isPresent()){
             return existingUser.get();
         }
 
-        MemberEntity newUser = MemberEntity.builder()
+        Member newUser = Member.builder()
                 .kakaoId(Long.parseLong(kakaoUserDto.getId()))
                 .email(kakaoUserDto.getEmail())
                 .nickName(kakaoUserDto.getNickname())
@@ -33,14 +33,14 @@ public class KaKaoSignUpService {
         return memberRepository.save(newUser);
     }
 
-    public MemberEntity saveUserEntity(MemberEntity memberEntity){
-        return Optional.ofNullable(memberEntity)
+    public Member saveUserEntity(Member member){
+        return Optional.ofNullable(member)
                 .map(memberRepository::save)
                 .orElseThrow(()-> new RuntimeException("유저 엔티티가 null값"));
 
     }
 
-    public MemberEntity findUser(String token){
+    public Member findUser(String token){
         return memberRepository.findByRefreshToken(token)
                 .orElseThrow(() -> new RuntimeException("refreshToken error"));
     }
