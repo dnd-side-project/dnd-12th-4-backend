@@ -15,14 +15,14 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    private boolean isDeleted = false;
+    protected boolean isDeleted = false;
 
     public void softDelete() {
         this.isDeleted = true;
