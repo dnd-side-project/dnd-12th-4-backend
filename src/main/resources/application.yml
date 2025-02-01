@@ -1,0 +1,13 @@
+kakao:
+  auth-url: "https://kauth.kakao.com/oauth/authorize"
+  client-id: "?? ??? ?? ??????."
+  redirect-uri: "http://localhost:8080/auth/kakao/callback"
+  token-url: "https://kauth.kakao.com/oauth/token"
+  user-info-url: "https://kapi.kakao.com/v2/user/me"
+  client-secret: "?? ??? ?? ??????."
+
+
+jwt:
+  secret-key: "pikytalk-secure-connection-key-keep-friends-together!"
+  access-expiration-time: 1800000  # 24?? (???)
+  refresh-token-expiration : 604800000 # 7?
