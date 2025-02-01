@@ -20,9 +20,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (token != null) {
             try{
                 jwtProvider.validateToken(token);
-                Long userId = jwtProvider.getUserIdFromToken(token);
 
-                request.setAttribute("memberId",userId);
             }catch(Exception e){
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"유효하지 않는 토큰입니다");
                 return false;
