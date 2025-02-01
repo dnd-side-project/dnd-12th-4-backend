@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.domain.question;
 
-import com.dnd12th_4.pickitalki.domain.Channel.Channel;
+import com.dnd12th_4.pickitalki.domain.BaseEntity;
+import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,18 +21,18 @@ import java.time.LocalDate;
 @Table(name = "today_questions", uniqueConstraints = {
         @UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_id", "created_date"})
 })
-public class TodayQuestion {
+public class TodayQuestion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id", nullable = false, unique = true)
+    @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "question_id", nullable = true)  // 오늘의 질문이 없을 수도 있음
+    @JoinColumn(name = "question_id", nullable = true)
     private Question question;
 
     @Column(nullable = false)
@@ -46,7 +47,7 @@ public class TodayQuestion {
         this.createdDate = LocalDate.now();
     }
 
-    public TodayQuestion(Channel channel) {  // 질문이 없는 경우
+    public TodayQuestion(Channel channel) {
         this.channel = channel;
         this.createdDate = LocalDate.now();
     }

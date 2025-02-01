@@ -1,23 +1,19 @@
 package com.dnd12th_4.pickitalki.domain.member;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import jakarta.persistence.CascadeType;
+import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
-
-import java.util.ArrayList;
 
 
 @Getter
 @Table(name = "members")
 @Entity
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

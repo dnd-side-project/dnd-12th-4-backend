@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.domain.answer;
 
+import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.question.Question;
 import jakarta.persistence.Column;
@@ -13,12 +14,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Entity
 @Table(name = "answers")
-public class Answer {
+public class Answer extends BaseEntity {
 
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,13 +35,10 @@ public class Answer {
     private String content;
 
     @Column(nullable = false)
-    private boolean isAnonymous; // 익명 여부
+    private boolean isAnonymous;
 
     @Column(length = 30)
-    private String anonymousName; // 익명 닉네임
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private String anonymousName;
 
     protected Answer() {
     }

@@ -1,11 +1,11 @@
-package com.dnd12th_4.pickitalki.domain.Channel;
+package com.dnd12th_4.pickitalki.domain.channel;
 
+import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.question.TodayQuestion;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -22,13 +22,13 @@ import java.util.UUID;
 @Getter
 @Table(name = "channels")
 @Entity
-public class Channel {
+public class Channel extends BaseEntity {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)") // ✅ UUID를 BINARY(16)로 저장하여 성능 최적화
+    @Column(columnDefinition = "BINARY(16)")
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
-    @JdbcTypeCode(SqlTypes.BINARY) // Hibernate 6+ 에서 UUID를 BINARY로 저장하는 설정
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID uuid;
 
     @Column(nullable = false, length = 10)
