@@ -12,9 +12,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "questions", uniqueConstraints = {
+        @UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_id", "created_date"})
+})
 public class Question extends BaseEntity {
 
     @Id
@@ -33,28 +38,39 @@ public class Question extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private boolean isAnonymous; // 익명 여부 추가
+    private boolean isTodayQuestion;
 
     @Column(nullable = false)
-    private boolean isTodayQuestion; // 익명 여부 추가
+    private boolean isAnonymous;
 
-    @Column(nullable = true, length = 10) // 익명 닉네임 (최대 10자)
+    @Column(nullable = true, length = 10)
     private String anonymousName;
+
+    @Column(nullable = false)
+    private LocalDate createdDate;
 
     protected Question() {
     }
 
-    public Question(Channel channel, Member author, String content, boolean isAnonymous, String anonymousName) {
+    public Question(Long id, Channel channel, Member author, String content, boolean isTodayQuestion,
+                    boolean isAnonymous, String anonymousName, LocalDate createdDate) {
+        this.id = id;
         this.channel = channel;
         this.author = author;
         this.content = content;
+        this.isTodayQuestion = isTodayQuestion;
         this.isAnonymous = isAnonymous;
+        this.createdDate = createdDate;
 
         if (isAnonymous) {
             this.anonymousName = anonymousName;
         } else {
             this.anonymousName = null;
         }
+    }
+
+    public Question(Channel channel, Member author, String content, boolean isAnonymous, String anonymousName) {
+        this(null, channel, author, content, false, isAnonymous, anonymousName, LocalDate.now());
     }
 
 }

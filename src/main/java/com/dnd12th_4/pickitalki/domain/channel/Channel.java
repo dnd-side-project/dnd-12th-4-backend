@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
-import com.dnd12th_4.pickitalki.domain.question.TodayQuestion;
+import com.dnd12th_4.pickitalki.domain.question.Question;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +34,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
     @OneToOne(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TodayQuestion todayQuestion;
+    private Question todayQuestion;
 
     protected Channel() {}
 
