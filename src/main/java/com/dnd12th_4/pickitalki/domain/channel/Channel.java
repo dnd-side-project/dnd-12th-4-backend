@@ -2,7 +2,6 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.question.Question;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,10 +29,10 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "channel")
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
-    @OneToOne(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "channel")
     private Question todayQuestion;
 
     protected Channel() {}
