@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  mysql:
+    image: library/mysql:8.0.33
+    ports:
+      - 20000:3306
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pickitalki
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: userpassword
+      TZ: Asia/Seoul
