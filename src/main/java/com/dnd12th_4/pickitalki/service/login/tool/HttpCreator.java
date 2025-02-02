@@ -18,27 +18,31 @@ public class HttpCreator {
     private final RestTemplate restTemplate;
     private final KakaoConfig kakaoConfig;
 
-    public ResponseEntity<Map> getResponseAccessToken(String code){
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type","authorization_code");
-        body.add("client_id",kakaoConfig.getClientId());
-        body.add("client_secret",kakaoConfig.getClientSecret());
-        body.add("redirect_uri",kakaoConfig.getRedirectUri());
-        body.add("code",code);
-
-        HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(body,headers);
-        return restTemplate.exchange(kakaoConfig.getTokenUrl(), HttpMethod.POST,request,Map.class);
-    }
+//    public ResponseEntity<Map> getResponseAccessToken(String code){
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//
+//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+//        body.add("grant_type","authorization_code");
+//        body.add("client_id",kakaoConfig.getClientId());
+//        body.add("client_secret",kakaoConfig.getClientSecret());
+//        body.add("redirect_uri",kakaoConfig.getRedirectUri());
+//        body.add("code",code);
+//
+//        HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(body,headers);
+//        return restTemplate.exchange(kakaoConfig.getTokenUrl(), HttpMethod.POST,request,Map.class);
+//    }
 
 
     public ResponseEntity<Map> getResponseUserInfo(String accessToken){
-
+        System.out.println(accessToken);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        if(accessToken.startsWith("Bearer ")){
+            headers.set("Authorization",  accessToken);
+        } else{
+            headers.set("Authorization", "Bearer " + accessToken);
+        }
 
         HttpEntity<String> request = new HttpEntity<>(headers);
         return restTemplate.exchange(kakaoConfig.getUserInfoUrl(), HttpMethod.GET, request, Map.class);
