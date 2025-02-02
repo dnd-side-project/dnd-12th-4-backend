@@ -8,15 +8,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.domain.Persistable;
+
+import static java.util.Objects.isNull;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
 @Entity
 @Table(name= "member")
-public class Member extends BaseEntity  implements Persistable<String> {
+public class Member extends BaseEntity  implements Persistable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,12 +39,14 @@ public class Member extends BaseEntity  implements Persistable<String> {
     private String refreshToken;
   
     protected Member() {
+        super();
+
     }
 
-    public Member(String id, String name, String image) {
+    public Member(Long id, String name, String image) {
         this.id = id;
-        this.name = name;
-        this.image = image;
+        this.nickName = name;
+        this.profileImageUrl = image;
     }
 
     @Override
