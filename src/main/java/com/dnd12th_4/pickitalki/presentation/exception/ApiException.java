@@ -20,7 +20,7 @@ public class ApiException extends RuntimeException implements ApiExceptionIfs{
     public ApiException(ErrorCodeIfs errorCodeIfs, String errorDescription) {
         super(errorCodeIfs.getDescription());
         this.errorCodeIfs = errorCodeIfs;
-        this.errorDescription=errorCodeIfs.getDescription();
+        this.errorDescription=errorDescription;
     }
 
     public ApiException(ErrorCodeIfs errorCodeIfs, Throwable tx) {
