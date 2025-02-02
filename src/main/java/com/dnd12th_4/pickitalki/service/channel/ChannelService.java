@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -19,7 +21,7 @@ public class ChannelService {
 
 
     @Transactional
-    public Channel save(Long memberId, String channelName) {
+    public ChannelMember save(Long memberId, String channelName) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST,"Channel save 24번쭐 에러발생"));
 
@@ -30,12 +32,21 @@ public class ChannelService {
         ChannelMemberEntity.makeChannel(channel);
         ChannelMemberEntity.makeMember(member);
 
-        channelMemberRepository.save(ChannelMemberEntity);
+        ChannelMember channelMember = channelMemberRepository.save(ChannelMemberEntity);
 
-        return channel;
+        return channelMember;
 
     }
 
+    @Transactional
+    public Channel updateCodeName(Long channelMemberId, String codeName) {
+
+        ChannelMember channelMember = channelMemberRepository.findById(channelMemberId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember updateCodeName 43번째 줄에서 에러 발생"));
+
+        channelMember.setMemberCodeName(codeName);
+        return channelMember.getChannel();
+    }
 
 
     private  ChannelMember getChannelMember() {
@@ -44,4 +55,6 @@ public class ChannelService {
                 .build();
         return ChannelMemberEntity;
     }
+
+
 }
