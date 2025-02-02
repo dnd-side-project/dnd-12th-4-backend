@@ -3,6 +3,8 @@ package com.dnd12th_4.pickitalki.controller.login;
 import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
 import com.dnd12th_4.pickitalki.domain.member.Member;
+import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,8 +36,7 @@ public class TokenAuthController {
         if (jwtProvider.isTokenExpired(user.getRefreshToken())) {
             executeExpiredCookie(response, user);
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Refresh token expired. Please log in again."));
+             throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,"ResponseEntity refreshAccessToken 에러");
         }
 
         String newAccessToken = jwtProvider.createAccessToken(user.getId());

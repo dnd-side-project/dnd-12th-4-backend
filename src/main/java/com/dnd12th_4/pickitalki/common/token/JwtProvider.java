@@ -70,7 +70,7 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return true;
         } catch (JwtException e) {
-            throw new ApiException(TokenErrorCode.INVALID_TOKEN,e);
+            throw new ApiException(TokenErrorCode.INVALID_TOKEN,"boolean isTokenExpired 73번째 에러 발생");
         }
     }
 

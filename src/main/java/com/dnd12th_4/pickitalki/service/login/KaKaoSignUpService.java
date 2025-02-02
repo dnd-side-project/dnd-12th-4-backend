@@ -39,12 +39,12 @@ public class KaKaoSignUpService {
     public Member saveUserEntity(Member member){
         return Optional.ofNullable(member)
                 .map(memberRepository::save)
-                .orElseThrow(()-> new ApiException(MemberErrorCode.INVALID_ARGUMENT));
+                .orElseThrow(()-> new ApiException(MemberErrorCode.INVALID_ARGUMENT,"Member saveUserEntity 42번째줄 에러"));
 
     }
 
     public Member findUser(String token){
         return memberRepository.findByRefreshToken(token)
-                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN,"Member findUser 48번째줄 에러"));
     }
 }
