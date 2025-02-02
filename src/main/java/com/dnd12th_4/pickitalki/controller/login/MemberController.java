@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/members/name")
+    @PostMapping("/name")
     public Api<String> registerName(
             @MemberId Long memberId,
             @RequestParam("name") @NotBlank String name
