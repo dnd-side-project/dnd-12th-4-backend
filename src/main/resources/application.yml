@@ -1,4 +1,3 @@
-
 spring:
   datasource:
     url: jdbc:mysql://localhost:20000/pickitalki?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
@@ -13,13 +12,13 @@ spring:
     defer-datasource-initialization: true
     show-sql: true
 
+
 kakao:
   auth-url: "https://kauth.kakao.com/oauth/authorize"
-  client-id: "?? ??? ?? ??????."
   redirect-uri: "http://localhost:8080/auth/kakao/callback"
   token-url: "https://kauth.kakao.com/oauth/token"
   user-info-url: "https://kapi.kakao.com/v2/user/me"
-  client-secret: "?? ??? ?? ??????."
+
 
 
 jwt:
