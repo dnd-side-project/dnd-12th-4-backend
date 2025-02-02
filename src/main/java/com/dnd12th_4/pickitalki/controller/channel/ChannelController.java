@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.converter.UUIDConverter;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
@@ -40,5 +41,19 @@ public class ChannelController {
         ChannelResponse channelResponse = new ChannelResponse(channel.getUuid());
 
         return Api.OK(channelResponse);
+    }
+
+    @PostMapping("/invited/room")
+    public Api<ChannelMemberResponse> invitedRoom(
+            @MemberId Long memberId,
+            @RequestParam("channelUuid") @Valid String channelUuid
+    ) {
+
+
+
+        ChannelMember channelMember=channelService.invited(memberId, UUIDConverter.toUUID(channelUuid));
+        ChannelMemberResponse channelMemberResponse = new ChannelMemberResponse(channelMember.getId());
+
+        return Api.OK(channelMemberResponse);
     }
 }

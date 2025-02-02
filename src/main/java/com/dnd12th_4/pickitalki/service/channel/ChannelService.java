@@ -27,14 +27,12 @@ public class ChannelService {
 
         Channel channel = new Channel(channelName);
 
-        ChannelMember ChannelMemberEntity = getChannelMember();
+        ChannelMember ChannelMemberEntity = getChannelMember(Role.OWNER);
 
         ChannelMemberEntity.makeChannel(channel);
         ChannelMemberEntity.makeMember(member);
 
-        ChannelMember channelMember = channelMemberRepository.save(ChannelMemberEntity);
-
-        return channelMember;
+        return channelMemberRepository.save(ChannelMemberEntity);
 
     }
 
@@ -48,13 +46,40 @@ public class ChannelService {
         return channelMember.getChannel();
     }
 
+    @Transactional
+    public ChannelMember invited(Long memberId, UUID channelUuid) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 53번째줄 에러"));
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 55번째줄 에러"));
 
-    private  ChannelMember getChannelMember() {
-        ChannelMember ChannelMemberEntity = ChannelMember.builder()
-                .role(Role.OWNER)
-                .build();
-        return ChannelMemberEntity;
+        validatedDuplicate(channel, member);
+
+        ChannelMember channelMemberEntity = getChannelMember(Role.MEMBER);
+
+        channelMemberEntity.makeMember(member);
+        channelMemberEntity.makeChannel(channel);
+
+        return channelMemberRepository.save(channelMemberEntity);
+
     }
+
+    private  void validatedDuplicate(Channel channel, Member member) {
+
+        channel.getChannelMembers().forEach(channelMember -> {
+            if (channelMember.getMember().getId().equals(member.getId())) {
+                throw new ApiException(ErrorCode.DUPLICATED_MEMBER,"validateDuplicate 71번째줄 에러 ");
+            }
+        });
+    }
+
+
+    private  ChannelMember getChannelMember(Role role) {
+        return ChannelMember.builder()
+                .role(role)
+                .build();
+    }
+
 
 
 }
