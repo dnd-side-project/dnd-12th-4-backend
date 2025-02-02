@@ -5,8 +5,14 @@ import com.dnd12th_4.pickitalki.common.token.JwtProvider;
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
 import com.dnd12th_4.pickitalki.controller.login.dto.UserResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
+import com.dnd12th_4.pickitalki.presentation.api.Api;
+import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import com.dnd12th_4.pickitalki.service.login.KakaoUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +30,8 @@ public class KakaoAuthExchangeController {
     private final CookieProvider cookieProvider;
 
     @GetMapping("/kakao/exchange")
-    public ResponseEntity<UserResponse> kakaoCallback(
-            @RequestHeader("Authorization") String accessToken,
+    public Api<UserResponse> kakaoCallback(
+            @RequestHeader(value = "Authorization", required = false) String accessToken,
             HttpServletResponse response) {
 
         KakaoUserDto kakaoUser = kakaoUserService.getUserInfo(accessToken);
@@ -41,12 +47,12 @@ public class KakaoAuthExchangeController {
         String newAccessToken = jwtProvider.createAccessToken(memberEntity.getId());
         UserResponse userResponse = toUserResponse(member, newAccessToken);
 
-        return ResponseEntity.ok(userResponse);
+        return Api.OK(userResponse);
     }
 
     private void executeCookie(HttpServletResponse response, String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new IllegalArgumentException("Refresh Token cannot be null or empty");
+            throw new ApiException(TokenErrorCode.TOKEN_EXCEPTION);
         }
 
         Cookie cookie = cookieProvider.makeNewCookie("refreshToken", refreshToken);

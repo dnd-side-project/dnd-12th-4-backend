@@ -1,5 +1,7 @@
 package com.dnd12th_4.pickitalki.common.token;
 
+import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,9 +53,9 @@ public class JwtProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException(" 토큰이 만료!");
+            throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,e);
         } catch (JwtException e) {
-            throw new RuntimeException("유효하지 않는 토큰!");
+            throw new ApiException(TokenErrorCode.INVALID_TOKEN,e);
         }
     }
 
@@ -68,7 +70,7 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return true;
         } catch (JwtException e) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.");
+            throw new ApiException(TokenErrorCode.INVALID_TOKEN,e);
         }
     }
 
