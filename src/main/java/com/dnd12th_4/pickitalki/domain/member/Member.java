@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.domain.member;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @Table(name= "member")
-public class Member extends BaseEntity {
+public class Member extends BaseEntity  implements Persistable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +36,18 @@ public class Member extends BaseEntity {
 
     @Column(nullable = true)
     private String refreshToken;
+  
+    protected Member() {
+    }
+
+    public Member(String id, String name, String image) {
+        this.id = id;
+        this.name = name;
+        this.image = image;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNull(createdAt);
+    }
 }
