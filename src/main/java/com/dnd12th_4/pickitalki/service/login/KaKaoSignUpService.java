@@ -3,6 +3,9 @@ package com.dnd12th_4.pickitalki.service.login;
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
+import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
+import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +39,12 @@ public class KaKaoSignUpService {
     public Member saveUserEntity(Member member){
         return Optional.ofNullable(member)
                 .map(memberRepository::save)
-                .orElseThrow(()-> new RuntimeException("유저 엔티티가 null값"));
+                .orElseThrow(()-> new ApiException(MemberErrorCode.INVALID_ARGUMENT));
 
     }
 
     public Member findUser(String token){
         return memberRepository.findByRefreshToken(token)
-                .orElseThrow(() -> new RuntimeException("refreshToken error"));
+                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN));
     }
 }

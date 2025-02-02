@@ -36,8 +36,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	//OAUTH2
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	//JSON BIND
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
@@ -49,7 +47,7 @@ dependencies {
 
 	//swagger-ui
 	//http://localhost:8080/swagger-ui/index.html  << 반드시 이 url 로 접속
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 }
 
 tasks.named('test') {

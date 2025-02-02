@@ -18,7 +18,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "questions", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_id", "created_date"})
+        @UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_uuid", "created_date"})
 })
 public class Question extends BaseEntity {
 
@@ -27,7 +27,7 @@ public class Question extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id", nullable = false)
+    @JoinColumn(name = "channel_uuid", nullable = false)
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.EAGER)
