@@ -29,7 +29,6 @@ public class TokenAuthController {
     public ResponseEntity<Map<String, String>> refreshAccessToken(
             @CookieValue("refreshToken") String refreshToken,
             HttpServletResponse response) {
-
         Member user = kaKaoSignUpService.findUser(refreshToken);
 
         if (jwtProvider.isTokenExpired(user.getRefreshToken())) {
