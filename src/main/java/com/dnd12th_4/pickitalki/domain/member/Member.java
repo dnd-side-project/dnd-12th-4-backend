@@ -1,23 +1,22 @@
 package com.dnd12th_4.pickitalki.domain.member;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
-
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.domain.Persistable;
-
-import static java.util.Objects.isNull;
 
 @Getter
 @Setter
 @SuperBuilder
 @Entity
-@Table(name= "member")
-public class Member extends BaseEntity  implements Persistable<Long> {
+@Table(name = "members")
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +36,7 @@ public class Member extends BaseEntity  implements Persistable<Long> {
 
     @Column(nullable = true)
     private String refreshToken;
-  
+
     protected Member() {
         super();
 
@@ -49,8 +48,4 @@ public class Member extends BaseEntity  implements Persistable<Long> {
         this.profileImageUrl = image;
     }
 
-    @Override
-    public boolean isNew() {
-        return isNull(createdAt);
-    }
 }

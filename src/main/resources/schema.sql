@@ -1,10 +1,13 @@
 
-
 CREATE TABLE if not exists `pickitalki`.members (
-    id VARCHAR(30) NOT NULL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    name VARCHAR(30) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    kakao_id BIGINT UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    nick_name VARCHAR(50) NOT NULL,
+    profile_image_url TEXT NULL,
+    refresh_token TEXT NULL,
+    created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE if not exists `pickitalki`.channels (
@@ -24,13 +27,13 @@ CREATE TABLE if not exists `pickitalki`.channel_members (
 
 CREATE TABLE if not exists `pickitalki`.questions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    channel_id BINARY(16) NOT NULL,
+    channel_uuid BINARY(16) NOT NULL,
     author_id VARCHAR(30) NOT NULL,
     content VARCHAR(255) NOT NULL,
     is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(30),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (channel_id) REFERENCES channels(uuid),
+    FOREIGN KEY (channel_uuid) REFERENCES channels(uuid),
     FOREIGN KEY (author_id) REFERENCES members(id)
 );
 
