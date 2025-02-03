@@ -52,7 +52,7 @@ public class KakaoAuthExchangeController {
 
     private void executeCookie(HttpServletResponse response, String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new ApiException(TokenErrorCode.TOKEN_EXCEPTION);
+            throw new ApiException(TokenErrorCode.TOKEN_EXCEPTION,"void executeCookie 55번째줄 에러");
         }
 
         Cookie cookie = cookieProvider.makeNewCookie("refreshToken", refreshToken);

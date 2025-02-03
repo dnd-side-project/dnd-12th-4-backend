@@ -53,9 +53,9 @@ public class JwtProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,e);
+            throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,"Claims validateToken에서 56줄 에러");
         } catch (JwtException e) {
-            throw new ApiException(TokenErrorCode.INVALID_TOKEN,e);
+            throw new ApiException(TokenErrorCode.INVALID_TOKEN,"Claims validateToken에서 58줄 에러");
         }
     }
 
@@ -70,7 +70,7 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return true;
         } catch (JwtException e) {
-            throw new ApiException(TokenErrorCode.INVALID_TOKEN,e);
+            throw new ApiException(TokenErrorCode.INVALID_TOKEN,"boolean isTokenExpired 73번째 에러 발생");
         }
     }
 
