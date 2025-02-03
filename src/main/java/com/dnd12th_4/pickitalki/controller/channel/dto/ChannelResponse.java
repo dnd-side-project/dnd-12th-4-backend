@@ -1,4 +1,6 @@
 package com.dnd12th_4.pickitalki.controller.channel.dto;
 
-public record ChannelResponse(String uuid) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ChannelResponse(@NotBlank String uuid) {
 }

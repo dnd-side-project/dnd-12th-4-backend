@@ -17,6 +17,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 
 import static java.util.Objects.hash;
@@ -50,11 +52,16 @@ public class ChannelMember extends BaseEntity {
     protected ChannelMember() {
     }
 
-    public ChannelMember(Channel channel, Member member, Role role) {
+    public ChannelMember(Channel channel, Member member, String memberCodeName, Role role) {
         validateChannel(channel);
         this.channel = channel;
         this.member = member;
+        this.memberCodeName = memberCodeName;
         this.role = role;
+    }
+
+    public ChannelMember(Channel channel, Member member, Role role) {
+        this(channel, member, null, role);
     }
 
     private void validateChannel(Channel channel) {
@@ -73,6 +80,12 @@ public class ChannelMember extends BaseEntity {
 
     public boolean isSameMember(Long memberId) {
         return Objects.equals(memberId, this.member.getId());
+    }
+
+    public String getInviteCode() {
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(this.channel.getUuid().toString().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override

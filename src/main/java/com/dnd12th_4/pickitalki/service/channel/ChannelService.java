@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
@@ -18,9 +19,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+
+import static io.micrometer.common.util.StringUtils.isBlank;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +44,8 @@ public class ChannelService {
 
         Channel channel = new Channel(channelName);
         channel.joinChannelMember(new ChannelMember(channel, member, Role.OWNER));
-
         channel = channelRepository.save(channel);
+
         return new ChannelResponse(channel.getUuid().toString());
     }
 
@@ -56,21 +61,31 @@ public class ChannelService {
     }
 
     @Transactional
-    public ChannelMember invited(Long memberId, UUID channelUuid) {
+    public ChannelJoinResponse joinMember(Long memberId, String inviteCode, String codeName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 53번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 채널에 참여할 수 없습니다."));
+
+        UUID channelUuid = getUuidFromInviteCode(inviteCode);
         Channel channel = channelRepository.findByUuid(channelUuid)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 55번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 초대코드에 맞는 채널을 찾을 수 없습니다."));
 
-        validatedDuplicate(channel, member);
+        ChannelMember channelMember;
+        if (isBlank(codeName)) {
+            channelMember = new ChannelMember(channel, member, member.getNickName(), Role.MEMBER);
+        } else {
+            channelMember = new ChannelMember(channel, member, codeName, Role.MEMBER);
+        }
 
-        ChannelMember channelMemberEntity = getChannelMember(Role.MEMBER);
+        channel.joinChannelMember(channelMember);
+        channelMember = channelMemberRepository.save(channelMember);
 
-//        channelMemberEntity.makeMember(member);
-//        channelMemberEntity.joinChannel(channel);
+        return new ChannelJoinResponse(channel.getId(), channelMember.getMemberCodeName());
+    }
 
-        return channelMemberRepository.save(channelMemberEntity);
-
+    private UUID getUuidFromInviteCode(String inviteCode) {
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(inviteCode);
+        String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+        return UUID.fromString(decodedString);
     }
 
     @Transactional
@@ -114,20 +129,12 @@ public class ChannelService {
                 .build();
     }
 
-    private void validatedDuplicate(Channel channel, Member member) {
 
-        channel.getChannelMembers().forEach(channelMember -> {
-            if (channelMember.getMember().getId().equals(member.getId())) {
-                throw new ApiException(ErrorCode.DUPLICATED_MEMBER, "validateDuplicate 71번째줄 에러 ");
-            }
-        });
+    public String findInviteCode(Long memberId, String channelName) {
+        Channel channel = channelRepository.findByName(channelName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다."));
+
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+        return channelMember.getInviteCode();
     }
-
-    private ChannelMember getChannelMember(Role role) {
-        return ChannelMember.builder()
-                .role(role)
-                .build();
-    }
-
-
 }
