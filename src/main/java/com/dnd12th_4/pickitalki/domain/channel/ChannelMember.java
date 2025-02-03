@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,11 +32,11 @@ public class ChannelMember extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_uuid", nullable = false)
     private Channel channel;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id" ,nullable = false)
     private Member member;
 
@@ -45,7 +46,6 @@ public class ChannelMember extends BaseEntity {
     @Column(columnDefinition = "varchar(50)", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
-
 
     protected ChannelMember() {
     }
@@ -69,6 +69,10 @@ public class ChannelMember extends BaseEntity {
 
     public void setMemberCodeName(String memberCodeName) {
         this.memberCodeName = memberCodeName;
+    }
+
+    public boolean isSameMember(Long memberId) {
+        return Objects.equals(memberId, this.member.getId());
     }
 
     @Override

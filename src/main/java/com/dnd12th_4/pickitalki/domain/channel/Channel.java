@@ -72,4 +72,12 @@ public class Channel extends BaseEntity implements Persistable<String> {
             throw new IllegalArgumentException("이미 해당 채널에 존재하는 회원입니다.");
         }
     }
+
+    public ChannelMember findChannelMemberById(Long memberId) {
+        return channelMembers.stream().filter(channelMember -> channelMember.isSameMember(memberId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 채널에 존재하지 않습니다."));
+
+    }
+
 }

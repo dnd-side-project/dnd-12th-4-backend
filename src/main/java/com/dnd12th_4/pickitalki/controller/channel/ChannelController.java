@@ -6,7 +6,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.domain.channel.Channel;
+import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,15 +43,15 @@ public class ChannelController {
                 .body(channelResponse);
     }
 
-    @PostMapping("/codename/{channelMemberId}")
-    public Api<ChannelResponse> codeName(
-            @PathVariable Long channelMemberId,
+    @PatchMapping("/{channelId}/code-name")
+    public Api<MemberCodeNameResponse> updateMemberCodeName(
+            @MemberId Long memberId,
+            @PathVariable String channelId,
             @RequestParam("codeName") @Valid String codeName
     ) {
-        Channel channel = channelService.updateCodeName(channelMemberId, codeName);
-        ChannelResponse channelResponse = new ChannelResponse(channel.getUuid().toString());
+        MemberCodeNameResponse memberCodeNameResponse = channelService.updateCodeName(memberId, channelId, codeName);
 
-        return Api.OK(channelResponse);
+        return Api.OK(memberCodeNameResponse);
     }
 
     @PostMapping("/invited/room")

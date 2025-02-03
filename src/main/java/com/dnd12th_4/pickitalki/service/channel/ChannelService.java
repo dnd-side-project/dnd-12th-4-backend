@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.service.channel;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
@@ -44,13 +45,14 @@ public class ChannelService {
     }
 
     @Transactional
-    public Channel updateCodeName(Long channelMemberId, String codeName) {
+    public MemberCodeNameResponse updateCodeName(Long memberId, String channelId, String codeName) {
+        Channel channel = channelRepository.findByUuid(UUID.fromString(channelId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다. 코드네임을 변경할 수 없습니다."));
 
-        ChannelMember channelMember = channelMemberRepository.findById(channelMemberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember updateCodeName 43번째 줄에서 에러 발생"));
-
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
         channelMember.setMemberCodeName(codeName);
-        return channelMember.getChannel();
+
+        return new MemberCodeNameResponse(codeName);
     }
 
     @Transactional
