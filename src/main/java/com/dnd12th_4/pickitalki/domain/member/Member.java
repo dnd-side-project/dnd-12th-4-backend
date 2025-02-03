@@ -63,15 +63,4 @@ public class Member extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
-//    public void makeChannelMember(ChannelMember channelMember){
-//        if(channelMembers==null){
-//            channelMembers = new ArrayList<>();
-//        }
-//
-//        if (channelMember != null && !channelMembers.contains(channelMember)) {
-//            channelMembers.add(channelMember);
-//            channelMember.makeMember(this);
-//        }
-//    }
-
 }

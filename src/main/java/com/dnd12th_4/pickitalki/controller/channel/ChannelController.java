@@ -74,29 +74,29 @@ public class ChannelController {
         return Api.OK(channelJoinResponse);
     }
 
-    @GetMapping("/invited/room/all")
-    public Api<List<ChannelShowAllResponse>> invitedRoomAll(
+    @GetMapping
+    public Api<List<ChannelShowAllResponse>> findAllInvitedChannels(
             @MemberId Long memberId
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.INVITEDALL);
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.INVITEDALL);
 
         return Api.OK(channelShowAllResponses);
     }
 
     @GetMapping("/make/room/all")
-    public Api<List<ChannelShowAllResponse>> makeRoomAll(
+    public Api<List<ChannelShowAllResponse>> findAllOwnChannels(
             @MemberId Long memberId
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.MADEALL);
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.MADEALL);
 
         return Api.OK(channelShowAllResponses);
     }
 
     @GetMapping("/room/all")
-    public Api<List<ChannelShowAllResponse>> roomAll(
+    public Api<List<ChannelShowAllResponse>> findAllJoinedChannels(
             @MemberId Long memberId
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.SHOWALL);
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.SHOWALL);
         return Api.OK(channelShowAllResponses);
     }
 }

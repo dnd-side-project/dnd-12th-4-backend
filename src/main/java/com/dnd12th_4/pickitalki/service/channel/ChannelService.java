@@ -89,12 +89,11 @@ public class ChannelService {
     }
 
     @Transactional
-    public List<ChannelShowAllResponse> myRooms(Long memberId, ChannelControllerEnums status) {
-
+    public List<ChannelShowAllResponse> findAllMyChannels(Long memberId, ChannelControllerEnums status) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 71번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        List<ChannelShowAllResponse> myRoomList = new ArrayList<>();
+        List<ChannelShowAllResponse> myChannels = new ArrayList<>();
 
         member.getChannelMembers().stream()
                 .filter(channelMember ->
@@ -103,10 +102,9 @@ public class ChannelService {
                                 (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
-                .forEach(myRoomList::add);
+                .forEach(myChannels::add);
 
-        return myRoomList;
-
+        return myChannels;
     }
 
     private ChannelShowAllResponse buildChannelShowAllResponse(ChannelMember channelMember) {
@@ -132,7 +130,7 @@ public class ChannelService {
 
     public String findInviteCode(Long memberId, String channelName) {
         Channel channel = channelRepository.findByName(channelName)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 초대코드를 응답할 수 없습니다."));
 
         ChannelMember channelMember = channel.findChannelMemberById(memberId);
         return channelMember.getInviteCode();
