@@ -2,8 +2,10 @@ package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.converter.UUIDConverter;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
@@ -12,7 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -49,11 +52,39 @@ public class ChannelController {
             @RequestParam("channelUuid") @Valid String channelUuid
     ) {
 
-
-
-        ChannelMember channelMember=channelService.invited(memberId, UUIDConverter.toUUID(channelUuid));
+        ChannelMember channelMember = channelService.invited(memberId, UUIDConverter.toUUID(channelUuid));
         ChannelMemberResponse channelMemberResponse = new ChannelMemberResponse(channelMember.getId());
 
         return Api.OK(channelMemberResponse);
     }
+
+    @GetMapping("/invited/room/all")
+    public Api<List<ChannelShowAllResponse>> invitedRoomAll(
+            @MemberId Long memberId
+    ) {
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.INVITEDALL);
+
+        return Api.OK(channelShowAllResponses);
+    }
+
+    @GetMapping("/make/room/all")
+    public Api<List<ChannelShowAllResponse>> makeRoomAll(
+            @MemberId Long memberId
+    ) {
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.MADEALL);
+
+        return Api.OK(channelShowAllResponses);
+    }
+
+    @GetMapping("/room/all")
+    public Api<List<ChannelShowAllResponse>> roomAll(
+            @MemberId Long memberId
+    ) {
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.SHOWALL);
+        return Api.OK(channelShowAllResponses);
+    }
 }
+
+
+
+

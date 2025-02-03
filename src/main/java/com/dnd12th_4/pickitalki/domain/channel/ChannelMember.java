@@ -19,11 +19,11 @@ public class ChannelMember extends BaseEntity {
     private Long id;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "channel_uuid", nullable = false)
     private Channel channel;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "member_id" ,nullable = false)
     private Member member;
 
     @Column(nullable=true)
