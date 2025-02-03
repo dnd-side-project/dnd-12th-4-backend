@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-
+    private final JwtInterceptor jwtInterceptor;
     private final MemberIdResolver memberIdResolver;
 
     //CORS 호완 문제때문에 swagger-ui가 원하는 대로 동작은 안할 수 있다고 해서 일단은 넣었습니다.
@@ -34,10 +34,16 @@ public class WebConfig implements WebMvcConfigurer {
         };
     }
 
-   
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/auth/**","/public/**","/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/hello/**");
+    }
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+
         resolvers.add(memberIdResolver);
     }
 }
