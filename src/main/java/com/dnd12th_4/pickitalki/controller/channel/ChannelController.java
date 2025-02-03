@@ -12,7 +12,14 @@ import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -24,15 +31,15 @@ public class ChannelController {
 
     private final ChannelService channelService;
 
-    @PostMapping("/make/room")
-    public Api<ChannelMemberResponse> makeRoom(
+    @PostMapping
+    public ResponseEntity<ChannelResponse> makeRoom(
             @MemberId Long memberId,
             @RequestParam("channelName") @Valid String channelName
     ) {
-        ChannelMember channelMember = channelService.save(memberId, channelName);
-        ChannelMemberResponse channelMemberResponse = new ChannelMemberResponse(channelMember.getId());
+        ChannelResponse channelResponse = channelService.save(memberId, channelName);
 
-        return Api.OK(channelMemberResponse);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(channelResponse);
     }
 
     @PostMapping("/codename/{channelMemberId}")
@@ -41,7 +48,7 @@ public class ChannelController {
             @RequestParam("codeName") @Valid String codeName
     ) {
         Channel channel = channelService.updateCodeName(channelMemberId, codeName);
-        ChannelResponse channelResponse = new ChannelResponse(channel.getUuid());
+        ChannelResponse channelResponse = new ChannelResponse(channel.getUuid().toString());
 
         return Api.OK(channelResponse);
     }

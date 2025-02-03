@@ -2,7 +2,12 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.question.Question;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.domain.Persistable;
@@ -26,7 +31,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @OneToMany(mappedBy = "channel")
+    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "channel")
@@ -34,14 +39,13 @@ public class Channel extends BaseEntity implements Persistable<String> {
 
     protected Channel() {}
 
-    public Channel(String name) {
-        this.uuid = UUID.randomUUID();
-        this.name = name;
-    }
-
     public Channel(UUID uuid, String name) {
         this.uuid = uuid;
         this.name = name;
+    }
+
+    public Channel(String name) {
+        this(UUID.randomUUID(), name);
     }
 
     @Override
@@ -54,14 +58,18 @@ public class Channel extends BaseEntity implements Persistable<String> {
         return uuid.toString();
     }
 
-    public void makeChannelMember(ChannelMember channelMember){
-        if(channelMembers==null){
-            channelMembers = new ArrayList<>();
+    public void joinChannelMember(ChannelMember channelMember){
+        validateChannelMember(channelMember);
+        channelMembers.add(channelMember);
+    }
+
+    private void validateChannelMember(ChannelMember channelMember) {
+        if (isNull(channelMember)) {
+            throw new IllegalArgumentException("채널의 회원이 존재하지 않습니다.");
         }
 
-        if(channelMember!=null && !channelMembers.contains(channelMember)){
-            channelMembers.add(channelMember);
-            channelMember.makeChannel(this);
+        if (channelMembers.contains(channelMember)) {
+            throw new IllegalArgumentException("이미 해당 채널에 존재하는 회원입니다.");
         }
     }
 }

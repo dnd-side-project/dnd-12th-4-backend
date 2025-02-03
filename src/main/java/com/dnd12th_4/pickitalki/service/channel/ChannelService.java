@@ -1,8 +1,13 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.domain.channel.*;
+import com.dnd12th_4.pickitalki.domain.channel.Channel;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
+import com.dnd12th_4.pickitalki.domain.channel.Role;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
@@ -14,9 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +32,15 @@ public class ChannelService {
 
 
     @Transactional
-    public ChannelMember save(Long memberId, String channelName) {
+    public ChannelResponse save(Long memberId, String channelName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "Channel save 24번쭐 에러발생"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다."));
 
         Channel channel = new Channel(channelName);
+        channel.joinChannelMember(new ChannelMember(channel, member, Role.OWNER));
 
-        ChannelMember ChannelMemberEntity = getChannelMember(Role.OWNER);
-
-        ChannelMemberEntity.makeChannel(channel);
-        ChannelMemberEntity.makeMember(member);
-
-        return channelMemberRepository.save(ChannelMemberEntity);
-
+        channel = channelRepository.save(channel);
+        return new ChannelResponse(channel.getUuid().toString());
     }
 
     @Transactional
@@ -65,8 +64,8 @@ public class ChannelService {
 
         ChannelMember channelMemberEntity = getChannelMember(Role.MEMBER);
 
-        channelMemberEntity.makeMember(member);
-        channelMemberEntity.makeChannel(channel);
+//        channelMemberEntity.makeMember(member);
+//        channelMemberEntity.joinChannel(channel);
 
         return channelMemberRepository.save(channelMemberEntity);
 

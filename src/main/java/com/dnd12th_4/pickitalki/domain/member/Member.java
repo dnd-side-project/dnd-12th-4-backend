@@ -2,11 +2,16 @@ package com.dnd12th_4.pickitalki.domain.member;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.apache.logging.log4j.util.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,15 +63,15 @@ public class Member extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
-    public void makeChannelMember(ChannelMember channelMember){
-        if(channelMembers==null){
-            channelMembers = new ArrayList<>();
-        }
-
-        if (channelMember != null && !channelMembers.contains(channelMember)) {
-            channelMembers.add(channelMember);
-            channelMember.makeMember(this);
-        }
-    }
+//    public void makeChannelMember(ChannelMember channelMember){
+//        if(channelMembers==null){
+//            channelMembers = new ArrayList<>();
+//        }
+//
+//        if (channelMember != null && !channelMembers.contains(channelMember)) {
+//            channelMembers.add(channelMember);
+//            channelMember.makeMember(this);
+//        }
+//    }
 
 }
