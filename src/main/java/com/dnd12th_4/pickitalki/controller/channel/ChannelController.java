@@ -35,9 +35,10 @@ public class ChannelController {
     @PostMapping
     public ResponseEntity<ChannelResponse> makeChannel(
             @MemberId Long memberId,
-            @RequestParam("channelName") @Valid String channelName
+            @RequestParam("channelName") @Valid String channelName,
+            @RequestParam(value = "codeName", required = false) String codeName
     ) {
-        ChannelResponse channelResponse = channelService.save(memberId, channelName);
+        ChannelResponse channelResponse = channelService.save(memberId, channelName, codeName);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(channelResponse);

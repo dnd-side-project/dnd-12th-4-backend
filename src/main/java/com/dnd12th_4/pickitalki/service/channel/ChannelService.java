@@ -38,12 +38,18 @@ public class ChannelService {
 
 
     @Transactional
-    public ChannelResponse save(Long memberId, String channelName) {
+    public ChannelResponse save(Long memberId, String channelName, String codeName) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다."));
 
         Channel channel = new Channel(channelName);
-        ChannelMember channelMember = new ChannelMember(channel, member, Role.OWNER);
+        ChannelMember channelMember;
+        if (isBlank(codeName)) {
+            channelMember = new ChannelMember(channel, member, member.getNickName(), Role.OWNER);
+        } else {
+            channelMember = new ChannelMember(channel, member, codeName, Role.OWNER);
+        }
+
         channel.joinChannelMember(channelMember);
         channel = channelRepository.save(channel);
 
