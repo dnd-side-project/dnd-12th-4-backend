@@ -46,7 +46,7 @@ public class ChannelController {
     @PatchMapping("/{channelId}/codeName")
     public Api<MemberCodeNameResponse> updateMemberCodeName(
             @MemberId Long memberId,
-            @PathVariable String channelId,
+            @PathVariable("channelId") String channelId,
             @RequestParam("codeName") @Valid String codeName
     ) {
         MemberCodeNameResponse memberCodeNameResponse = channelService.updateCodeName(memberId, channelId, codeName);
