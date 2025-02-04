@@ -2,6 +2,8 @@ package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoConfig;
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
+import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.tool.HttpCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +24,9 @@ public class KakaoUserService {
 
     public KakaoUserDto getUserInfo(String accessToken) {
 
-        ResponseEntity<Map> response = httpCreator.getResponseUserInfo(accessToken);
+        ResponseEntity<Map> response = Optional.ofNullable(accessToken)
+                .map(httpCreator::getResponseUserInfo)
+                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "accessToken이 없습니다. 등록해주세요"));
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) response.getBody().get("kakao_account");
         Map<String,Object> profile = (Map<String,Object>)kakaoAccount.get("profile");

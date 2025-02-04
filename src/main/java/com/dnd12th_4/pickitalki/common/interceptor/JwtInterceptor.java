@@ -17,10 +17,12 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         String token = resolveToken(request);
 
         if (token != null) {
             try {
+
                 jwtProvider.validateToken(token);
 
             } catch (Exception e) {
