@@ -142,4 +142,25 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId);
         return channelMember.getInviteCode();
     }
+
+    public ChannelShowAllResponse findChannelByChannelName(Long memberId, String channelName) {
+        Channel channel = channelRepository.findByName(channelName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+
+        String ownerName = channel.getChannelMembers().stream()
+                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .findAny()
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 채널의 주인을 찾을 수 없습니다."))
+                .getMemberCodeName();
+
+        long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
+
+        return ChannelShowAllResponse.builder()
+                .channelOwnerName(ownerName)
+                .channelRoomName(channel.getName())
+                .countPerson((long) channel.getChannelMembers().size())
+                .singalCount(signalCount)
+                .build();
+    }
 }

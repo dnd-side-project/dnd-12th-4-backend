@@ -76,6 +76,15 @@ public class ChannelController {
     }
 
     @GetMapping
+    public Api<ChannelShowAllResponse> findChannel(
+            @MemberId Long memberId,
+            @RequestParam(value = "channelName") String channelName
+    ) {
+        ChannelShowAllResponse channelShowAllResponses = channelService.findChannelByChannelName(memberId, channelName);
+        return Api.OK(channelShowAllResponses);
+    }
+
+    @GetMapping("/all")
     public Api<List<ChannelShowAllResponse>> findAllChannels(
             @MemberId Long memberId
     ) {

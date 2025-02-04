@@ -2,9 +2,9 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.question.Question;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
 import static java.util.Objects.isNull;
 
 @Getter
@@ -31,10 +33,10 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE}, fetch = FetchType.LAZY)
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "channel")
+    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 
     protected Channel() {}
@@ -77,7 +79,6 @@ public class Channel extends BaseEntity implements Persistable<String> {
         return channelMembers.stream().filter(channelMember -> channelMember.isSameMember(memberId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 채널에 존재하지 않습니다."));
-
     }
 
 }
