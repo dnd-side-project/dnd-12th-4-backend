@@ -43,10 +43,11 @@ public class ChannelService {
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다."));
 
         Channel channel = new Channel(channelName);
-        channel.joinChannelMember(new ChannelMember(channel, member, Role.OWNER));
+        ChannelMember channelMember = new ChannelMember(channel, member, Role.OWNER);
+        channel.joinChannelMember(channelMember);
         channel = channelRepository.save(channel);
 
-        return new ChannelResponse(channel.getUuid().toString());
+        return new ChannelResponse(channel.getUuid().toString(), channelName, channelMember.getInviteCode());
     }
 
     @Transactional
@@ -79,7 +80,7 @@ public class ChannelService {
         channel.joinChannelMember(channelMember);
         channelMember = channelMemberRepository.save(channelMember);
 
-        return new ChannelJoinResponse(channel.getId(), channelMember.getMemberCodeName());
+        return new ChannelJoinResponse(channel.getId(), channel.getName(),channelMember.getMemberCodeName());
     }
 
     private UUID getUuidFromInviteCode(String inviteCode) {

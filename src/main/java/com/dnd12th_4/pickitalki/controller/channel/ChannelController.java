@@ -43,7 +43,7 @@ public class ChannelController {
                 .body(channelResponse);
     }
 
-    @PatchMapping("/{channelId}/code-name")
+    @PatchMapping("/{channelId}/codeName")
     public Api<MemberCodeNameResponse> updateMemberCodeName(
             @MemberId Long memberId,
             @PathVariable String channelId,
@@ -74,7 +74,7 @@ public class ChannelController {
         return Api.OK(channelJoinResponse);
     }
 
-    @GetMapping
+    @GetMapping("/invited")
     public Api<List<ChannelShowAllResponse>> findAllInvitedChannels(
             @MemberId Long memberId
     ) {
@@ -92,8 +92,8 @@ public class ChannelController {
         return Api.OK(channelShowAllResponses);
     }
 
-    @GetMapping("/room/all")
-    public Api<List<ChannelShowAllResponse>> findAllJoinedChannels(
+    @GetMapping
+    public Api<List<ChannelShowAllResponse>> findAllChannels(
             @MemberId Long memberId
     ) {
         List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.SHOWALL);
