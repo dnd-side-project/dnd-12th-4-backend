@@ -23,6 +23,7 @@ public class MemberController {
             @MemberId Long memberId,
             @RequestParam("name") @NotBlank String name
     ) {
+
         Member member = memberService.updateName(memberId, name);
 
         return Api.OK(member.getNickName());
