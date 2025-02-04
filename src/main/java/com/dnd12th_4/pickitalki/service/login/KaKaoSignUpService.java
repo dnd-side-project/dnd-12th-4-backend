@@ -19,10 +19,11 @@ public class KaKaoSignUpService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Member registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto) {
+    public Member registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto, boolean isNewMember) {
         Optional<Member> existingUser = memberRepository.findByKakaoId(Long.valueOf(kakaoUserDto.getId()));
 
-        if(existingUser.isPresent()){
+        if (existingUser.isPresent()) {
+            isNewMember = false;
             return existingUser.get();
         }
 
@@ -32,19 +33,19 @@ public class KaKaoSignUpService {
                 .nickName(kakaoUserDto.getNickname())
                 .profileImageUrl(kakaoUserDto.getProfileImageUrl())
                 .build();
-
+        isNewMember = true;
         return memberRepository.save(newUser);
     }
 
-    public Member saveUserEntity(Member member){
+    public Member saveUserEntity(Member member) {
         return Optional.ofNullable(member)
                 .map(memberRepository::save)
-                .orElseThrow(()-> new ApiException(MemberErrorCode.INVALID_ARGUMENT,"Member saveUserEntity 42번째줄 에러"));
+                .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "Member saveUserEntity 42번째줄 에러"));
 
     }
 
-    public Member findUser(String token){
-        return memberRepository.findByRefreshToken(token)
-                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN,"Member findUser 48번째줄 에러"));
+    public Member findUser(String token) {
+        return memberRepository.findByRefreshToken("eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3Mzg0ODAyNjEsImV4cCI6MTczOTA4NTA2MX0.W65WvTqpWgL84NkbfQHov8wYorRki0ttQ--32vMbu_Q")
+                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "Member findUser 48번째줄 에러"));
     }
 }
