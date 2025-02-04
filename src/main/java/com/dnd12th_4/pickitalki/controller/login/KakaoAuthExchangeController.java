@@ -10,13 +10,10 @@ import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import com.dnd12th_4.pickitalki.service.login.KakaoUserService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,11 +28,15 @@ public class KakaoAuthExchangeController {
 
     @GetMapping("/kakao/exchange")
     public Api<UserResponse> kakaoCallback(
+            @Parameter(hidden = true)
             @RequestHeader(value = "Authorization", required = false) String accessToken,
             HttpServletResponse response) {
 
         KakaoUserDto kakaoUser = kakaoUserService.getUserInfo(accessToken);
-        Member memberEntity = kaKaoSignUpService.registerOrLoginKakaoUser(kakaoUser);
+
+        boolean isNewMember= false;
+
+        Member memberEntity = kaKaoSignUpService.registerOrLoginKakaoUser(kakaoUser, isNewMember);
 
         String refreshToken = memberEntity.getRefreshToken() != null ?
                 memberEntity.getRefreshToken() : jwtProvider.createRefreshToken();
@@ -44,8 +45,8 @@ public class KakaoAuthExchangeController {
 
         executeCookie(response, refreshToken);
 
-        String newAccessToken = jwtProvider.createAccessToken(memberEntity.getId());
-        UserResponse userResponse = toUserResponse(member, newAccessToken);
+        String newAccessToken = jwtProvider.createAccessToken(member.getId());
+        UserResponse userResponse = toUserResponse( newAccessToken,isNewMember);
 
         return Api.OK(userResponse);
     }
@@ -59,8 +60,9 @@ public class KakaoAuthExchangeController {
         response.addCookie(cookie);
     }
 
-    private UserResponse toUserResponse(Member user, String newAccessToken) {
+    private UserResponse toUserResponse(String newAccessToken,boolean isNewMember) {
         UserResponse userResponse = UserResponse.builder()
+                .isNewMember(isNewMember)
                 .token(newAccessToken)
                 .build();
         return userResponse;

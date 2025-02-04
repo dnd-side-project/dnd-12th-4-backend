@@ -23,12 +23,12 @@ public class SwaggerConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT"))
                         // 🔹 Refresh Token 쿠키 인증 설정
-                        .addSecuritySchemes("CookieAuth",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.APIKEY)  // 쿠키 기반 인증
-                                        .in(SecurityScheme.In.COOKIE)      // 쿠키에서 읽음
-                                        .name("refreshToken")              // 쿠키 이름
-                        ))
+//                        .addSecuritySchemes("CookieAuth",
+//                                new SecurityScheme()
+//                                        .type(SecurityScheme.Type.APIKEY)  // 쿠키 기반 인증
+//                                        .in(SecurityScheme.In.COOKIE)      // 쿠키에서 읽음
+//                                        .name("refreshToken")              // 쿠키 이름
+                        )
                 .addSecurityItem(new SecurityRequirement()
                         .addList("Bearer Authentication")  // Bearer 인증 적용
                         .addList("CookieAuth"));           // RefreshToken 인증 적용
