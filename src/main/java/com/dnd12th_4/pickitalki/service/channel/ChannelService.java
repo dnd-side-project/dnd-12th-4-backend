@@ -4,6 +4,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -143,7 +144,7 @@ public class ChannelService {
         return channelMember.getInviteCode();
     }
 
-    public ChannelShowAllResponse findChannelByChannelName(Long memberId, String channelName) {
+    public ChannelSpecificResponse findChannelByChannelName(Long memberId, String channelName) {
         Channel channel = channelRepository.findByName(channelName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId);
@@ -156,7 +157,7 @@ public class ChannelService {
 
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
 
-        return ChannelShowAllResponse.builder()
+        return ChannelSpecificResponse.builder()
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
