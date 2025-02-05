@@ -1,8 +1,15 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.domain.channel.*;
+import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.domain.channel.Channel;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
+import com.dnd12th_4.pickitalki.domain.channel.Role;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
@@ -12,11 +19,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static io.micrometer.common.util.StringUtils.isBlank;
 
 @Service
 @RequiredArgsConstructor
@@ -29,56 +38,69 @@ public class ChannelService {
 
 
     @Transactional
-    public ChannelMember save(Long memberId, String channelName) {
+    public ChannelResponse save(Long memberId, String channelName, String codeName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "Channel save 24번쭐 에러발생"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다."));
 
         Channel channel = new Channel(channelName);
+        ChannelMember channelMember;
+        if (isBlank(codeName)) {
+            channelMember = new ChannelMember(channel, member, member.getNickName(), Role.OWNER);
+        } else {
+            channelMember = new ChannelMember(channel, member, codeName, Role.OWNER);
+        }
 
-        ChannelMember ChannelMemberEntity = getChannelMember(Role.OWNER);
+        channel.joinChannelMember(channelMember);
+        channel = channelRepository.save(channel);
 
-        ChannelMemberEntity.makeChannel(channel);
-        ChannelMemberEntity.makeMember(member);
-
-        return channelMemberRepository.save(ChannelMemberEntity);
-
+        return new ChannelResponse(channel.getUuid().toString(), channelName, channelMember.getInviteCode());
     }
 
     @Transactional
-    public Channel updateCodeName(Long channelMemberId, String codeName) {
+    public MemberCodeNameResponse updateCodeName(Long memberId, String channelId, String codeName) {
+        Channel channel = channelRepository.findByUuid(UUID.fromString(channelId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다. 코드네임을 변경할 수 없습니다."));
 
-        ChannelMember channelMember = channelMemberRepository.findById(channelMemberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember updateCodeName 43번째 줄에서 에러 발생"));
-
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
         channelMember.setMemberCodeName(codeName);
-        return channelMember.getChannel();
+
+        return new MemberCodeNameResponse(codeName);
     }
 
     @Transactional
-    public ChannelMember invited(Long memberId, UUID channelUuid) {
+    public ChannelJoinResponse joinMember(Long memberId, String inviteCode, String codeName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 53번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 채널에 참여할 수 없습니다."));
+
+        UUID channelUuid = getUuidFromInviteCode(inviteCode);
         Channel channel = channelRepository.findByUuid(channelUuid)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 55번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 초대코드에 맞는 채널을 찾을 수 없습니다."));
 
-        validatedDuplicate(channel, member);
+        ChannelMember channelMember;
+        if (isBlank(codeName)) {
+            channelMember = new ChannelMember(channel, member, member.getNickName(), Role.MEMBER);
+        } else {
+            channelMember = new ChannelMember(channel, member, codeName, Role.MEMBER);
+        }
 
-        ChannelMember channelMemberEntity = getChannelMember(Role.MEMBER);
+        channel.joinChannelMember(channelMember);
+        channelMember = channelMemberRepository.save(channelMember);
 
-        channelMemberEntity.makeMember(member);
-        channelMemberEntity.makeChannel(channel);
+        return new ChannelJoinResponse(channel.getId(), channel.getName(),channelMember.getMemberCodeName());
+    }
 
-        return channelMemberRepository.save(channelMemberEntity);
-
+    private UUID getUuidFromInviteCode(String inviteCode) {
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(inviteCode);
+        String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+        return UUID.fromString(decodedString);
     }
 
     @Transactional
-    public List<ChannelShowAllResponse> myRooms(Long memberId, ChannelControllerEnums status) {
-
+    public List<ChannelShowAllResponse> findAllMyChannels(Long memberId, ChannelControllerEnums status) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "ChannelMember invided 71번째줄 에러"));
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        List<ChannelShowAllResponse> myRoomList = new ArrayList<>();
+        List<ChannelShowAllResponse> myChannels = new ArrayList<>();
 
         member.getChannelMembers().stream()
                 .filter(channelMember ->
@@ -87,10 +109,9 @@ public class ChannelService {
                                 (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
-                .forEach(myRoomList::add);
+                .forEach(myChannels::add);
 
-        return myRoomList;
-
+        return myChannels;
     }
 
     private ChannelShowAllResponse buildChannelShowAllResponse(ChannelMember channelMember) {
@@ -113,20 +134,33 @@ public class ChannelService {
                 .build();
     }
 
-    private void validatedDuplicate(Channel channel, Member member) {
 
-        channel.getChannelMembers().forEach(channelMember -> {
-            if (channelMember.getMember().getId().equals(member.getId())) {
-                throw new ApiException(ErrorCode.DUPLICATED_MEMBER, "validateDuplicate 71번째줄 에러 ");
-            }
-        });
+    public String findInviteCode(Long memberId, String channelName) {
+        Channel channel = channelRepository.findByName(channelName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 초대코드를 응답할 수 없습니다."));
+
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+        return channelMember.getInviteCode();
     }
 
-    private ChannelMember getChannelMember(Role role) {
-        return ChannelMember.builder()
-                .role(role)
+    public ChannelShowAllResponse findChannelByChannelName(Long memberId, String channelName) {
+        Channel channel = channelRepository.findByName(channelName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+
+        String ownerName = channel.getChannelMembers().stream()
+                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .findAny()
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 채널의 주인을 찾을 수 없습니다."))
+                .getMemberCodeName();
+
+        long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
+
+        return ChannelShowAllResponse.builder()
+                .channelOwnerName(ownerName)
+                .channelRoomName(channel.getName())
+                .countPerson((long) channel.getChannelMembers().size())
+                .singalCount(signalCount)
                 .build();
     }
-
-
 }

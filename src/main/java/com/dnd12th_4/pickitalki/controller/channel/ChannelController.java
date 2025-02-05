@@ -1,19 +1,27 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
-import com.dnd12th_4.pickitalki.common.converter.UUIDConverter;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.domain.channel.Channel;
-import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -25,63 +33,81 @@ public class ChannelController {
 
     private final ChannelService channelService;
 
-    @PostMapping("/make/room")
-    public Api<ChannelMemberResponse> makeRoom(
+    @PostMapping
+    public ResponseEntity<ChannelResponse> makeChannel(
+            @MemberId Long memberId,
+            @RequestParam("channelName") @Valid String channelName,
+            @RequestParam(value = "codeName", required = false) String codeName
+    ) {
+        ChannelResponse channelResponse = channelService.save(memberId, channelName, codeName);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(channelResponse);
+    }
+
+    @PatchMapping("/{channelId}/codeName")
+    public Api<MemberCodeNameResponse> updateMemberCodeName(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId,
+            @RequestParam("codeName") @Valid String codeName
+    ) {
+        MemberCodeNameResponse memberCodeNameResponse = channelService.updateCodeName(memberId, channelId, codeName);
+
+        return Api.OK(memberCodeNameResponse);
+    }
+
+    @GetMapping("/inviteCode")
+    public ResponseEntity<InviteCodeDto> getChannelInviteCode(
             @MemberId Long memberId,
             @RequestParam("channelName") @Valid String channelName
     ) {
-        ChannelMember channelMember = channelService.save(memberId, channelName);
-        ChannelMemberResponse channelMemberResponse = new ChannelMemberResponse(channelMember.getId());
-
-        return Api.OK(channelMemberResponse);
+        String inviteCode = channelService.findInviteCode(memberId, channelName);
+        return ResponseEntity.ok(new InviteCodeDto(inviteCode));
     }
 
-    @PostMapping("/codename/{channelMemberId}")
-    public Api<ChannelResponse> codeName(
-            @PathVariable Long channelMemberId,
-            @RequestParam("codeName") @Valid String codeName
-    ) {
-        Channel channel = channelService.updateCodeName(channelMemberId, codeName);
-        ChannelResponse channelResponse = new ChannelResponse(channel.getUuid());
-
-        return Api.OK(channelResponse);
-    }
-
-    @PostMapping("/invited/room")
-    public Api<ChannelMemberResponse> invitedRoom(
+    @PostMapping("/join")
+    public Api<ChannelJoinResponse> joinMemberToChannel(
             @MemberId Long memberId,
-            @RequestParam("channelUuid") @Valid String channelUuid
+            @RequestBody InviteCodeDto joinRequest,
+            @RequestParam(value = "codeName", required = false) String codeName
     ) {
+        ChannelJoinResponse channelJoinResponse = channelService.joinMember(memberId, joinRequest.inviteCode(), codeName);
 
-        ChannelMember channelMember = channelService.invited(memberId, UUIDConverter.toUUID(channelUuid));
-        ChannelMemberResponse channelMemberResponse = new ChannelMemberResponse(channelMember.getId());
-
-        return Api.OK(channelMemberResponse);
+        return Api.OK(channelJoinResponse);
     }
 
-    @GetMapping("/invited/room/all")
-    public Api<List<ChannelShowAllResponse>> invitedRoomAll(
+    @GetMapping
+    public Api<ChannelShowAllResponse> findChannel(
+            @MemberId Long memberId,
+            @RequestParam(value = "channelName") String channelName
+    ) {
+        ChannelShowAllResponse channelShowAllResponses = channelService.findChannelByChannelName(memberId, channelName);
+        return Api.OK(channelShowAllResponses);
+    }
+
+    @GetMapping("/all")
+    public Api<List<ChannelShowAllResponse>> findAllChannels(
             @MemberId Long memberId
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.INVITEDALL);
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.SHOWALL);
+        return Api.OK(channelShowAllResponses);
+    }
+
+    @GetMapping("/own")
+    public Api<List<ChannelShowAllResponse>> findAllOwnChannels(
+            @MemberId Long memberId
+    ) {
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.MADEALL);
 
         return Api.OK(channelShowAllResponses);
     }
 
-    @GetMapping("/make/room/all")
-    public Api<List<ChannelShowAllResponse>> makeRoomAll(
+    @GetMapping("/invited")
+    public Api<List<ChannelShowAllResponse>> findAllInvitedChannels(
             @MemberId Long memberId
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.MADEALL);
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.INVITEDALL);
 
-        return Api.OK(channelShowAllResponses);
-    }
-
-    @GetMapping("/room/all")
-    public Api<List<ChannelShowAllResponse>> roomAll(
-            @MemberId Long memberId
-    ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.myRooms(memberId, ChannelControllerEnums.SHOWALL);
         return Api.OK(channelShowAllResponses);
     }
 }

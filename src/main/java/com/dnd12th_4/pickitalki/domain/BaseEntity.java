@@ -27,7 +27,7 @@ public abstract class BaseEntity {
     @Column(name = "updated_at")
     protected LocalDateTime updatedAt;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_deleted")
     protected boolean isDeleted = false;
 
     public void softDelete() {

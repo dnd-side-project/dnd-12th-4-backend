@@ -1,5 +1,5 @@
 
-CREATE TABLE if not exists `pickitalki`.members (
+create TABLE if not exists `pickitalki`.members (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     kakao_id BIGINT UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE,
@@ -7,25 +7,27 @@ CREATE TABLE if not exists `pickitalki`.members (
     profile_image_url TEXT NULL,
     refresh_token TEXT NULL,
     created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0
 );
 
-CREATE TABLE if not exists `pickitalki`.channels (
+create TABLE if not exists `pickitalki`.channels (
     uuid BINARY(16) PRIMARY KEY,
     name VARCHAR(30) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0
 );
-
-CREATE TABLE if not exists `pickitalki`.channel_members (
+create TABLE if not exists `pickitalki`.channel_members (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid BINARY(16) NOT NULL,
     member_id VARCHAR(30) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
     FOREIGN KEY (channel_uuid) REFERENCES channels(uuid),
     FOREIGN KEY (member_id) REFERENCES members(id)
 );
 
-CREATE TABLE if not exists `pickitalki`.questions (
+create TABLE if not exists `pickitalki`.questions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid BINARY(16) NOT NULL,
     author_id VARCHAR(30) NOT NULL,
@@ -33,11 +35,12 @@ CREATE TABLE if not exists `pickitalki`.questions (
     is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(30),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
     FOREIGN KEY (channel_uuid) REFERENCES channels(uuid),
     FOREIGN KEY (author_id) REFERENCES members(id)
 );
 
-CREATE TABLE if not exists `pickitalki`.answers (
+create TABLE if not exists `pickitalki`.answers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     question_id BIGINT NOT NULL,
     member_id BIGINT NOT NULL,
@@ -45,6 +48,7 @@ CREATE TABLE if not exists `pickitalki`.answers (
     is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(10),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
     FOREIGN KEY (question_id) REFERENCES questions(id),
     FOREIGN KEY (member_id) REFERENCES members(id)
 );
