@@ -39,10 +39,12 @@ public class Question extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "channel_member_id", nullable = false)
     private ChannelMember author;
-    //작성자 코드네임을 생각하면 있는게 좋은데, 채널의 연관관계 정합성을 맞춰야 되어서 고민.. 차라리 채널 연관관계를 없앨까
 
     @Column(nullable = false, length = 100)
     private String content;
+
+    @Column(name = "question_number", nullable = false)
+    private long questionNumber;
 
     @Column(nullable = false)
     private boolean isAnonymous;
@@ -56,7 +58,7 @@ public class Question extends BaseEntity {
     protected Question() {
     }
 
-    public Question(Long id, Channel channel, ChannelMember author, String content, boolean isAnonymous, String authorName) {
+    public Question(Long id, Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String authorName) {
         if (!author.getChannel().equals(channel)) {
             throw new IllegalArgumentException("작성자는 해당 채널의 멤버여야 합니다.");
         }
@@ -64,6 +66,7 @@ public class Question extends BaseEntity {
         this.channel = channel;
         this.author = author;
         this.content = content;
+        this.questionNumber = questionNumber;
         this.isAnonymous = isAnonymous;
         this.authorName = isAnonymous ? authorName : null;
         validateAuthorName(isAnonymous, authorName);
@@ -79,8 +82,8 @@ public class Question extends BaseEntity {
         }
     }
 
-    public Question(Channel channel, ChannelMember author, String content,boolean isAnonymous, String anonymousName) {
-        this(null, channel, author, content, isAnonymous, anonymousName);
+    public Question(Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
+        this(null, channel, author, content, questionNumber, isAnonymous, anonymousName);
     }
 
     @PrePersist
@@ -88,7 +91,7 @@ public class Question extends BaseEntity {
         if (createdAt != null) {
             this.createdDate = createdAt.toLocalDate();
         } else {
-            this.createdDate = LocalDate.now(); // 기본값 설정
+            this.createdDate = LocalDate.now();
         }
     }
 }

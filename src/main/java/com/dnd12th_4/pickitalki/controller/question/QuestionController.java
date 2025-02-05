@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/channels/{channelId}/questions")
@@ -35,8 +37,8 @@ public class QuestionController {
                 );
     }
 
-    @GetMapping("/today-question")
-    public ResponseEntity<TodayQuestionResponse> findTodayQuestion(
+    @GetMapping("/today")
+    public ResponseEntity<TodayQuestionResponse> findTodayQuestionByChannel(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
@@ -46,5 +48,15 @@ public class QuestionController {
                 .body(todayQuestionResponse);
     }
 
+    @GetMapping("all")
+    public ResponseEntity<List<QuestionResponse>> findQuestionsByChannel(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        List<QuestionResponse> questionResponses = questionService.findByChannelId(memberId, channelId);
+
+        return ResponseEntity.ok()
+                .body(questionResponses);
+    }
 
 }

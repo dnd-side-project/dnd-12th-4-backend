@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.service.question;
 
+import com.dnd12th_4.pickitalki.controller.question.QuestionResponse;
 import com.dnd12th_4.pickitalki.controller.question.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -34,9 +36,10 @@ public class QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
 
         ChannelMember channelMember = channel.findChannelMemberById(memberId);
+        long questionCount = questionRepository.countByChannelUuid(channelUuid);
 
         Question question = questionRepository.save(
-                new Question(channel, channelMember, content, isAnonymous,
+                new Question(channel, channelMember, content, questionCount+1, isAnonymous,
                         isAnonymous ? anonymousName : channelMember.getMemberCodeName())
         );
 
@@ -47,20 +50,18 @@ public class QuestionService {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
-
         validateMemberInChannel(channel, memberId);
-        long signalCount = questionRepository.countByChannelUuid(channelUuid);
 
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
-                        .signalCount(signalCount)
+                        .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
-                        .signalCount(signalCount + 1)
+                        .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
                         .time(formatToKoreanTime(LocalDateTime.now()))
                         .content(null)
                         .build());
@@ -73,5 +74,23 @@ public class QuestionService {
     private String formatToKoreanTime(LocalDateTime dateTime) {
         return dateTime.atZone(ZoneId.of("Asia/Seoul"))
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    public List<QuestionResponse> findByChannelId(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
+        validateMemberInChannel(channel, memberId);
+
+        List<Question> questions = questionRepository.findByChannelUuidOrderByCreatedAtAsc(channelUuid);
+
+        return questions.stream()
+                .map(question -> new QuestionResponse(
+                        question.getAuthorName(),
+                        question.getQuestionNumber(),
+                        question.getContent(),
+                        question.getCreatedAt().toString()
+                ))
+                .toList();
     }
 }
