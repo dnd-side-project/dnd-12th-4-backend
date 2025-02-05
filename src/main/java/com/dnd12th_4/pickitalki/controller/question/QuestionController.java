@@ -48,7 +48,7 @@ public class QuestionController {
                 .body(todayQuestionResponse);
     }
 
-    @GetMapping("all")
+    @GetMapping("/all")
     public ResponseEntity<List<QuestionResponse>> findQuestionsByChannel(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
