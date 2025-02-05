@@ -42,10 +42,10 @@ public class ChannelMember extends BaseEntity {
     @JoinColumn(name = "member_id" ,nullable = false)
     private Member member;
 
-    @Column(nullable=true)
+    @Column(name = "member_code_name", nullable=true)
     private String memberCodeName;
 
-    @Column(columnDefinition = "varchar(50)", nullable = false)
+    @Column(columnDefinition = "varchar(10)", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
