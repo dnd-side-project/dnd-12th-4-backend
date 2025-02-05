@@ -10,14 +10,18 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
+import static java.util.Objects.hash;
 import static java.util.Objects.isNull;
 
 @Getter
@@ -27,6 +31,7 @@ import static java.util.Objects.isNull;
 public class Channel extends BaseEntity implements Persistable<String> {
 
     @Id
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(columnDefinition = "BINARY(16)")
     private UUID uuid;
 
@@ -81,4 +86,17 @@ public class Channel extends BaseEntity implements Persistable<String> {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 채널에 존재하지 않습니다."));
     }
 
+    @Override
+    public int hashCode() {
+        return hash(uuid);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Channel other = (Channel) obj;
+        return Objects.equals(uuid, other.uuid);
+    }
 }

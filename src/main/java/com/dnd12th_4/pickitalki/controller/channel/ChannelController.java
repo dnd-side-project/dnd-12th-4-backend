@@ -5,6 +5,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
@@ -77,12 +78,12 @@ public class ChannelController {
     }
 
     @GetMapping
-    public Api<ChannelShowAllResponse> findChannel(
+    public Api<ChannelSpecificResponse> findChannel(
             @MemberId Long memberId,
             @RequestParam(value = "channelName") String channelName
     ) {
-        ChannelShowAllResponse channelShowAllResponses = channelService.findChannelByChannelName(memberId, channelName);
-        return Api.OK(channelShowAllResponses);
+        ChannelSpecificResponse channelSpecificResponse = channelService.findChannelByChannelName(memberId, channelName);
+        return Api.OK(channelSpecificResponse);
     }
 
     @GetMapping("/all")
