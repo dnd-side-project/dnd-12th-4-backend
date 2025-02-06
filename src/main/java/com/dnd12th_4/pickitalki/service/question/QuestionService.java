@@ -35,7 +35,8 @@ public class QuestionService {
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
 
-        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 질문을 생성할 권한이 없습니다."));
         long questionCount = questionRepository.countByChannelUuid(channelUuid);
 
         Question question = questionRepository.save(
