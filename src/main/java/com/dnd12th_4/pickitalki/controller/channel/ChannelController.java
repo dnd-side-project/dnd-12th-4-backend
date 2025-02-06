@@ -3,6 +3,8 @@ package com.dnd12th_4.pickitalki.controller.channel;
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
@@ -10,7 +12,6 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,20 @@ public class ChannelController {
         MemberCodeNameResponse memberCodeNameResponse = channelService.updateCodeName(memberId, channelId, codeName);
 
         return Api.OK(memberCodeNameResponse);
+    }
+
+    @GetMapping("/{channelId}/members")
+    public Api<ChannelMemberResponse> findChannelMembers(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        List<ChannelMemberDto> channelMembers = channelService.findChannelMembers(memberId, channelId);
+
+        return Api.OK(ChannelMemberResponse.builder()
+                .memberCount(channelMembers.size())
+                .channelMembers(channelMembers)
+                .build()
+        );
     }
 
     @GetMapping("/inviteCode")

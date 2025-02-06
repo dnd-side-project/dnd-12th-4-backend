@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.service.question;
 
-import com.dnd12th_4.pickitalki.controller.question.QuestionResponse;
-import com.dnd12th_4.pickitalki.controller.question.TodayQuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
@@ -35,7 +35,8 @@ public class QuestionService {
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
 
-        ChannelMember channelMember = channel.findChannelMemberById(memberId);
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 질문을 생성할 권한이 없습니다."));
         long questionCount = questionRepository.countByChannelUuid(channelUuid);
 
         Question question = questionRepository.save(
@@ -55,12 +56,14 @@ public class QuestionService {
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
+                        .writer(question.getAuthorName())
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
+                        .writer(null)
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
                         .time(formatToKoreanTime(LocalDateTime.now()))
                         .content(null)
