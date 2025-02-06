@@ -17,6 +17,7 @@ import org.springframework.data.domain.Persistable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static jakarta.persistence.CascadeType.MERGE;
@@ -82,10 +83,10 @@ public class Channel extends BaseEntity implements Persistable<String> {
         }
     }
 
-    public ChannelMember findChannelMemberById(Long memberId) {
-        return channelMembers.stream().filter(channelMember -> channelMember.isSameMember(memberId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 채널에 존재하지 않습니다."));
+    public Optional<ChannelMember> findChannelMemberById(Long memberId) {
+        return channelMembers.stream()
+                .filter(channelMember -> channelMember.isSameMember(memberId))
+                .findFirst();
     }
 
     @Override
