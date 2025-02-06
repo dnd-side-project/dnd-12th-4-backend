@@ -131,7 +131,7 @@ public class ChannelService {
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
-                .singalCount(signalCount)
+                .signalCount(signalCount)
                 .build();
     }
 
@@ -161,7 +161,7 @@ public class ChannelService {
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
-                .singalCount(signalCount)
+                .signalCount(signalCount)
                 .build();
     }
 }
