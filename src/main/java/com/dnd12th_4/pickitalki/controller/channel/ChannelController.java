@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.controller.channel;
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
@@ -58,13 +59,17 @@ public class ChannelController {
     }
 
     @GetMapping("/{channelId}/members")
-    public Api<List<ChannelMemberResponse>> findChannelMembers(
+    public Api<ChannelMemberResponse> findChannelMembers(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        List<ChannelMemberResponse> channelMembers = channelService.findChannelMembers(memberId, channelId);
+        List<ChannelMemberDto> channelMembers = channelService.findChannelMembers(memberId, channelId);
 
-        return Api.OK(channelMembers);
+        return Api.OK(ChannelMemberResponse.builder()
+                .memberCount(channelMembers.size())
+                .channelMembers(channelMembers)
+                .build()
+        );
     }
 
     @GetMapping("/inviteCode")
