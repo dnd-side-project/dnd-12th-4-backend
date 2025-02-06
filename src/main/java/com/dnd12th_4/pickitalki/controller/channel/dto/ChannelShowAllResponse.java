@@ -14,6 +14,6 @@ public class ChannelShowAllResponse {
     private String channelRoomName;
     private String channelOwnerName;
     private Long countPerson;
-    private Long singalCount;
+    private Long signalCount;
 
 }

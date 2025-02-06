@@ -2,15 +2,18 @@ package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,10 +40,10 @@ public class ChannelController {
     @PostMapping
     public ResponseEntity<ChannelResponse> makeChannel(
             @MemberId Long memberId,
-            @RequestParam("channelName") @Valid String channelName,
-            @RequestParam(value = "codeName", required = false) String codeName
-    ) {
-        ChannelResponse channelResponse = channelService.save(memberId, channelName, codeName);
+            @RequestBody ChannelCreateRequest channelCreateRequest
+            ) {
+        ChannelResponse channelResponse = channelService.save(memberId,
+                channelCreateRequest.channelName(), channelCreateRequest.codeName());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(channelResponse);
@@ -57,6 +60,20 @@ public class ChannelController {
         return Api.OK(memberCodeNameResponse);
     }
 
+    @GetMapping("/{channelId}/members")
+    public Api<ChannelMemberResponse> findChannelMembers(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        List<ChannelMemberDto> channelMembers = channelService.findChannelMembers(memberId, channelId);
+
+        return Api.OK(ChannelMemberResponse.builder()
+                .memberCount(channelMembers.size())
+                .channelMembers(channelMembers)
+                .build()
+        );
+    }
+
     @GetMapping("/inviteCode")
     public ResponseEntity<InviteCodeDto> getChannelInviteCode(
             @MemberId Long memberId,
@@ -69,10 +86,9 @@ public class ChannelController {
     @PostMapping("/join")
     public Api<ChannelJoinResponse> joinMemberToChannel(
             @MemberId Long memberId,
-            @RequestBody InviteCodeDto joinRequest,
-            @RequestParam(value = "codeName", required = false) String codeName
+            @RequestBody InviteRequest joinRequest
     ) {
-        ChannelJoinResponse channelJoinResponse = channelService.joinMember(memberId, joinRequest.inviteCode(), codeName);
+        ChannelJoinResponse channelJoinResponse = channelService.joinMember(memberId, joinRequest.inviteCode(), joinRequest.codeName());
 
         return Api.OK(channelJoinResponse);
     }
