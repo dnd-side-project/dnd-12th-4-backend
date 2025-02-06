@@ -11,7 +11,7 @@ public class CookieProvider {
     public Cookie makeNewCookie(String cookieName, String cookieValue){
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유지
 
@@ -21,7 +21,7 @@ public class CookieProvider {
     public Cookie makeExpiredCookie(String cookieName, String cookieValue){
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         return cookie;
