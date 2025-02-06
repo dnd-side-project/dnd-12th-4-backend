@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.service.question;
 
-import com.dnd12th_4.pickitalki.controller.question.QuestionResponse;
-import com.dnd12th_4.pickitalki.controller.question.TodayQuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
@@ -55,12 +55,14 @@ public class QuestionService {
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
+                        .writer(question.getAuthorName())
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
+                        .writer(null)
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
                         .time(formatToKoreanTime(LocalDateTime.now()))
                         .content(null)
