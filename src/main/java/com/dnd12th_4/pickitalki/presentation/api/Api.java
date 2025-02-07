@@ -20,6 +20,13 @@ public class Api<T> {
         return api;
     }
 
+    public static <T>Api<T> CREATED(T data){
+        Api<T> api = new Api<>();
+        api.result = Result.CREATED();
+        api.body= data;
+        return api;
+    }
+
     public static Api<Object> ERROR(Result result) {
         Api<Object> api = new Api<>();
         api.result =result;
