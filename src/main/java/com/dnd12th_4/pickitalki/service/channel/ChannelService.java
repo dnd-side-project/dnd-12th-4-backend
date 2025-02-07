@@ -122,7 +122,7 @@ public class ChannelService {
         Channel channel = channelMember.getChannel();
 
         String ownerName = channel.getChannelMembers().stream()
-                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .filter(it -> it.getRole() == Role.OWNER &&  it.getChannel().equals(channel))
                 .findAny()
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "buildChannelShowAllResponse DB 튜플이 없습니다"))
                 .getMemberCodeName();
