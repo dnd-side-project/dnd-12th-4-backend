@@ -1,20 +1,13 @@
 package com.dnd12th_4.pickitalki.domain.answer;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.question.Question;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -27,7 +20,7 @@ import static jakarta.persistence.CascadeType.PERSIST;
 @Table(name = "answers")
 public class Answer extends BaseEntity {
 
-    @Id()
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -37,9 +30,9 @@ public class Answer extends BaseEntity {
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "channel_member_id", nullable = false)
     @JsonIgnore
-    private Member author;
+    private ChannelMember author;
 
     @Column(nullable = false, length = 500)
     private String content;
@@ -50,15 +43,20 @@ public class Answer extends BaseEntity {
     @Column(length = 30)
     private String anonymousName;
 
+
+
     protected Answer() {
     }
 
-    public Answer(Question question, Member author, String content, boolean isAnonymous, String anonymousName) {
+    public Answer(Question question, ChannelMember author, String content, boolean isAnonymous, String anonymousName) {
         makeQuestion(question); // 연관관계 설정
         this.author = author;
         this.content = content;
         this.isAnonymous = isAnonymous;
         this.anonymousName = isAnonymous ? anonymousName : null;
+    }
+    public void setContent(String content) {
+        this.content = content;
     }
 
 
