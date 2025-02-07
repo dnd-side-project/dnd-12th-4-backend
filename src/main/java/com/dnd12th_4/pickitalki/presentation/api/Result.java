@@ -24,6 +24,14 @@ public class Result {
                 .build();
     }
 
+    public static Result CREATED(){
+        return Result.builder()
+                .resultCode(201)
+                .resultMessage("생성 성공")
+                .resultDescription("정상 작동합니다")
+                .build();
+    }
+
     public static Result ERROR(ErrorCodeIfs errorCodeIfs){
         return Result.builder()
                 .resultCode(errorCodeIfs.getErrorCode())

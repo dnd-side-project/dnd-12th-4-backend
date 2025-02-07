@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.member.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,10 +37,12 @@ public class ChannelMember extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_uuid", nullable = false)
+    @JsonIgnore
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id" ,nullable = false)
+    @JsonIgnore
     private Member member;
 
     @Column(name = "member_code_name", nullable=true)
