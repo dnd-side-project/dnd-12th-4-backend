@@ -41,7 +41,7 @@ public class ChannelController {
     public ResponseEntity<ChannelResponse> makeChannel(
             @MemberId Long memberId,
             @RequestBody ChannelCreateRequest channelCreateRequest
-            ) {
+    ) {
         ChannelResponse channelResponse = channelService.save(memberId,
                 channelCreateRequest.channelName(), channelCreateRequest.codeName());
 
@@ -94,11 +94,22 @@ public class ChannelController {
     }
 
     @GetMapping
-    public Api<ChannelSpecificResponse> findChannel(
+    public Api<ChannelSpecificResponse> findChannelByName(
             @MemberId Long memberId,
             @RequestParam(value = "channelName") String channelName
     ) {
         ChannelSpecificResponse channelSpecificResponse = channelService.findChannelByChannelName(memberId, channelName);
+
+        return Api.OK(channelSpecificResponse);
+    }
+
+    @GetMapping("/{channelId}")
+    public Api<ChannelSpecificResponse> findChannelById(
+            @MemberId Long memberId,
+            @PathVariable(value = "channelId") String channelId
+    ) {
+        ChannelSpecificResponse channelSpecificResponse = channelService.findChannelByChannelId(memberId, channelId);
+
         return Api.OK(channelSpecificResponse);
     }
 

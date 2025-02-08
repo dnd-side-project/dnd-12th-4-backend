@@ -36,7 +36,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(columnDefinition = "BINARY(16)")
     private UUID uuid;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE}, fetch = FetchType.LAZY)
