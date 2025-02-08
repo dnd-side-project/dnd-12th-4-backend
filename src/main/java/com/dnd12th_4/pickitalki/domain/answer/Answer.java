@@ -37,12 +37,13 @@ public class Answer extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String content;
 
+
+
     @Column(nullable = false)
     private boolean isAnonymous;
 
     @Column(length = 30)
     private String anonymousName;
-
 
 
     protected Answer() {
@@ -74,4 +75,5 @@ public class Answer extends BaseEntity {
            question.getAnswerList().add(this);
        }
     }
+
 }
