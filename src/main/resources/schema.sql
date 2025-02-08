@@ -44,6 +44,7 @@ create TABLE if not exists `pickitalki`.questions
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     DATETIME              DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
+    CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_at),
     FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
     FOREIGN KEY (author_id) REFERENCES members (id)
 );
