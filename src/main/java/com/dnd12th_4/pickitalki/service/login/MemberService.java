@@ -1,11 +1,13 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.ChannelFriendResponse;
 import com.dnd12th_4.pickitalki.controller.member.MemberResponse;
 import com.dnd12th_4.pickitalki.controller.member.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
+import com.dnd12th_4.pickitalki.domain.channel.Role;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.member.Tutorial;
@@ -41,10 +43,15 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MyChannelMemberResponse> findAllParticipateMyInfo(Long memberId) {
+    public List<MyChannelMemberResponse> findAllChannelMyInfo(Long memberId, ChannelControllerEnums status) {
         List<ChannelMember> myChannelMembers = channelMemberRepository.findByMemberId(memberId);
 
         return myChannelMembers.stream()
+                .filter(channelMember ->
+                        status == ChannelControllerEnums.SHOWALL ||
+                                (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER) ||
+                                (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.MEMBER)
+                )
                 .map(MemberService::buildChannelMemberResponse)
                 .toList();
     }
