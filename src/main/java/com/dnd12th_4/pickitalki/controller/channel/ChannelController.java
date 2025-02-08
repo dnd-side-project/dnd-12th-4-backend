@@ -14,7 +14,6 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
-import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -95,19 +94,21 @@ public class ChannelController {
     }
 
     @GetMapping
-    public Api<ChannelSpecificResponse> findChannel(
+    public Api<ChannelSpecificResponse> findChannelByName(
             @MemberId Long memberId,
-            @RequestParam(value = "channelName", required = false) String channelName,
-            @RequestParam(value = "channelId", required = false) String channelId
+            @RequestParam(value = "channelName") String channelName
     ) {
-        ChannelSpecificResponse channelSpecificResponse;
-        if (StringUtils.isNotBlank(channelId)) {
-            channelSpecificResponse = channelService.findChannelByChannelId(memberId, channelId);
-        } else if (StringUtils.isNotBlank(channelName)) {
-            channelSpecificResponse = channelService.findChannelByChannelName(memberId, channelName);
-        } else {
-            throw new IllegalArgumentException("채널을 조회할 수 없습니다. 조회에 필요한 채널ID나 채널이름을 입력해주세요.");
-        }
+        ChannelSpecificResponse channelSpecificResponse = channelService.findChannelByChannelName(memberId, channelName);
+
+        return Api.OK(channelSpecificResponse);
+    }
+
+    @GetMapping("/{channelId}")
+    public Api<ChannelSpecificResponse> findChannelById(
+            @MemberId Long memberId,
+            @PathVariable(value = "channelId") String channelId
+    ) {
+        ChannelSpecificResponse channelSpecificResponse = channelService.findChannelByChannelId(memberId, channelId);
 
         return Api.OK(channelSpecificResponse);
     }
