@@ -53,6 +53,14 @@ public class MemberController {
         return Api.OK(allParticipateMyInfo);
     }
 
+    @GetMapping("/friends")
+    public Api<List<ChannelFriendResponse>> findMyFriends(
+            @MemberId Long memberId
+    ) {
+        List<ChannelFriendResponse> channelFriends = memberService.findChannelFriends(memberId);
+
+        return Api.OK(channelFriends);
+    }
 
     @GetMapping("/tutorial")
     public ResponseEntity<TutorialResponse> doTutorial(
