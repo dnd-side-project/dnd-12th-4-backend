@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.controller.member;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.TutorialResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.TutorialStatus;
@@ -44,11 +45,29 @@ public class MemberController {
         return Api.OK(memberResponse);
     }
 
-    @GetMapping("/channelMembers")
-    public Api<List<MyChannelMemberResponse>> findMyChannelMemberInfo(
+    @GetMapping("/channelMembers/all")
+    public Api<List<MyChannelMemberResponse>> findAllMyChannelMemberInfo(
             @MemberId Long memberId
     ) {
-        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllParticipateMyInfo(memberId);
+        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.SHOWALL);
+
+        return Api.OK(allParticipateMyInfo);
+    }
+
+    @GetMapping("/channelMembers/own")
+    public Api<List<MyChannelMemberResponse>> findMyOwnChannelMemberInfo(
+            @MemberId Long memberId
+    ) {
+        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.MADEALL);
+
+        return Api.OK(allParticipateMyInfo);
+    }
+
+    @GetMapping("/channelMembers/invited")
+    public Api<List<MyChannelMemberResponse>> findMyInvitedChannelMemberInfo(
+            @MemberId Long memberId
+    ) {
+        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.INVITEDALL);
 
         return Api.OK(allParticipateMyInfo);
     }
