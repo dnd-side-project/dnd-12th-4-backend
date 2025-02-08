@@ -130,6 +130,7 @@ public class ChannelService {
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
 
         return ChannelShowAllResponse.builder()
+                .channelId(channel.getId())
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
@@ -162,6 +163,7 @@ public class ChannelService {
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
 
         return ChannelSpecificResponse.builder()
+                .channelId(channel.getId())
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
@@ -184,5 +186,30 @@ public class ChannelService {
                         .channelMemberId(cm.getId())
                         .build()
                 ).toList();
+    }
+
+    public ChannelSpecificResponse findChannelByChannelId(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
+        channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 해당 멤버가 참여해 있지 않습니다. 채널정보를 조회할 권한이 없습니다."));
+
+        String ownerName = channel.getChannelMembers().stream()
+                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .findAny()
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 채널의 주인을 찾을 수 없습니다."))
+                .getMemberCodeName();
+
+        long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
+
+        return ChannelSpecificResponse.builder()
+                .channelId(channelId)
+                .channelOwnerName(ownerName)
+                .channelRoomName(channel.getName())
+                .countPerson((long) channel.getChannelMembers().size())
+                .signalCount(signalCount)
+                .build();
+
     }
 }
