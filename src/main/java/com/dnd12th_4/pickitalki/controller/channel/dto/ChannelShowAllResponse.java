@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChannelShowAllResponse {
 
+    private String channelId;
     private String channelRoomName;
     private String channelOwnerName;
     private Long countPerson;
