@@ -99,6 +99,13 @@ public class ChannelMember extends BaseEntity {
                 .encodeToString(this.channel.getUuid().toString().getBytes(StandardCharsets.UTF_8));
     }
 
+    public String getProfileImage() {
+        if (isUsingDefaultProfile) {
+            return member.getProfileImageUrl();
+        }
+        return profileImage;
+    }
+
     public void setCustomProfileImage(String profileImage) {
         this.profileImage = profileImage;
         this.isUsingDefaultProfile = false;

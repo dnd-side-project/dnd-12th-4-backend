@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 
+import com.dnd12th_4.pickitalki.controller.member.ChannelFriendResponse;
 import com.dnd12th_4.pickitalki.controller.member.MemberResponse;
 import com.dnd12th_4.pickitalki.controller.member.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -53,8 +54,7 @@ public class MemberService {
                 .channelMemberId(channelMember.getId())
                 .channelName(channelMember.getChannel().getName())
                 .codeName(channelMember.getMemberCodeName())
-                .profileImage(channelMember.isUsingDefaultProfile()?
-                        channelMember.getMember().getProfileImageUrl(): channelMember.getProfileImage())
+                .profileImage(channelMember.getProfileImage())
                 .channelId(channelMember.getChannel().getId())
                 .build();
     }
@@ -93,5 +93,22 @@ public class MemberService {
         tutorial.setStatus(TutorialStatus.PASS);
 
         return tutorial.getStatus();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChannelFriendResponse> findChannelFriends(Long memberId) {
+        List<ChannelMember> meOnChannel = channelMemberRepository.findMeOnChannel(memberId);
+
+        return meOnChannel.stream()
+                .flatMap(me -> me.getChannel().getChannelMembers().stream()
+                        .filter(friend -> !friend.equals(me))
+                        .map(friend -> ChannelFriendResponse.builder()
+                                .channelMemberId(friend.getId())
+                                .channelName(friend.getChannel().getName())
+                                .codeName(friend.getMemberCodeName())
+                                .profileImage(friend.getProfileImage())
+                                .build())
+                )
+                .toList();
     }
 }
