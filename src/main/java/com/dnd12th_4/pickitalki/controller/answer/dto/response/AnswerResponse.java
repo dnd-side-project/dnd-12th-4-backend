@@ -1,8 +1,24 @@
 package com.dnd12th_4.pickitalki.controller.answer.dto.response;
 
-import com.dnd12th_4.pickitalki.domain.answer.Answer;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-public record AnswerResponse(Integer nowSignal, String nowAuthor, String nowContent, List<Answer> answerList) {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class AnswerResponse {
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    private Long id;
+    private String content;
+    private boolean isMyAnswer;
+    private String codeName;
+
 }

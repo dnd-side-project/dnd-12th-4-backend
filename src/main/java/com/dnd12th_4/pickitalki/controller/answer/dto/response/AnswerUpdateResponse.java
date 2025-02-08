@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AnswerUpdateResponse {
 
-    private Answer answer;
+    private AnswerResponse answerResponse;
 
 }
