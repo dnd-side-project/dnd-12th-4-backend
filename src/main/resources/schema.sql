@@ -25,6 +25,8 @@ create TABLE if not exists `pickitalki`.channel_members
     channel_uuid     BINARY(16)  NOT NULL,
     member_id        BIGINT      NOT NULL,
     member_code_name VARCHAR(20),
+    profile_image TEXT NULL,
+    is_using_default_profile TINYINT(1) NOT NULL DEFAULT 1,
     role             VARCHAR(10) NOT NULL,
     created_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
