@@ -2,6 +2,9 @@ package com.dnd12th_4.pickitalki.service.login;
 
 
 import com.dnd12th_4.pickitalki.controller.member.MemberResponse;
+import com.dnd12th_4.pickitalki.controller.member.MyChannelMemberResponse;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.member.Tutorial;
@@ -14,13 +17,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
     private final TutorialRepository tutorialRepository;
+    private final ChannelMemberRepository channelMemberRepository;
 
+    @Transactional(readOnly = true)
     public MemberResponse findMemberById(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. 회원정보를 조회할 수 없습니다."));
@@ -29,6 +36,26 @@ public class MemberService {
                 .name(member.getNickName())
                 .email(member.getEmail())
                 .profileImage(member.getProfileImageUrl())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MyChannelMemberResponse> findAllParticipateMyInfo(Long memberId) {
+        List<ChannelMember> myChannelMembers = channelMemberRepository.findByMemberId(memberId);
+
+        return myChannelMembers.stream()
+                .map(MemberService::buildChannelMemberResponse)
+                .toList();
+    }
+
+    private static MyChannelMemberResponse buildChannelMemberResponse(ChannelMember channelMember) {
+        return MyChannelMemberResponse.builder()
+                .channelMemberId(channelMember.getId())
+                .channelName(channelMember.getChannel().getName())
+                .codeName(channelMember.getMemberCodeName())
+                .profileImage(channelMember.isUsingDefaultProfile()?
+                        channelMember.getMember().getProfileImageUrl(): channelMember.getProfileImage())
+                .channelId(channelMember.getChannel().getId())
                 .build();
     }
 

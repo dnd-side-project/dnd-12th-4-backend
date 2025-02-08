@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -41,6 +43,16 @@ public class MemberController {
 
         return Api.OK(memberResponse);
     }
+
+    @GetMapping("/channelMembers")
+    public Api<List<MyChannelMemberResponse>> findMyChannelMemberInfo(
+            @MemberId Long memberId
+    ) {
+        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllParticipateMyInfo(memberId);
+
+        return Api.OK(allParticipateMyInfo);
+    }
+
 
     @GetMapping("/tutorial")
     public ResponseEntity<TutorialResponse> doTutorial(
