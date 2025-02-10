@@ -41,16 +41,18 @@ create TABLE if not exists `pickitalki`.questions
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid   BINARY(16)   NOT NULL,
-    author_id      BIGINT       NOT NULL,
+    channel_member_id      BIGINT       NOT NULL,
     content        VARCHAR(255) NOT NULL,
+    question_number BIGINT NOT NULL,
     is_anonymous   BOOLEAN      NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(30),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date   DATE     NOT NULL,
     updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
-    CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_at),
+    CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_date),
     FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
-    FOREIGN KEY (author_id) REFERENCES members (id)
+    FOREIGN KEY (channel_member_id) REFERENCES channel_members (id)
 );
 
 create TABLE if not exists `pickitalki`.answers

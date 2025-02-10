@@ -4,9 +4,10 @@ import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCodeIfs;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -23,6 +24,30 @@ public class ApiExceptionHandler {
                 .status(errorCode.getHttpStatusCode())
                 .body(
                   Api.ERROR(errorCode,apiException.getErrorDescription())
+                );
+    }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<Object> apiException(
+            IllegalArgumentException exception
+    ) {;
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        exception.getMessage()
+                );
+    }
+
+    @ExceptionHandler(value = DataAccessException.class)
+    public ResponseEntity<Object> databaseException(
+            DataAccessException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        exception.getMessage()
                 );
     }
 }

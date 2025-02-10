@@ -56,7 +56,7 @@ public class QuestionService {
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
-                        .writer(question.getAuthorName())
+                        .writer(question.getAnonymousName())
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
@@ -89,7 +89,7 @@ public class QuestionService {
 
         return questions.stream()
                 .map(question -> new QuestionResponse(
-                        question.getAuthorName(),
+                        question.getAnonymousName(),
                         question.getQuestionNumber(),
                         question.getContent(),
                         question.getCreatedAt().toString()
