@@ -17,8 +17,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Objects;
 
 import static java.util.Objects.hash;
@@ -88,12 +86,6 @@ public class ChannelMember extends BaseEntity {
 
     public boolean isSameMember(Long memberId) {
         return Objects.equals(memberId, this.member.getId());
-    }
-
-    public String getInviteCode() {
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(this.channel.getUuid().toString().getBytes(StandardCharsets.UTF_8));
     }
 
     public String getProfileImage() {

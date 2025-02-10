@@ -15,10 +15,12 @@ create TABLE if not exists `pickitalki`.channels
 (
     uuid       BINARY(16) PRIMARY KEY,
     name       VARCHAR(30) NOT NULL UNIQUE,
+    invite_code VARCHAR(6) NOT NULL UNIQUE,
     created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted TINYINT(1)  NOT NULL DEFAULT 0
 );
+
 create TABLE if not exists `pickitalki`.channel_members
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -44,7 +46,7 @@ create TABLE if not exists `pickitalki`.questions
     is_anonymous   BOOLEAN      NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(30),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     DATETIME              DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+    updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
     CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_at),
     FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
@@ -60,7 +62,7 @@ create TABLE if not exists `pickitalki`.answers
     is_anonymous   BOOLEAN      NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(10),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     DATETIME              DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+    updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
     FOREIGN KEY (question_id) REFERENCES questions (id),
     FOREIGN KEY (member_id) REFERENCES members (id)
@@ -72,6 +74,6 @@ CREATE TABLE IF NOT EXISTS tutorial
     member_id  BIGINT      NOT NULL,
     status     VARCHAR(10) NOT NULL,
     created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted TINYINT(1)  NOT NULL DEFAULT 0
 );
