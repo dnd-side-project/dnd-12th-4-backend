@@ -15,6 +15,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,16 +57,6 @@ public class Channel extends BaseEntity implements Persistable<String> {
         this(UUID.randomUUID(), name);
     }
 
-    @Override
-    public boolean isNew() {
-        return isNull(createdAt);
-    }
-
-    @Override
-    public String getId() {
-        return uuid.toString();
-    }
-
     public void joinChannelMember(ChannelMember channelMember){
         validateChannelMember(channelMember);
         channelMembers.add(channelMember);
@@ -87,6 +78,20 @@ public class Channel extends BaseEntity implements Persistable<String> {
         return channelMembers.stream()
                 .filter(channelMember -> channelMember.isSameMember(memberId))
                 .findFirst();
+    }
+
+    public List<ChannelMember> getChannelMembers() {
+        return Collections.unmodifiableList(channelMembers);
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNull(createdAt);
+    }
+
+    @Override
+    public String getId() {
+        return uuid.toString();
     }
 
     @Override

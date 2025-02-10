@@ -48,6 +48,12 @@ public class ChannelMember extends BaseEntity {
     @Column(name = "member_code_name", nullable=true)
     private String memberCodeName;
 
+    @Column(name = "profile_image", nullable=true)
+    private String profileImage;
+
+    @Column(name = "is_using_default_profile", nullable = false)
+    private boolean isUsingDefaultProfile = true;
+
     @Column(columnDefinition = "varchar(10)", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -60,6 +66,8 @@ public class ChannelMember extends BaseEntity {
         this.channel = channel;
         this.member = member;
         this.memberCodeName = memberCodeName;
+        this.isUsingDefaultProfile = true;
+        this.profileImage = null;
         this.role = role;
     }
 
@@ -89,6 +97,18 @@ public class ChannelMember extends BaseEntity {
         return Base64.getUrlEncoder()
                 .withoutPadding()
                 .encodeToString(this.channel.getUuid().toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String getProfileImage() {
+        if (isUsingDefaultProfile) {
+            return member.getProfileImageUrl();
+        }
+        return profileImage;
+    }
+
+    public void setCustomProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+        this.isUsingDefaultProfile = false;
     }
 
     @Override
