@@ -36,7 +36,7 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "channel_uuid", nullable = false)
     private Channel channel;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_member_id", nullable = false)
     private ChannelMember author;
 
@@ -50,7 +50,7 @@ public class Question extends BaseEntity {
     private boolean isAnonymous;
 
     @Column(nullable = true, length = 10)
-    private String authorName;
+    private String anonymousName;
 
     @Column(nullable = false)
     private LocalDate createdDate;
@@ -58,7 +58,7 @@ public class Question extends BaseEntity {
     protected Question() {
     }
 
-    public Question(Long id, Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String authorName) {
+    public Question(Long id, Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
         if (!author.getChannel().equals(channel)) {
             throw new IllegalArgumentException("작성자는 해당 채널의 멤버여야 합니다.");
         }
@@ -68,8 +68,8 @@ public class Question extends BaseEntity {
         this.content = content;
         this.questionNumber = questionNumber;
         this.isAnonymous = isAnonymous;
-        this.authorName = isAnonymous ? authorName : null;
-        validateAuthorName(isAnonymous, authorName);
+        this.anonymousName = isAnonymous ? anonymousName : null;
+        validateAuthorName(isAnonymous, anonymousName);
     }
 
     private void validateAuthorName(boolean isAnonymous, String authorName) {

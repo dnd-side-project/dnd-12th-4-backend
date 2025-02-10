@@ -40,6 +40,9 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(nullable = false, length = 10, unique = true)
     private String name;
 
+    @Column(nullable = false, length = 6, unique = true)
+    private String inviteCode;
+
     @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE}, fetch = FetchType.LAZY)
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
@@ -51,6 +54,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     public Channel(UUID uuid, String name) {
         this.uuid = uuid;
         this.name = name;
+        this.inviteCode = InviteCodeGenerator.generateInviteCode(uuid);
     }
 
     public Channel(String name) {
@@ -102,7 +106,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (obj == null) return false;
 
         Channel other = (Channel) obj;
         return Objects.equals(uuid, other.uuid);
