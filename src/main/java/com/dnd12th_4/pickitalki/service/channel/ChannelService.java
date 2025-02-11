@@ -114,9 +114,9 @@ public class ChannelService {
         Channel channel = channelMember.getChannel();
 
         String ownerName = channel.getChannelMembers().stream()
-                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().getUuid().equals(channel.getUuid()))
                 .findAny()
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "buildChannelShowAllResponse DB 튜플이 없습니다"))
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 채널의 owner를 찾을 수 없습니다"))
                 .getMemberCodeName();
 
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
