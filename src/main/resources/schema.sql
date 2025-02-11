@@ -15,6 +15,7 @@ create TABLE if not exists `pickitalki`.channels
 (
     uuid       BINARY(16) PRIMARY KEY,
     name       VARCHAR(30) NOT NULL UNIQUE,
+
     invite_code VARCHAR(6) NOT NULL UNIQUE,
     created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
@@ -29,7 +30,9 @@ create TABLE if not exists `pickitalki`.channel_members
     member_code_name VARCHAR(20),
     profile_image TEXT NULL,
     is_using_default_profile TINYINT(1) NOT NULL DEFAULT 1,
+
     point INT NOT NULL DEFAULT 0,
+
     role             VARCHAR(10) NOT NULL,
     created_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
@@ -54,6 +57,7 @@ create TABLE if not exists `pickitalki`.questions
     CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_date),
     FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
     FOREIGN KEY (channel_member_id) REFERENCES channel_members (id)
+
 );
 
 create TABLE if not exists `pickitalki`.answers
@@ -66,6 +70,7 @@ create TABLE if not exists `pickitalki`.answers
     anonymous_name VARCHAR(10),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
     FOREIGN KEY (question_id) REFERENCES questions (id),
     FOREIGN KEY (member_id) REFERENCES members (id)

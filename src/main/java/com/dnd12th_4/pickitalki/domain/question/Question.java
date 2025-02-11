@@ -1,23 +1,16 @@
 package com.dnd12th_4.pickitalki.domain.question;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
+import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.micrometer.common.util.StringUtils.isBlank;
 
@@ -34,6 +27,7 @@ public class Question extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_uuid", nullable = false)
+    @JsonIgnore
     private Channel channel;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -54,6 +48,9 @@ public class Question extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDate createdDate;
+
+    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY)
+    private List<Answer> answerList = new ArrayList<>();
 
     protected Question() {
     }

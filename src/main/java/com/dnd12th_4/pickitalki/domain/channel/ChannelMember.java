@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import com.dnd12th_4.pickitalki.domain.BaseEntity;
 import com.dnd12th_4.pickitalki.domain.member.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,23 +38,29 @@ public class ChannelMember extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_uuid", nullable = false)
+    @JsonIgnore
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+
+    @JoinColumn(name = "member_id" ,nullable = false)
+    @JsonIgnore
     private Member member;
 
     @Column(name = "member_code_name", nullable = true)
     private String memberCodeName;
 
-    @Column(name = "profile_image", nullable = true)
+
+    @Column(name = "profile_image", nullable=true)
     private String profileImage;
 
     @Column(name = "is_using_default_profile", nullable = false)
     private boolean isUsingDefaultProfile = true;
 
+
     @Column(name = "point", nullable = false)
     private int point;
+
 
     @Column(columnDefinition = "varchar(10)", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -69,7 +76,9 @@ public class ChannelMember extends BaseEntity {
         this.memberCodeName = memberCodeName;
         this.isUsingDefaultProfile = true;
         this.profileImage = null;
+
         this.point = point;
+
         this.role = role;
     }
 
@@ -99,13 +108,6 @@ public class ChannelMember extends BaseEntity {
         return Objects.equals(memberId, this.member.getId());
     }
 
-    public String getProfileImage() {
-        if (isUsingDefaultProfile) {
-            return member.getProfileImageUrl();
-        }
-        return profileImage;
-    }
-
     public int getLevel() {
         return (point / LEVEL_GAGE) + 1;
     }
@@ -116,6 +118,13 @@ public class ChannelMember extends BaseEntity {
 
     public void risePoint() {
         point += QUESTION_CREATE_POINT;
+    }
+
+    public String getProfileImage() {
+        if (isUsingDefaultProfile) {
+            return member.getProfileImageUrl();
+        }
+        return profileImage;
     }
 
     public void setCustomProfileImage(String profileImage) {

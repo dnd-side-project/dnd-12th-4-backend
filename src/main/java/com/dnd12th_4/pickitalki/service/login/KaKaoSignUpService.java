@@ -45,7 +45,7 @@ public class KaKaoSignUpService {
     }
 
     public Member findUser(String token) {
-        return memberRepository.findByRefreshToken("eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3Mzg0ODAyNjEsImV4cCI6MTczOTA4NTA2MX0.W65WvTqpWgL84NkbfQHov8wYorRki0ttQ--32vMbu_Q")
+        return memberRepository.findByRefreshToken(token)
                 .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "Member findUser 48번째줄 에러"));
     }
 }
