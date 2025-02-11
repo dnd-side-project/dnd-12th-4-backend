@@ -29,6 +29,7 @@ import static java.util.Objects.isNull;
 public class ChannelMember extends BaseEntity {
 
     public static final int LEVEL_GAGE = 100;
+    public static final int QUESTION_CREATE_POINT = 10;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -106,11 +107,15 @@ public class ChannelMember extends BaseEntity {
     }
 
     public int getLevel() {
-        return point / LEVEL_GAGE;
+        return (point / LEVEL_GAGE) + 1;
     }
 
     public int getPoint() {
         return point % LEVEL_GAGE;
+    }
+
+    public void risePoint() {
+        point += QUESTION_CREATE_POINT;
     }
 
     public void setCustomProfileImage(String profileImage) {

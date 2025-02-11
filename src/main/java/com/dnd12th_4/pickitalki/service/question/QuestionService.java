@@ -43,6 +43,7 @@ public class QuestionService {
                 new Question(channel, channelMember, content, questionCount+1, isAnonymous,
                         isAnonymous ? anonymousName : channelMember.getMemberCodeName())
         );
+        channelMember.risePoint();
 
         return question.getId();
     }
