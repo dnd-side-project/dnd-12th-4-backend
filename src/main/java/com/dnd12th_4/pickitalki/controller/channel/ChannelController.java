@@ -6,6 +6,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberStatusResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
@@ -74,8 +75,18 @@ public class ChannelController {
         );
     }
 
+    @GetMapping("/{channelId}/members/status")
+    public Api<ChannelMemberStatusResponse> findChannelMemberStatus(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        ChannelMemberStatusResponse channelMemberStatus = channelService.findChannelMemberStatus(memberId, channelId);
+
+        return Api.OK(channelMemberStatus);
+    }
+
     @GetMapping("/inviteCode")
-    public ResponseEntity<InviteCodeDto> getChannelInviteCode(
+    public ResponseEntity<InviteCodeDto> findChannelInviteCode(
             @MemberId Long memberId,
             @RequestParam("channelName") @Valid String channelName
     ) {
