@@ -15,10 +15,13 @@ create TABLE if not exists `pickitalki`.channels
 (
     uuid       BINARY(16) PRIMARY KEY,
     name       VARCHAR(30) NOT NULL UNIQUE,
+
+    invite_code VARCHAR(6) NOT NULL UNIQUE,
     created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted TINYINT(1)  NOT NULL DEFAULT 0
 );
+
 create TABLE if not exists `pickitalki`.channel_members
 (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -27,6 +30,9 @@ create TABLE if not exists `pickitalki`.channel_members
     member_code_name VARCHAR(20),
     profile_image TEXT NULL,
     is_using_default_profile TINYINT(1) NOT NULL DEFAULT 1,
+
+    point INT NOT NULL DEFAULT 0,
+
     role             VARCHAR(10) NOT NULL,
     created_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME             DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
@@ -39,16 +45,19 @@ create TABLE if not exists `pickitalki`.questions
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid   BINARY(16)   NOT NULL,
-    author_id      BIGINT       NOT NULL,
+    channel_member_id      BIGINT       NOT NULL,
     content        VARCHAR(255) NOT NULL,
+    question_number BIGINT NOT NULL,
     is_anonymous   BOOLEAN      NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(30),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     DATETIME              DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+    created_date   DATE     NOT NULL,
+    updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
-    CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_at),
+    CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_date),
     FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
-    FOREIGN KEY (author_id) REFERENCES members (id)
+    FOREIGN KEY (channel_member_id) REFERENCES channel_members (id)
+
 );
 
 create TABLE if not exists `pickitalki`.answers
@@ -60,7 +69,8 @@ create TABLE if not exists `pickitalki`.answers
     is_anonymous   BOOLEAN      NOT NULL DEFAULT FALSE,
     anonymous_name VARCHAR(10),
     created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     DATETIME              DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+    updated_at     DATETIME     DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP,
+
     is_deleted     TINYINT(1)   NOT NULL DEFAULT 0,
     FOREIGN KEY (question_id) REFERENCES questions (id),
     FOREIGN KEY (member_id) REFERENCES members (id)
@@ -72,6 +82,6 @@ CREATE TABLE IF NOT EXISTS tutorial
     member_id  BIGINT      NOT NULL,
     status     VARCHAR(10) NOT NULL,
     created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted TINYINT(1)  NOT NULL DEFAULT 0
 );

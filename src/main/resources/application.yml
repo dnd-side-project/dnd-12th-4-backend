@@ -24,7 +24,6 @@ kakao:
   client_id: "593bbcfa93f4286bf118f1e2d31891b8"
 
 
-
 jwt:
   secret-key: "pikytalk-secure-connection-key-keep-friends-together!"
   access-expiration-time: 1800000  # 24?? (???)

@@ -1,6 +1,9 @@
 package com.dnd12th_4.pickitalki.service.question;
 
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
+
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
+
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -40,13 +43,15 @@ public class QuestionService {
         long questionCount = questionRepository.countByChannelUuid(channelUuid);
 
         Question question = questionRepository.save(
-                new Question(channel, channelMember, content, questionCount+1, isAnonymous,
+                new Question(channel, channelMember, content, questionCount + 1, isAnonymous,
                         isAnonymous ? anonymousName : channelMember.getMemberCodeName())
         );
+        channelMember.risePoint();
 
         return question.getId();
     }
 
+    @Transactional(readOnly = true)
     public TodayQuestionResponse findTodayQuestion(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -56,7 +61,7 @@ public class QuestionService {
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
-                        .writer(question.getAuthorName())
+                        .writer(question.getWriterName())
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
@@ -79,6 +84,7 @@ public class QuestionService {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    @Transactional(readOnly = true)
     public List<QuestionResponse> findByChannelId(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -89,11 +95,50 @@ public class QuestionService {
 
         return questions.stream()
                 .map(question -> new QuestionResponse(
-                        question.getAuthorName(),
+                        question.getWriterName(),
                         question.getQuestionNumber(),
                         question.getContent(),
                         question.getCreatedAt().toString()
                 ))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public QuestionResponse findQuestionById(Long memberId, Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다."));
+        question.getChannel().findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 질문을 읽을 수 있는 회원이 아닙니다. 이 질문의 채널에 참여해야합니다."));
+
+        return QuestionResponse.builder()
+                .writerName(question.getWriterName())
+                .signalNumber(question.getQuestionNumber())
+                .content(question.getContent())
+                .createdAt(question.getCreatedAt().toString())
+                .build();
+    }
+
+    public QuestionUpdateResponse updateQuestion(Long memberId, Long questionId, String content) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다. 질문을 수정할 수 없습니다."));
+        if (!question.getWriter().isSameMember(memberId)) {
+            throw new IllegalArgumentException("해당 질문을 수정할 권한이 없습니다.");
+        }
+
+        question.updateContent(content);
+
+        return QuestionUpdateResponse.builder()
+                .questionId(question.getId())
+                .build();
+    }
+
+    public void deleteQuestion(Long memberId, Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다. 질문을 삭제할 수 없습니다."));
+        if (!question.getWriter().isSameMember(memberId)) {
+            throw new IllegalArgumentException("해당 질문을 삭제할 권한이 없습니다.");
+        }
+
+        questionRepository.delete(question);
     }
 }
