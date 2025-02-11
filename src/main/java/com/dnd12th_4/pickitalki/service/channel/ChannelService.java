@@ -3,12 +3,14 @@ package com.dnd12th_4.pickitalki.service.channel;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberStatusResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberLevel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
@@ -112,9 +114,9 @@ public class ChannelService {
         Channel channel = channelMember.getChannel();
 
         String ownerName = channel.getChannelMembers().stream()
-                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().equals(channel))
+                .filter(it -> it.getRole() == Role.OWNER && it.getChannel().getUuid().equals(channel.getUuid()))
                 .findAny()
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "buildChannelShowAllResponse DB 튜플이 없습니다"))
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 채널의 owner를 찾을 수 없습니다"))
                 .getMemberCodeName();
 
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
@@ -200,6 +202,26 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .build();
+
+    }
+
+    public ChannelMemberStatusResponse findChannelMemberStatus(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원 상태정보를 응답할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원 상태정보를 조회할 권한이 없습니다."));
+
+        return ChannelMemberStatusResponse.builder()
+                .channelName(channel.getName())
+                .countPerson(channel.getChannelMembers().size())
+                .codeName(channelMember.getMemberCodeName())
+                .channelMemberId(channelMember.getId())
+                .level(channelMember.getLevel())
+                .point(channelMember.getPoint())
+                .todayAnswerCount(0) //답변 pr 머지후 구현 예정
+                .characterImageUri(ChannelMemberLevel.getImageByLevel(channelMember.getLevel()))
                 .build();
 
     }

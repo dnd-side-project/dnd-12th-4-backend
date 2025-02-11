@@ -38,7 +38,7 @@ public class Question extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_member_id", nullable = false)
-    private ChannelMember author;
+    private ChannelMember writer;
 
     @Column(nullable = false, length = 100)
     private String content;
@@ -58,13 +58,13 @@ public class Question extends BaseEntity {
     protected Question() {
     }
 
-    public Question(Long id, Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
-        if (!author.getChannel().equals(channel)) {
+    public Question(Long id, Channel channel, ChannelMember writer, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
+        if (!writer.getChannel().equals(channel)) {
             throw new IllegalArgumentException("작성자는 해당 채널의 멤버여야 합니다.");
         }
         this.id = id;
         this.channel = channel;
-        this.author = author;
+        this.writer = writer;
         this.content = content;
         this.questionNumber = questionNumber;
         this.isAnonymous = isAnonymous;
@@ -77,13 +77,24 @@ public class Question extends BaseEntity {
             throw new IllegalArgumentException("질문을 생성할 수 없습니다. 익명 질문은 반드시 익명 닉네임으로 작성해야 합니다.");
         }
 
-        if (!isAnonymous && !author.getMemberCodeName().equals(authorName)) {
+        if (!isAnonymous && !writer.getMemberCodeName().equals(authorName)) {
             throw new IllegalArgumentException("질문을 생성할 수 없습니다. 실명 질문은 반드시 채널의 코드네임으로 작성해야 합니다.");
         }
     }
 
-    public Question(Channel channel, ChannelMember author, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
-        this(null, channel, author, content, questionNumber, isAnonymous, anonymousName);
+    public Question(Channel channel, ChannelMember writer, String content, long questionNumber, boolean isAnonymous, String anonymousName) {
+        this(null, channel, writer, content, questionNumber, isAnonymous, anonymousName);
+    }
+
+    public String getWriterName() {
+        if (isAnonymous) {
+            return anonymousName;
+        }
+        return writer.getMemberCodeName();
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 
     @PrePersist
