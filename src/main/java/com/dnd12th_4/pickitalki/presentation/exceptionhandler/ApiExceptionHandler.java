@@ -42,11 +42,12 @@ public class ApiExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity<Object> apiException(
             IllegalArgumentException exception
-    ) {;
+    ) {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

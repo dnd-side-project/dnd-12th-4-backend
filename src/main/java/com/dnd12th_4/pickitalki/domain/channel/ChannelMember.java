@@ -108,13 +108,6 @@ public class ChannelMember extends BaseEntity {
         return Objects.equals(memberId, this.member.getId());
     }
 
-    public String getProfileImage() {
-        if (isUsingDefaultProfile) {
-            return member.getProfileImageUrl();
-        }
-        return profileImage;
-    }
-
     public int getLevel() {
         return (point / LEVEL_GAGE) + 1;
     }
@@ -125,11 +118,6 @@ public class ChannelMember extends BaseEntity {
 
     public void risePoint() {
         point += QUESTION_CREATE_POINT;
-    }
-
-    public void setCustomProfileImage(String profileImage) {
-        this.profileImage = profileImage;
-        this.isUsingDefaultProfile = false;
     }
 
     public String getProfileImage() {

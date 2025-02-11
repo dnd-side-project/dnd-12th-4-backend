@@ -20,7 +20,7 @@ kakao:
   auth-url: "https://kauth.kakao.com/oauth/authorize"
   token-url: "https://kauth.kakao.com/oauth/token"
   user-info-url: "https://kapi.kakao.com/v2/user/me"
-  redirect_url: "http://localhost:8080/callback"
+  redirect-uri: "http://localhost:8080/callback"
   client_id: "593bbcfa93f4286bf118f1e2d31891b8"
 
 

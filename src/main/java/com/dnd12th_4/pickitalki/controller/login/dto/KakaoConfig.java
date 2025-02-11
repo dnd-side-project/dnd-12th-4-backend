@@ -10,7 +10,6 @@ public class KakaoConfig {
     @Value("${kakao.auth-url}")
     private String kakaoAuthUrl;
 
-
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 

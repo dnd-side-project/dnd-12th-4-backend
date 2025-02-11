@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +52,7 @@ public class AnswerService {
     public AnswerShowAllResponse showAnswers(Long questionId, Long memberId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ApiException(AnswerErrorCode.INVALID_ARGUMENT, "answer save 실패"));
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "AnswerResponse save 에서 member찾기 실패"));
 
         AnswerShowAllResponse answerShowAllResponse = toAnswerInfoResponse(question, memberId);
@@ -121,7 +120,7 @@ public class AnswerService {
         AnswerQuestionDTO questionDTO = AnswerQuestionDTO.builder()
                 .createdAt(question.getCreatedAt())
                 .updatedAt(question.getUpdatedAt())
-                .codeName(question.getAuthor().getMemberCodeName())
+                .codeName(question.getWriterName())
                 .content(question.getContent())
                 .build();
 
