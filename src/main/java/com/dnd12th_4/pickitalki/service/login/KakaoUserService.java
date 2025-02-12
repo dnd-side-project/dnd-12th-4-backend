@@ -2,7 +2,6 @@ package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoConfig;
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
-import com.dnd12th_4.pickitalki.controller.login.dto.response.NewMemberStatus;
 import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.tool.HttpCreator;
@@ -38,7 +37,7 @@ public class KakaoUserService {
         return KakaoUserDto.builder()
                 .id(response.getBody().get("id").toString())
                 .email(email)
-                .nickname("닉네임 설정필요")
+                .nickname(null)
                 .profileImageUrl(profile.get("profile_image_url").toString())
                 .build();
 
