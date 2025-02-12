@@ -76,12 +76,3 @@ create TABLE if not exists `pickitalki`.answers
     FOREIGN KEY (member_id) REFERENCES members (id)
 );
 
-CREATE TABLE IF NOT EXISTS tutorial
-(
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    member_id  BIGINT      NOT NULL,
-    status     VARCHAR(10) NOT NULL,
-    created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted TINYINT(1)  NOT NULL DEFAULT 0
-);

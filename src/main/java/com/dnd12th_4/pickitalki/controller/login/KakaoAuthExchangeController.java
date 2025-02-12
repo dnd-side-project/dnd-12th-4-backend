@@ -4,7 +4,6 @@ import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
 import com.dnd12th_4.pickitalki.controller.login.dto.UserResponse;
-import com.dnd12th_4.pickitalki.controller.login.dto.response.NewMemberStatus;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
