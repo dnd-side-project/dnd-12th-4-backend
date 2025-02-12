@@ -2,7 +2,7 @@ package com.dnd12th_4.pickitalki.service.login;
 
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.ImageResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MemberResponse;

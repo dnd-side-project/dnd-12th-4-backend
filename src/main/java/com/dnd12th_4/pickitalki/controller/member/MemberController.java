@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.controller.member;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MemberResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.INVITEDALL;
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.MADEALL;
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.SHOWALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 
 @RestController
 @RequiredArgsConstructor

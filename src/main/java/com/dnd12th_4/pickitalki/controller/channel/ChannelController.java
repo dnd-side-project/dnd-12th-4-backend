@@ -1,20 +1,19 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberStatusResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
@@ -32,9 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.INVITEDALL;
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.MADEALL;
-import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.SHOWALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 
 
 @RestController

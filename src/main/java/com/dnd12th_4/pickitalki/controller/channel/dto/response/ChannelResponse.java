@@ -1,4 +1,4 @@
-package com.dnd12th_4.pickitalki.controller.channel.dto;
+package com.dnd12th_4.pickitalki.controller.channel.dto.response;
 
 import jakarta.validation.constraints.NotBlank;
 
