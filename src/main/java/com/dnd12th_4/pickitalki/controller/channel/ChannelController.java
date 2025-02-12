@@ -80,7 +80,6 @@ public class ChannelController {
         );
     }
 
-
     @GetMapping("/{channelId}/members/status")
     public Api<ChannelMemberStatusResponse> findChannelMemberStatus(
             @MemberId Long memberId,

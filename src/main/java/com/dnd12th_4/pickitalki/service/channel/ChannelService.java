@@ -131,6 +131,7 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
     }
 
@@ -167,6 +168,7 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
 
     }
@@ -180,10 +182,10 @@ public class ChannelService {
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
         return channel.getChannelMembers()
-                .stream().map(cm -> ChannelMemberDto.builder()
-                        .nickName(cm.getMemberCodeName())
-                        .profileImageUrl(cm.getMember().getProfileImageUrl())
-                        .channelMemberId(cm.getId())
+                .stream().map(channelMember -> ChannelMemberDto.builder()
+                        .nickName(channelMember.getMemberCodeName())
+                        .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                        .channelMemberId(channelMember.getId())
                         .build()
                 ).toList();
     }
@@ -210,8 +212,8 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
-
     }
 
     public ChannelMemberStatusResponse findChannelMemberStatus(Long memberId, String channelId) {
@@ -231,6 +233,5 @@ public class ChannelService {
                 .todayAnswerCount(0) //답변 pr 머지후 구현 예정
                 .characterImageUri(ChannelMemberLevel.getImageByLevel(channelMember.getLevel()))
                 .build();
-
     }
 }
