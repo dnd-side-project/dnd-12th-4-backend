@@ -32,7 +32,7 @@ public class KakaoUserService {
         return KakaoUserDto.builder()
                 .id(response.getBody().get("id").toString())
                 .email(email)
-                .nickname("닉네임 설정필요")
+                .nickname(null)
                 .profileImageUrl(profile.get("profile_image_url").toString())
                 .build();
 

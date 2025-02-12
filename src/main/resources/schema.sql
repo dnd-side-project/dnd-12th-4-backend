@@ -3,7 +3,7 @@ create TABLE if not exists `pickitalki`.members
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     kakao_id          BIGINT UNIQUE NOT NULL,
     email             VARCHAR(100) UNIQUE,
-    nick_name         VARCHAR(50)   NOT NULL,
+    nick_name         VARCHAR(50)   NULL,
     profile_image_url TEXT          NULL,
     refresh_token     TEXT          NULL,
     created_at        DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
