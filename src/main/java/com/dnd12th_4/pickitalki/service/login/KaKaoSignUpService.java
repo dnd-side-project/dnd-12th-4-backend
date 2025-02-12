@@ -1,7 +1,6 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
-
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
@@ -45,6 +44,11 @@ public class KaKaoSignUpService {
     }
 
     public Member findUser(String token) {
+
+        if(token.startsWith("Bearer ")){
+            token = token.substring(7);
+        }
+
         return memberRepository.findByRefreshToken(token)
                 .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "Member findUser 48번째줄 에러"));
     }
