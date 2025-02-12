@@ -10,9 +10,6 @@ import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
-import com.dnd12th_4.pickitalki.domain.member.Tutorial;
-import com.dnd12th_4.pickitalki.domain.member.TutorialRepository;
-import com.dnd12th_4.pickitalki.domain.member.TutorialStatus;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
@@ -27,7 +24,6 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final TutorialRepository tutorialRepository;
     private final ChannelMemberRepository channelMemberRepository;
 
     @Transactional(readOnly = true)
@@ -73,34 +69,9 @@ public class MemberService {
 
         member.setNickName(name);
 
-        Tutorial tutorial = buildTutorial(member);
-        tutorialRepository.save(tutorial);
-
         return member;
     }
 
-    private Tutorial buildTutorial(Member member) {
-        return Tutorial.builder()
-                .memberId(member.getId())
-                .status(TutorialStatus.NON_PASS)
-                .build();
-    }
-
-    public TutorialStatus hasCompletedTutorial(Long memberId) {
-
-        return tutorialRepository.findStatusByMemberId(memberId)
-                .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "Toturial에 찾고자 하는 데이터 없음"));
-    }
-
-    @Transactional
-    public TutorialStatus update(Long memberId) {
-        Tutorial tutorial = tutorialRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "Toturial에 찾고자 하는 데이터 없음"));
-
-        tutorial.setStatus(TutorialStatus.PASS);
-
-        return tutorial.getStatus();
-    }
 
     @Transactional(readOnly = true)
     public List<ChannelFriendResponse> findChannelFriends(Long memberId) {

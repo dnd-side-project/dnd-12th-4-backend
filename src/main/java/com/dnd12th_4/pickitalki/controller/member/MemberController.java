@@ -2,9 +2,7 @@ package com.dnd12th_4.pickitalki.controller.member;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.login.dto.response.TutorialResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
-import com.dnd12th_4.pickitalki.domain.member.TutorialStatus;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.login.MemberService;
 import jakarta.validation.constraints.NotBlank;
@@ -81,25 +79,4 @@ public class MemberController {
         return Api.OK(channelFriends);
     }
 
-    @GetMapping("/tutorial")
-    public ResponseEntity<TutorialResponse> doTutorial(
-            @MemberId Long memberId
-    ){
-
-       TutorialStatus tutorialStatus = memberService.hasCompletedTutorial(memberId);
-        TutorialResponse tutorialResponse = new TutorialResponse(tutorialStatus);
-
-        return ResponseEntity.ok(tutorialResponse);
-    }
-
-    @PatchMapping("/tutorial/update")
-    public ResponseEntity<TutorialResponse> updateTutorial(
-            @MemberId Long memberId
-    ){
-
-        TutorialStatus tutorialStatus = memberService.update(memberId);
-        TutorialResponse tutorialResponse = new TutorialResponse(tutorialStatus);
-
-        return ResponseEntity.ok(tutorialResponse);
-    }
 }

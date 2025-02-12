@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
+import com.dnd12th_4.pickitalki.controller.login.dto.response.NewMemberStatus;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
@@ -19,11 +20,10 @@ public class KaKaoSignUpService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Member registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto, boolean isNewMember) {
+    public Member registerOrLoginKakaoUser(KakaoUserDto kakaoUserDto) {
         Optional<Member> existingUser = memberRepository.findByKakaoId(Long.valueOf(kakaoUserDto.getId()));
 
         if (existingUser.isPresent()) {
-            isNewMember = false;
             return existingUser.get();
         }
 
@@ -33,7 +33,7 @@ public class KaKaoSignUpService {
                 .nickName(kakaoUserDto.getNickname())
                 .profileImageUrl(kakaoUserDto.getProfileImageUrl())
                 .build();
-        isNewMember = true;
+
         return memberRepository.save(newUser);
     }
 
