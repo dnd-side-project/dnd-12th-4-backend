@@ -2,16 +2,15 @@ package com.dnd12th_4.pickitalki.service.login;
 
 
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.member.ChannelFriendResponse;
-import com.dnd12th_4.pickitalki.controller.member.MemberResponse;
-import com.dnd12th_4.pickitalki.controller.member.MyChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.MemberResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
-import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
