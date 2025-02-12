@@ -1,15 +1,13 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
-
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberStatusResponse;
-
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberLevel;
@@ -25,10 +23,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 import static io.micrometer.common.util.StringUtils.isBlank;
 
 @Service
@@ -99,18 +99,13 @@ public class ChannelService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        List<ChannelShowAllResponse> myChannels = new ArrayList<>();
-
-        member.getChannelMembers().stream()
-                .filter(channelMember ->
-                        status == ChannelControllerEnums.SHOWALL ||
-                                (status == ChannelControllerEnums.INVITEDALL && channelMember.getRole() == Role.MEMBER) ||
-                                (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER)
+        return member.getChannelMembers().stream()
+                .filter(channelMember -> status == SHOWALL ||
+                        (status == INVITEDALL && channelMember.getRole() == Role.MEMBER) ||
+                        (status == MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
-                .forEach(myChannels::add);
-
-        return myChannels;
+                .toList();
     }
 
     private ChannelShowAllResponse buildChannelShowAllResponse(ChannelMember channelMember) {
@@ -131,6 +126,7 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
     }
 
@@ -167,6 +163,7 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
 
     }
@@ -180,10 +177,10 @@ public class ChannelService {
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
         return channel.getChannelMembers()
-                .stream().map(cm -> ChannelMemberDto.builder()
-                        .nickName(cm.getMemberCodeName())
-                        .profileImageUrl(cm.getMember().getProfileImageUrl())
-                        .channelMemberId(cm.getId())
+                .stream().map(channelMember -> ChannelMemberDto.builder()
+                        .nickName(channelMember.getMemberCodeName())
+                        .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                        .channelMemberId(channelMember.getId())
                         .build()
                 ).toList();
     }
@@ -210,8 +207,8 @@ public class ChannelService {
                 .channelRoomName(channel.getName())
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
+                .inviteCode(channel.getInviteCode())
                 .build();
-
     }
 
     public ChannelMemberStatusResponse findChannelMemberStatus(Long memberId, String channelId) {
@@ -231,6 +228,5 @@ public class ChannelService {
                 .todayAnswerCount(0) //답변 pr 머지후 구현 예정
                 .characterImageUri(ChannelMemberLevel.getImageByLevel(channelMember.getLevel()))
                 .build();
-
     }
 }

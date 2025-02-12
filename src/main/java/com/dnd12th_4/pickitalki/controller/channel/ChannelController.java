@@ -1,20 +1,19 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberStatusResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelSpecificResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
@@ -31,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 
 
 @RestController
@@ -76,7 +79,6 @@ public class ChannelController {
                 .build()
         );
     }
-
 
     @GetMapping("/{channelId}/members/status")
     public Api<ChannelMemberStatusResponse> findChannelMemberStatus(
@@ -128,31 +130,25 @@ public class ChannelController {
         return Api.OK(channelSpecificResponse);
     }
 
-    @GetMapping("/all")
-    public Api<List<ChannelShowAllResponse>> findAllChannels(
-            @MemberId Long memberId
+    @GetMapping("/channel-profile")
+    public Api<List<ChannelShowAllResponse>> findChannelsByRole(
+            @MemberId Long memberId,
+            @RequestParam("tab") String channelFilter
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.SHOWALL);
+        ChannelControllerEnums channelEnum;
+        if (channelFilter.equals("all")) {
+            channelEnum = SHOWALL;
+        } else if (channelFilter.equals("my-channel")) {
+            channelEnum = MADEALL;
+        } else if (channelFilter.equals("invited-channel")) {
+            channelEnum = INVITEDALL;
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
+        }
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
         return Api.OK(channelShowAllResponses);
     }
 
-    @GetMapping("/own")
-    public Api<List<ChannelShowAllResponse>> findAllOwnChannels(
-            @MemberId Long memberId
-    ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.MADEALL);
-
-        return Api.OK(channelShowAllResponses);
-    }
-
-    @GetMapping("/invited")
-    public Api<List<ChannelShowAllResponse>> findAllInvitedChannels(
-            @MemberId Long memberId
-    ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.INVITEDALL);
-
-        return Api.OK(channelShowAllResponses);
-    }
 }
 
 

@@ -1,4 +1,4 @@
-package com.dnd12th_4.pickitalki.controller.channel.dto;
+package com.dnd12th_4.pickitalki.controller.channel.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,5 +16,5 @@ public class ChannelShowAllResponse {
     private String channelOwnerName;
     private Long countPerson;
     private Long signalCount;
-
+    private String inviteCode;
 }
