@@ -1,6 +1,5 @@
 package com.dnd12th_4.pickitalki.controller.login.dto;
 
-import com.dnd12th_4.pickitalki.controller.login.dto.response.NewMemberStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

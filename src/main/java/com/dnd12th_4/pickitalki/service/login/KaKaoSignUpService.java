@@ -1,7 +1,7 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
-import com.dnd12th_4.pickitalki.controller.login.dto.response.NewMemberStatus;
+
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
