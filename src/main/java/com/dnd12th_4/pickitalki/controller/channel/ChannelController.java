@@ -135,15 +135,15 @@ public class ChannelController {
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter
     ) {
-        ChannelControllerEnums channelEnum = SHOWALL;
+        ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
             channelEnum = SHOWALL;
-        }
-        if (channelFilter.equals("my-channel")) {
+        } else if (channelFilter.equals("my-channel")) {
             channelEnum = MADEALL;
-        }
-        if (channelFilter.equals("invited-channel")) {
+        } else if (channelFilter.equals("invited-channel")) {
             channelEnum = INVITEDALL;
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
         List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
         return Api.OK(channelShowAllResponses);
