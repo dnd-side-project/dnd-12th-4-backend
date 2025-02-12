@@ -1,23 +1,17 @@
 package com.dnd12th_4.pickitalki.controller.login;
 
-import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
-import com.dnd12th_4.pickitalki.controller.login.dto.KakaoUserDto;
-import com.dnd12th_4.pickitalki.controller.login.dto.UserResponse;
+import com.dnd12th_4.pickitalki.controller.login.dto.response.KakaoUserDto;
+import com.dnd12th_4.pickitalki.controller.login.dto.response.UserResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
-import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
-import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import com.dnd12th_4.pickitalki.service.login.KakaoUserService;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
