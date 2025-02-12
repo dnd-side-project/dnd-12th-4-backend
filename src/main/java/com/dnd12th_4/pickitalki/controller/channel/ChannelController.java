@@ -32,6 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.SHOWALL;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -128,31 +132,25 @@ public class ChannelController {
         return Api.OK(channelSpecificResponse);
     }
 
-    @GetMapping("/all")
-    public Api<List<ChannelShowAllResponse>> findAllChannels(
-            @MemberId Long memberId
+    @GetMapping("/channel-profile")
+    public Api<List<ChannelShowAllResponse>> findChannelsByRole(
+            @MemberId Long memberId,
+            @RequestParam("tab") String channelFilter
     ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.SHOWALL);
+        ChannelControllerEnums channelEnum = SHOWALL;
+        if (channelFilter.equals("all")) {
+            channelEnum = SHOWALL;
+        }
+        if (channelFilter.equals("my-channel")) {
+            channelEnum = MADEALL;
+        }
+        if (channelFilter.equals("invited-channel")) {
+            channelEnum = INVITEDALL;
+        }
+        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
         return Api.OK(channelShowAllResponses);
     }
 
-    @GetMapping("/own")
-    public Api<List<ChannelShowAllResponse>> findAllOwnChannels(
-            @MemberId Long memberId
-    ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.MADEALL);
-
-        return Api.OK(channelShowAllResponses);
-    }
-
-    @GetMapping("/invited")
-    public Api<List<ChannelShowAllResponse>> findAllInvitedChannels(
-            @MemberId Long memberId
-    ) {
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, ChannelControllerEnums.INVITEDALL);
-
-        return Api.OK(channelShowAllResponses);
-    }
 }
 
 

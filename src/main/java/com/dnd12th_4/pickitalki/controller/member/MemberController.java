@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.INVITEDALL;
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.MADEALL;
+import static com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums.SHOWALL;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -44,29 +48,23 @@ public class MemberController {
         return Api.OK(memberResponse);
     }
 
-    @GetMapping("/channelMembers/all")
-    public Api<List<MyChannelMemberResponse>> findAllMyChannelMemberInfo(
-            @MemberId Long memberId
+    @GetMapping("/channel-members")
+    public Api<List<MyChannelMemberResponse>> findMyChannelMemberInfo(
+            @MemberId Long memberId,
+            @RequestParam("tab") String channelFilter
     ) {
-        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.SHOWALL);
+        ChannelControllerEnums channelEnum = SHOWALL;
+        if (channelFilter.equals("all")) {
+            channelEnum = SHOWALL;
+        }
+        if (channelFilter.equals("my-channel")) {
+            channelEnum = MADEALL;
+        }
+        if (channelFilter.equals("invited-channel")) {
+            channelEnum = INVITEDALL;
+        }
 
-        return Api.OK(allParticipateMyInfo);
-    }
-
-    @GetMapping("/channelMembers/own")
-    public Api<List<MyChannelMemberResponse>> findMyOwnChannelMemberInfo(
-            @MemberId Long memberId
-    ) {
-        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.MADEALL);
-
-        return Api.OK(allParticipateMyInfo);
-    }
-
-    @GetMapping("/channelMembers/invited")
-    public Api<List<MyChannelMemberResponse>> findMyInvitedChannelMemberInfo(
-            @MemberId Long memberId
-    ) {
-        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, ChannelControllerEnums.INVITEDALL);
+        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, channelEnum);
 
         return Api.OK(allParticipateMyInfo);
     }
