@@ -30,4 +30,4 @@ jwt:
   refresh-token-expiration : 604800000 # 7?
 
 app:
-  base-url: "http://ec2-52-79-242-171.ap-northeast-2.compute.amazonaws.com:8080/api/images/profiles/"
+  base-url: "http://ec2-52-79-242-171.ap-northeast-2.compute.amazonaws.com:8080"

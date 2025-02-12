@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.service.login;
 
 
+import com.dnd12th_4.pickitalki.common.config.AppConfig;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.ImageResponse;
@@ -13,8 +14,8 @@ import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,19 +26,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
+
+import static io.micrometer.common.util.StringUtils.isNotBlank;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class MemberService {
 
-    private static final String IMAGE_DIRECTORY = "/app/images/profiles/";
-    private static final String BASE_URL = "https://your-server.com/images/profiles/";
+    private static final String PROFILE_IMAGE_DIRECTORY = "/app/images/profile/";
 
     private final MemberRepository memberRepository;
     private final ChannelMemberRepository channelMemberRepository;
+    private final AppConfig appConfig;
 
     @Transactional(readOnly = true)
     public MemberResponse findMemberById(Long memberId) {
@@ -108,10 +110,10 @@ public class MemberService {
             String fileName = uploadImage(memberId, file);
 
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new EmptyResultDataAccessException("해당하는 회원이 존재하지 않습니다. 이미지를 업로드할 수 없습니다.", 1));
+                    .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 존재하지 않습니다. 이미지를 업로드할 수 없습니다."));
 
             return ImageResponse.builder()
-                    .imageUrl(BASE_URL + fileName)
+                    .imageUrl(appConfig.getBaseUrl() + "/images/profile/" + fileName)
                     .memberId(member.getId())
                     .build();
         } catch (IOException e) {
@@ -120,21 +122,35 @@ public class MemberService {
     }
 
     private String uploadImage(Long memberId, MultipartFile file) throws IOException {
-        if (!Objects.requireNonNull(file.getContentType()).startsWith("image/")) {
-            throw new IllegalArgumentException("이미지 파일이 아닙니다. 업로드할 수 없습니다.");
-        }
-
         String originalFilename = file.getOriginalFilename();
-        String extension = "";
 
-        // 확장자가 있는지 확인 후 추출
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        if (StringUtils.isNotBlank(originalFilename) && !originalFilename.matches(".*\\.(jpg|jpeg|png|gif|svg)$")) {
+            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다.");
         }
+
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
 
         String fileName = memberId + "_" + UUID.randomUUID() + extension;
-        Path filePath = Paths.get(IMAGE_DIRECTORY + fileName);
+        Path filePath = Paths.get(PROFILE_IMAGE_DIRECTORY + fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         return fileName;
+    }
+
+    public MemberResponse updateMemberProfile(Long memberId, String nickName, String imageUrl) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 존재하지 않습니다. 회원정보를 수정할 수 없습니다."));
+
+        if (isNotBlank(nickName)) {
+            member.setNickName(nickName);
+        }
+        if (isNotBlank(imageUrl)) {
+            member.setProfileImageUrl(imageUrl);
+        }
+
+        return MemberResponse.builder()
+                .name(member.getNickName())
+                .email(member.getEmail())
+                .profileImage(member.getProfileImageUrl())
+                .build();
     }
 }

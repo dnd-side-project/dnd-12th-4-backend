@@ -16,6 +16,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.micrometer.common.util.StringUtils.isBlank;
+
 @Getter
 @SuperBuilder
 @Entity
@@ -56,6 +58,9 @@ public class Member extends BaseEntity {
     }
 
     public void setNickName(String nickName) {
+        if (isBlank(nickName)) {
+            throw new IllegalArgumentException("이름을 변경할 수 없습니다. 1글자 이상의 이름만 설정가능합니다.");
+        }
         this.nickName = nickName;
     }
 
@@ -64,6 +69,9 @@ public class Member extends BaseEntity {
     }
 
     public void setProfileImageUrl(String imageUrl) {
+        if (isBlank(imageUrl)) {
+            throw new IllegalArgumentException("프로필 이미지를 변경할 수 없습니다. 유효하지 않은 이미지입니다.");
+        }
         this.profileImageUrl = imageUrl;
     }
 }
