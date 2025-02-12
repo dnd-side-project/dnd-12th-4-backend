@@ -1,4 +1,4 @@
-package com.dnd12th_4.pickitalki.service.service;
+package com.dnd12th_4.pickitalki.service.answer;
 
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
@@ -128,10 +128,8 @@ public class AnswerService {
         List<AnswerResponse> answers = question.getAnswerList()
                 .stream()
                 .filter(it -> it.isDeleted() == false)
-                .map(answer -> {
-
-                    return getAnswerResponse(answer, memberId);
-                }).toList();
+                .map(answer -> getAnswerResponse(answer, memberId))
+                .toList();
 
         return AnswerShowAllResponse.builder()
                 .signalCount(answers.size())
@@ -154,9 +152,8 @@ public class AnswerService {
         List<AnswerResponse> answers = question.getAnswerList()
                 .stream()
                 .filter(it -> it.isDeleted() == false)
-                .map(answer -> {
-                    return getAnswerResponse(answer, channelMember.getMember().getId());
-                }).toList();
+                .map(answer -> getAnswerResponse(answer, channelMember.getMember().getId()))
+                .toList();
 
         return new AnswerWriteResponse(nowSignal, nowAuthor, nowContent, answers);
     }

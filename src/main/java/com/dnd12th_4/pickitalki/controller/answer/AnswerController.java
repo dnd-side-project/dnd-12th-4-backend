@@ -7,7 +7,7 @@ import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerShowAllResp
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerWriteResponse;
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerUpdateResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
-import com.dnd12th_4.pickitalki.service.service.AnswerService;
+import com.dnd12th_4.pickitalki.service.answer.AnswerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

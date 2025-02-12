@@ -21,7 +21,7 @@ public enum ChannelMemberLevel {
         return Arrays.stream(ChannelMemberLevel.values())
                 .filter(lv -> lv.level == memberLevel)
                 .findFirst()
-                .map(lv -> "/static/images/" + lv.imageUrl)
-                .orElse("/static/images/default.png");
+                .map(lv -> "/images/" + lv.imageUrl)
+                .orElse("/images/default.png");
     }
 }

@@ -66,6 +66,6 @@ public class ApiExceptionHandler {
                 .body(
                         exception.getMessage()
                 );
-
     }
+
 }
