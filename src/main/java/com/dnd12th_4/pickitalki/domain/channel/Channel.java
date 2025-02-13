@@ -68,7 +68,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
         this(UUID.randomUUID(), name, 0);
     }
 
-    public void joinChannelMember(ChannelMember channelMember){
+    public void joinChannelMember(ChannelMember channelMember) {
         validateChannelMember(channelMember);
         channelMembers.add(channelMember);
     }
@@ -82,6 +82,12 @@ public class Channel extends BaseEntity implements Persistable<String> {
                 .anyMatch(ch -> ch.isSameMember(channelMember.getMember().getId()));
         if (isAlreadyExist) {
             throw new IllegalArgumentException("이미 해당 채널에 존재하는 회원입니다.");
+        }
+    }
+
+    public void leaveChannel(ChannelMember channelMember) {
+        if (!channelMembers.remove(channelMember)) {
+            throw new IllegalArgumentException("해당 채널에 존재하지 않는 회원입니다. 탈퇴할 수 없습니다.");
         }
     }
 
@@ -130,4 +136,5 @@ public class Channel extends BaseEntity implements Persistable<String> {
         Channel other = (Channel) obj;
         return Objects.equals(uuid, other.uuid);
     }
+
 }

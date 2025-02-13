@@ -34,6 +34,7 @@ import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 import static io.micrometer.common.util.StringUtils.isBlank;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -257,5 +258,21 @@ public class ChannelService {
                 .codeName(channelMember.getMemberCodeName())
                 .profileImage(channelMember.getProfileImage())
                 .build();
+    }
+
+    public void leaveChannel(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
+
+        channel.leaveChannel(channelMember);
+    }
+
+    public void leaveChannels(Long memberId, List<String> channelIds) {
+        for (String channelId : channelIds) {
+            leaveChannel(memberId, channelId);
+        }
     }
 }
