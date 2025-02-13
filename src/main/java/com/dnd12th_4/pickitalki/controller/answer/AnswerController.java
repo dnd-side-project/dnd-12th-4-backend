@@ -8,9 +8,14 @@ import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerShowAllResp
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerWriteResponse;
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerUpdateResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
+import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.answer.AnswerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,13 +27,17 @@ public class AnswerController {
 
     @GetMapping("/{questionId}")
     public Api<AnswerShowAllResponse> showAnswers(
+            @RequestParam(value = "filter", defaultValue = "DESC") String filter,
             @ModelAttribute @Valid PageParamRequest pageParamRequest,
             @PathVariable("questionId") Long questionId,
             @MemberId Long memberId
     ){
-        AnswerShowAllResponse answerShowAllResponse = answerService.showAnswers(questionId,memberId, pageParamRequest);
+        Pageable pageable = validateGetPage(filter, pageParamRequest);
+
+        AnswerShowAllResponse answerShowAllResponse = answerService.showAnswers(questionId,memberId, pageable);
         return Api.OK(answerShowAllResponse);
     }
+
 
     @PostMapping("/{questionId}")
     public Api<AnswerWriteResponse> writeAnswer(
@@ -59,6 +68,21 @@ public class AnswerController {
     ){
         Long deletedId = answerService.delete(answerId);
         return Api.OK("삭제완료 answerId : "+deletedId);
+    }
+
+    private  Pageable validateGetPage(String filter, PageParamRequest pageParamRequest) {
+
+        Pageable pageable = null;
+        if(filter.equals("DESC")){
+            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        }
+        else if(filter.equals("ASC")){
+            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.ASC, "createdAt"));
+        }
+        else{
+            throw new ApiException(ErrorCode.BAD_REQUEST,"filter값을 확인해주세요");
+        }
+        return pageable;
     }
 
 }

@@ -55,15 +55,13 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerShowAllResponse showAnswers(Long questionId, Long memberId,PageParamRequest pageParamRequest) {
+    public AnswerShowAllResponse showAnswers(Long questionId, Long memberId,Pageable pageable) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ApiException(AnswerErrorCode.INVALID_ARGUMENT, "answer save 실패"));
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "AnswerResponse save 에서 member찾기 실패"));
 
-        Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Answer> answerPage = answerRepository.findByQuestionIdAndIsDeletedFalse(questionId,pageable);
-
 
         AnswerShowAllResponse answerShowAllResponse = toAnswerInfoResponse(question, memberId, answerPage);
 
