@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 public class RefreshTokenResponse {
 
     private String accessToken;
-    private LocalDateTime expiredAccessToken;
+    private Long expiredAccessToken;
 }

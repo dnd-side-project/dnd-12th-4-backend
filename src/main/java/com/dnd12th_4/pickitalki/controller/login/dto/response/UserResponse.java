@@ -16,7 +16,7 @@ public class UserResponse {
     private String accessToken;
     private String refreshToken;
 
-    private LocalDateTime expiredAccessToken;
+    private Long expiredAccessToken;
 
     private String userName;
 
