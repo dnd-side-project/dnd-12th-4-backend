@@ -17,4 +17,5 @@ public class ChannelShowAllResponse {
     private Long countPerson;
     private Long signalCount;
     private String inviteCode;
+    private String createdAt;
 }

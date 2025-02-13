@@ -1,14 +1,11 @@
 package com.dnd12th_4.pickitalki.service.login.tool;
 
-import com.dnd12th_4.pickitalki.controller.login.dto.KakaoConfig;
+import com.dnd12th_4.pickitalki.controller.login.KakaoConfig;
 import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;

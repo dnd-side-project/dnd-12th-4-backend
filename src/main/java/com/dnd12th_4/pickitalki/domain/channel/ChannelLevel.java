@@ -2,7 +2,7 @@ package com.dnd12th_4.pickitalki.domain.channel;
 
 import java.util.Arrays;
 
-public enum ChannelMemberLevel {
+public enum ChannelLevel {
     LV1(1, "level1.png"),
     LV2(2, "level2.png"),
     LV3(3, "level3.png"),
@@ -12,13 +12,13 @@ public enum ChannelMemberLevel {
     private final int level;
     private final String imageUrl;
 
-    ChannelMemberLevel(int level, String imageUrl) {
+    ChannelLevel(int level, String imageUrl) {
         this.level = level;
         this.imageUrl = imageUrl;
     }
 
     public static String getImageByLevel(int memberLevel) {
-        return Arrays.stream(ChannelMemberLevel.values())
+        return Arrays.stream(ChannelLevel.values())
                 .filter(lv -> lv.level == memberLevel)
                 .findFirst()
                 .map(lv -> "/images/" + lv.imageUrl)
