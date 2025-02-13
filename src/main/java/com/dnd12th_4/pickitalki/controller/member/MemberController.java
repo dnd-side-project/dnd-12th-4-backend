@@ -1,20 +1,16 @@
 package com.dnd12th_4.pickitalki.controller.member;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
-import com.dnd12th_4.pickitalki.controller.member.dto.MemberResponse;
-import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.*;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.login.MemberService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springdoc.core.converters.ModelConverterRegistrar;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +24,7 @@ import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums
 public class MemberController {
 
     private final MemberService memberService;
+    private final ModelConverterRegistrar modelConverterRegistrar;
 
     @PostMapping("/name")
     public Api<String> registerName(
@@ -49,7 +46,8 @@ public class MemberController {
     }
 
     @GetMapping("/channel-members")
-    public Api<List<MyChannelMemberResponse>> findMyChannelMemberInfo(
+    public Api<MyChannelMemberShowAllResponse> findMyChannelMemberInfo(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter
     ) {
@@ -64,18 +62,19 @@ public class MemberController {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
 
-        List<MyChannelMemberResponse> allParticipateMyInfo = memberService.findAllChannelMyInfo(memberId, channelEnum);
+        MyChannelMemberShowAllResponse myChannelMemberShowAllResponse = memberService.findAllChannelMyInfo(memberId, channelEnum, pageParamRequest);
 
-        return Api.OK(allParticipateMyInfo);
+        return Api.OK(myChannelMemberShowAllResponse);
     }
 
     @GetMapping("/friends")
-    public Api<List<ChannelFriendResponse>> findMyFriends(
+    public Api<ChannelFriendShowAllResponse> findMyFriends(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId
     ) {
-        List<ChannelFriendResponse> channelFriends = memberService.findChannelFriends(memberId);
+        ChannelFriendShowAllResponse channelFriendShowAllResponse = memberService.findChannelFriends(memberId, pageParamRequest);
 
-        return Api.OK(channelFriends);
+        return Api.OK(channelFriendShowAllResponse);
     }
 
 }
