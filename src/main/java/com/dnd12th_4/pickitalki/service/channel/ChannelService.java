@@ -9,6 +9,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelLevel;
@@ -20,6 +21,7 @@ import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -232,5 +234,28 @@ public class ChannelService {
                 .characterImageUri(ChannelLevel.getImageByLevel(channel.getLevel()))
                 .build();
         //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
+    }
+
+    public MyChannelMemberResponse updateChannelMemberProfile(Long memberId, String channelId, String codeName, String imageUrl) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 회원정보를 수정할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 회원정보를 수정할 권한이 없습니다."));
+
+        if (StringUtils.isNotBlank(codeName)) {
+            channelMember.setMemberCodeName(codeName);
+        }
+        if (StringUtils.isNotBlank(imageUrl)) {
+            channelMember.setCustomProfileImage(imageUrl);
+        }
+
+        return MyChannelMemberResponse.builder()
+                .channelId(channel.getId())
+                .channelMemberId(channelMember.getId())
+                .channelName(channel.getName())
+                .codeName(channelMember.getMemberCodeName())
+                .profileImage(channelMember.getProfileImage())
+                .build();
     }
 }
