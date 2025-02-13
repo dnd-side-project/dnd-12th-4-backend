@@ -1,5 +1,7 @@
 package com.dnd12th_4.pickitalki.service.answer;
 
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.*;
@@ -16,6 +18,10 @@ import com.dnd12th_4.pickitalki.presentation.error.MemberErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,24 +44,28 @@ public class AnswerService {
 
         ChannelMember channelMember = getChannelMember(member, question);
 
-        AnswerWriteResponse answerWriteResponse = toAnswerWriteResponse(question, channelMember, requestForm);
 
         Answer answer = new Answer(question, channelMember, requestForm.answerForm(), requestForm.isAnonymous(), requestForm.anonymousName());
+
+        AnswerWriteResponse answerWriteResponse = toAnswerWriteResponse(answer, member);
 
         answerRepository.save(answer);
 
         return answerWriteResponse;
     }
 
-
     @Transactional
-    public AnswerShowAllResponse showAnswers(Long questionId, Long memberId) {
+    public AnswerShowAllResponse showAnswers(Long questionId, Long memberId,PageParamRequest pageParamRequest) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ApiException(AnswerErrorCode.INVALID_ARGUMENT, "answer save 실패"));
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "AnswerResponse save 에서 member찾기 실패"));
 
-        AnswerShowAllResponse answerShowAllResponse = toAnswerInfoResponse(question, memberId);
+        Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Answer> answerPage = answerRepository.findByQuestionIdAndIsDeletedFalse(questionId,pageable);
+
+
+        AnswerShowAllResponse answerShowAllResponse = toAnswerInfoResponse(question, memberId, answerPage);
 
         return answerShowAllResponse;
     }
@@ -74,7 +84,7 @@ public class AnswerService {
                         }
                 );
 
-        AnswerResponse answerResponse = getAnswerResponse(answer, answer.getAuthor().getMember().getId());
+        AnswerResponse answerResponse = toAnswerResponse(answer, answer.getAuthor().getMember().getId());
 
         return AnswerUpdateResponse.builder()
                 .answerResponse(answerResponse)
@@ -82,17 +92,15 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerShowAllResponse delete(Long answerId) {
+    public Long delete(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "AnswerInfoResponse delete 해당 answerId는 DB에 없습니다."));
 
         answer.softDelete();
-
-        return toAnswerInfoResponse(answer.getQuestion(), answer.getAuthor().getMember().getId());
-
+        return answer.getId();
     }
 
-    private AnswerResponse getAnswerResponse(Answer answer, Long memberId) {
+    private AnswerResponse toAnswerResponse(Answer answer, Long memberId) {
 
         String codeName = answer.isAnonymous() ?
                 answer.getAnonymousName() : answer.getAuthor().getMemberCodeName();
@@ -115,7 +123,7 @@ public class AnswerService {
                 .orElseThrow(() -> new ApiException(MemberErrorCode.INVALID_ARGUMENT, "AnswerResponse save 에서 MemberEntity 찾기 실패"));
     }
 
-    private AnswerShowAllResponse toAnswerInfoResponse(Question question, Long memberId) {
+    private AnswerShowAllResponse toAnswerInfoResponse(Question question, Long memberId, Page<Answer> answerPage) {
 
         AnswerQuestionDTO questionDTO = AnswerQuestionDTO.builder()
                 .createdAt(question.getCreatedAt())
@@ -124,38 +132,35 @@ public class AnswerService {
                 .content(question.getContent())
                 .build();
 
+        PageParamResponse pageParamResponse = PageParamResponse.builder()
+                .currentPage(answerPage.getNumber())
+                .size(answerPage.getSize())
+                .totalElements((int) answerPage.getTotalElements())
+                .totalPages(answerPage.getTotalPages())
+                .hasNext(answerPage.hasNext())
+                .build();
 
-        List<AnswerResponse> answers = question.getAnswerList()
+
+        List<AnswerResponse> answers = answerPage.getContent()
                 .stream()
-                .filter(it -> it.isDeleted() == false)
-                .map(answer -> getAnswerResponse(answer, memberId))
+                .map(answer -> toAnswerResponse(answer, memberId))
                 .toList();
 
         return AnswerShowAllResponse.builder()
                 .signalCount(answers.size())
                 .questionDTO(questionDTO)
                 .answerList(answers)
+                .pageParamResponse(pageParamResponse)
                 .build();
     }
 
+    private AnswerWriteResponse toAnswerWriteResponse(Answer answer, Member member) {
+        AnswerResponse answerResponse = toAnswerResponse(answer, member.getId());
 
-    public AnswerWriteResponse toAnswerWriteResponse(Question question, ChannelMember channelMember, AnswerRequest request) {
-        List<Answer> answerList = question.getAnswerList();
-
-        int nowSignal = answerList.size() + 1;
-
-        String nowContent = request.answerForm();
-
-        String nowAuthor = request.isAnonymous() ?
-                request.anonymousName() : channelMember.getMemberCodeName();
-
-        List<AnswerResponse> answers = question.getAnswerList()
-                .stream()
-                .filter(it -> it.isDeleted() == false)
-                .map(answer -> getAnswerResponse(answer, channelMember.getMember().getId()))
-                .toList();
-
-        return new AnswerWriteResponse(nowSignal, nowAuthor, nowContent, answers);
+        AnswerWriteResponse answerWriteResponse = AnswerWriteResponse.builder()
+                .answerResponse(answerResponse)
+                .build();
+        return answerWriteResponse;
     }
 
 }
