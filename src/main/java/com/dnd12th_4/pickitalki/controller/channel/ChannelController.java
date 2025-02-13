@@ -1,33 +1,20 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.*;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
 
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
-
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -68,16 +55,17 @@ public class ChannelController {
 
     @GetMapping("/{channelId}/members")
     public Api<ChannelMemberResponse> findChannelMembers(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        List<ChannelMemberDto> channelMembers = channelService.findChannelMembers(memberId, channelId);
+        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId, pageParamRequest);
 
-        return Api.OK(ChannelMemberResponse.builder()
-                .memberCount(channelMembers.size())
-                .channelMembers(channelMembers)
-                .build()
-        );
+        return Api.OK(channelMemberResponse);
+//                .memberCount(channelMembers.size())
+//                .channelMembers(channelMembers)
+//                .build()
+
     }
 
     @GetMapping("/{channelId}/members/status")
@@ -131,7 +119,8 @@ public class ChannelController {
     }
 
     @GetMapping("/channel-profile")
-    public Api<List<ChannelShowAllResponse>> findChannelsByRole(
+    public Api<ChannelShowAllResponse> findChannelsByRole(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter
     ) {
@@ -145,8 +134,8 @@ public class ChannelController {
         } else {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
-        return Api.OK(channelShowAllResponses);
+        ChannelShowAllResponse channelShowAllResponse =  channelService.findAllMyChannels(memberId, channelEnum, pageParamRequest);
+        return Api.OK(channelShowAllResponse);
     }
 
 }
