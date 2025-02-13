@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
+import com.dnd12th_4.pickitalki.common.config.AppConfig;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
@@ -232,7 +233,7 @@ public class ChannelService {
                 .channelId(channel.getId())
                 .level(channel.getLevel())
                 .point(channel.getPoint())
-                .characterImageUri(ChannelLevel.getImageByLevel(channel.getLevel()))
+                .characterImageUri(AppConfig.getBaseUrl()+ChannelLevel.getImageByLevel(channel.getLevel()))
                 .build();
         //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
     }
