@@ -2,7 +2,9 @@ package com.dnd12th_4.pickitalki.controller.login;
 
 import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
+import com.dnd12th_4.pickitalki.controller.login.dto.response.RefreshTokenResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
+import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.presentation.error.TokenErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.mysql.cj.conf.PropertyKey.logger;
@@ -29,7 +32,7 @@ public class TokenAuthController {
     private final CookieProvider cookieProvider;
 
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshAccessToken(
+    public Api<RefreshTokenResponse> refreshAccessToken(
             @Parameter(hidden=true)
             @RequestHeader(value = "Authorization", required = false) String refreshToken,
             HttpServletResponse response) {
@@ -42,8 +45,20 @@ public class TokenAuthController {
              throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,"ResponseEntity refreshAccessToken 에러");
         }
 
+        RefreshTokenResponse refreshTokenResponse = getRefreshTokenResponse(user);
+
+        return Api.OK(refreshTokenResponse);
+    }
+
+    private RefreshTokenResponse getRefreshTokenResponse(Member user) {
+
         String newAccessToken = jwtProvider.createAccessToken(user.getId());
-        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+
+        RefreshTokenResponse refreshTokenResponse = RefreshTokenResponse.builder()
+                .expiredAccessToken(jwtProvider.getTokenExpiration(newAccessToken))
+                .accessToken(newAccessToken)
+                .build();
+        return refreshTokenResponse;
     }
 
     private void executeExpiredCookie(HttpServletResponse response, Member user) {

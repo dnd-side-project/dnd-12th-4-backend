@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.controller.answer;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerShowAllResponse;
@@ -21,10 +22,11 @@ public class AnswerController {
 
     @GetMapping("/{questionId}")
     public Api<AnswerShowAllResponse> showAnswers(
+            @ModelAttribute @Valid PageParamRequest pageParamRequest,
             @PathVariable("questionId") Long questionId,
             @MemberId Long memberId
     ){
-        AnswerShowAllResponse answerShowAllResponse = answerService.showAnswers(questionId,memberId);
+        AnswerShowAllResponse answerShowAllResponse = answerService.showAnswers(questionId,memberId, pageParamRequest);
         return Api.OK(answerShowAllResponse);
     }
 
@@ -39,7 +41,7 @@ public class AnswerController {
         return Api.CREATED(answerWriteResponse);
     }
 
-    @PostMapping("/update/{answerId}")
+    @PutMapping("/{answerId}")
     public Api<AnswerUpdateResponse> updateAnswer(
 
             @PathVariable("answerId") Long answerId,
@@ -51,14 +53,12 @@ public class AnswerController {
     }
 
 
-    @DeleteMapping("/delete/{answerId}")
-    public Api<AnswerShowAllResponse> deleteAnswer(
+    @DeleteMapping("/{answerId}")
+    public Api<String> deleteAnswer(
             @PathVariable("answerId") Long answerId
     ){
-        AnswerShowAllResponse answerShowAllResponse =answerService.delete(answerId);
-        return Api.OK(answerShowAllResponse);
+        Long deletedId = answerService.delete(answerId);
+        return Api.OK("삭제완료 answerId : "+deletedId);
     }
 
 }
-//Todo answer를 작성할시 questionId를 받는게 맞나?? channelUUID로 해야되나??
-//Todo isAnonmous 에러검증하기

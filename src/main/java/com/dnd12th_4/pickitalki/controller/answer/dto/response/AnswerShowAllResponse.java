@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.controller.answer.dto.response;
 
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +19,6 @@ public class AnswerShowAllResponse {
     private AnswerQuestionDTO questionDTO;
 
     private List<AnswerResponse> answerList;
+
+    private PageParamResponse pageParamResponse;
 }
