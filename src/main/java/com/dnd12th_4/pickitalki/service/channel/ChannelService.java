@@ -275,4 +275,18 @@ public class ChannelService {
             leaveChannel(memberId, channelId);
         }
     }
+
+    public void deleteChannel(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
+
+        if (channelMember.getRole() != Role.OWNER) {
+            throw new IllegalArgumentException("채널의 개설자가 아닙니다. 채널을 삭제할 권한이 없습니다.");
+        }
+
+        channelRepository.deleteById(channelUuid);
+    }
 }
