@@ -91,7 +91,7 @@ public class QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
-        List<Question> questions = questionRepository.findByChannelUuidOrderByCreatedAtAsc(channelUuid);
+        List<Question> questions = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid);
 
         return questions.stream()
                 .map(question -> new QuestionResponse(
@@ -105,7 +105,7 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public QuestionResponse findQuestionById(Long memberId, Long questionId) {
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findByIdAndIsDeletedFalse(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다."));
         question.getChannel().findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 읽을 수 있는 회원이 아닙니다. 이 질문의 채널에 참여해야합니다."));
@@ -119,7 +119,7 @@ public class QuestionService {
     }
 
     public QuestionUpdateResponse updateQuestion(Long memberId, Long questionId, String content) {
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findByIdAndIsDeletedFalse(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다. 질문을 수정할 수 없습니다."));
         if (!question.getWriter().isSameMember(memberId)) {
             throw new IllegalArgumentException("해당 질문을 수정할 권한이 없습니다.");
@@ -133,12 +133,13 @@ public class QuestionService {
     }
 
     public void deleteQuestion(Long memberId, Long questionId) {
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findByIdAndIsDeletedFalse(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다. 질문을 삭제할 수 없습니다."));
         if (!question.getWriter().isSameMember(memberId)) {
             throw new IllegalArgumentException("해당 질문을 삭제할 권한이 없습니다.");
         }
 
-        questionRepository.delete(question);
+        question.softDelete();
+
     }
 }

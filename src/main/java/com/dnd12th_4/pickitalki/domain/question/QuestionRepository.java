@@ -12,14 +12,19 @@ import java.util.UUID;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question,Long> {
 
-    @Query("SELECT COUNT(q) FROM Question q WHERE q.channel.uuid = :channelUuid")
+    @Query("SELECT COUNT(q) FROM Question q WHERE q.channel.uuid = :channelUuid And q.isDeleted = false")
     long countByChannelUuid(@Param("channelUuid") UUID channelUuid);
 
-    @Query("SELECT q FROM Question q WHERE q.channel.uuid = :channelUuid AND q.createdDate = CURRENT_DATE")
+    @Query("SELECT q FROM Question q WHERE q.channel.uuid = :channelUuid AND q.createdDate = CURRENT_DATE AND q.isDeleted = false")
     Optional<Question> findTodayQuestion(@Param("channelUuid") UUID channelUuid);
 
-    @Query("SELECT COALESCE(MAX(q.questionNumber), 0) FROM Question q WHERE q.channel.uuid = :channelUuid")
+    @Query("SELECT COALESCE(MAX(q.questionNumber), 0) FROM Question q WHERE q.channel.uuid = :channelUuid And q.isDeleted = false")
     long findMaxQuestionNumber(@Param("channelUuid") UUID channelUuid);
 
-    List<Question> findByChannelUuidOrderByCreatedAtAsc(UUID channelUuid);
+    Optional<Question> findByIdAndIsDeletedFalse(Long id);
+
+    List<Question> findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(UUID channelUuid);
+
+
 }
+

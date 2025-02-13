@@ -84,9 +84,11 @@ public class QuestionController {
     @PutMapping("/{questionId}")
     public ResponseEntity<QuestionUpdateResponse> updateQuestion(
             @MemberId Long memberId,
+            @PathVariable("channelId") String channelId,
+            @PathVariable("questionId") Long questionId,
             @RequestBody QuestionUpdateRequest request
     ) {
-        QuestionUpdateResponse questionUpdateResponse = questionService.updateQuestion(memberId, request.questionId(), request.content());
+        QuestionUpdateResponse questionUpdateResponse = questionService.updateQuestion(memberId, questionId, request.content());
 
         return ResponseEntity.ok()
                 .body(questionUpdateResponse);
@@ -95,6 +97,7 @@ public class QuestionController {
     @DeleteMapping("/{questionId}")
     public ResponseEntity<Void> deleteQuestion(
             @MemberId Long memberId,
+            @PathVariable("channelId") String channelId,
             @PathVariable("questionId") Long questionId
     ) {
         questionService.deleteQuestion(memberId, questionId);
