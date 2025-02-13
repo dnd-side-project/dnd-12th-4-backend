@@ -4,9 +4,10 @@ import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
 
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
+
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
@@ -45,7 +46,6 @@ public class QuestionService {
 
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
-
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 질문을 생성할 권한이 없습니다."));
         long questionCount = questionRepository.countByChannelUuid(channelUuid);
@@ -54,7 +54,7 @@ public class QuestionService {
                 new Question(channel, channelMember, content, questionCount + 1, isAnonymous,
                         isAnonymous ? anonymousName : channelMember.getMemberCodeName())
         );
-        channelMember.risePoint();
+        channel.risePoint();
 
         return question.getId();
     }
@@ -93,12 +93,13 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
+
     public QuestionShowAllResponse findByChannelId(Long memberId, String channelId, PageParamRequest pageParamRequest) {
+
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
-
 
         Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Question> questionPage = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid, pageable);
@@ -169,5 +170,27 @@ public class QuestionService {
 
         question.softDelete();
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionResponse> findQuestionsByMember(Long memberId, String sort) {
+        List<Question> questions;
+
+        if (sort.equals("latest")) {
+            questions = questionRepository.findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtDesc(memberId);
+        } else if (sort.equals("oldest")) {
+            questions = questionRepository.findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtAsc(memberId);
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다. latest 또는 oldest 중 하나를 사용해주세요.");
+        }
+
+        return questions.stream()
+                .map(q -> QuestionResponse.builder()
+                        .writerName(q.getWriterName())
+                        .signalNumber(q.getQuestionNumber())
+                        .content(q.getContent())
+                        .createdAt(q.getCreatedAt().toString())
+                        .build())
+                .toList();
     }
 }

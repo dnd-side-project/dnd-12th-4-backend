@@ -16,4 +16,13 @@ public class ChannelShowAllResponse {
 
     private List<ChannelShowResponse> channelShowResponse;
     private PageParamResponse pageParamResponse;
+
+    private String channelId;
+    private String channelRoomName;
+    private String channelOwnerName;
+    private Long countPerson;
+    private Long signalCount;
+    private String inviteCode;
+    private String createdAt;
+
 }

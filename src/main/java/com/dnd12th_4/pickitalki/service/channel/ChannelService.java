@@ -1,13 +1,27 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
+
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.*;
+
+import com.dnd12th_4.pickitalki.common.config.AppConfig;
+import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelStatusResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
+
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
-import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberLevel;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelLevel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
@@ -16,6 +30,7 @@ import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -23,12 +38,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 import static io.micrometer.common.util.StringUtils.isBlank;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -89,7 +106,6 @@ public class ChannelService {
 
         return new ChannelJoinResponse(channel.getId(), channel.getName(), channelMember.getMemberCodeName());
 
-
     }
 
     @Transactional
@@ -103,6 +119,7 @@ public class ChannelService {
                         (status == MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
+
                 .toList();
 
         Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -112,6 +129,8 @@ public class ChannelService {
                 .channelShowResponse(page.getContent())
                 .pageParamResponse(createPageParamResponse(page))
                 .build();
+
+
     }
 
     private ChannelShowResponse buildChannelShowAllResponse(ChannelMember channelMember) {
@@ -133,6 +152,7 @@ public class ChannelService {
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
                 .inviteCode(channel.getInviteCode())
+                .createdAt(channel.getCreatedAt().toString())
                 .build();
     }
 
@@ -175,7 +195,9 @@ public class ChannelService {
     }
 
     @Transactional(readOnly= true)
+
     public ChannelMemberResponse findChannelMembers(Long memberId, String channelId, PageParamRequest pageParamRequest) {
+
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원정보를 응답할 수 없습니다."));
@@ -191,10 +213,12 @@ public class ChannelService {
                         .build()
                 ).toList();
 
+
         Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(),Sort.by(Sort.Direction.DESC,"createdAt"));
         Page<ChannelMemberDto> page = getPage(pageable, filteredList);
 
         return new ChannelMemberResponse(page.getContent().size(), page.getContent(), createPageParamResponse(page));
+
     }
 
     @Transactional(readOnly = true)
@@ -223,24 +247,46 @@ public class ChannelService {
                 .build();
     }
 
-    public ChannelMemberStatusResponse findChannelMemberStatus(Long memberId, String channelId) {
+    public ChannelStatusResponse findChannelStatus(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원 상태정보를 응답할 수 없습니다."));
-        ChannelMember channelMember = channel.findChannelMemberById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원 상태정보를 조회할 권한이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 상태정보를 응답할 수 없습니다."));
+        channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 상태정보를 조회할 권한이 없습니다."));
 
-        return ChannelMemberStatusResponse.builder()
+        return ChannelStatusResponse.builder()
                 .channelName(channel.getName())
-                .countPerson(channel.getChannelMembers().size())
-                .codeName(channelMember.getMemberCodeName())
+                .channelId(channel.getId())
+                .level(channel.getLevel())
+                .point(channel.getPoint())
+                .characterImageUri(AppConfig.getBaseUrl()+ChannelLevel.getImageByLevel(channel.getLevel()))
+                .build();
+        //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
+    }
+
+    public MyChannelMemberResponse updateChannelMemberProfile(Long memberId, String channelId, String codeName, String imageUrl) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 회원정보를 수정할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 회원정보를 수정할 권한이 없습니다."));
+
+        if (StringUtils.isNotBlank(codeName)) {
+            channelMember.setMemberCodeName(codeName);
+        }
+        if (StringUtils.isNotBlank(imageUrl)) {
+            channelMember.setCustomProfileImage(imageUrl);
+        }
+
+        return MyChannelMemberResponse.builder()
+                .channelId(channel.getId())
                 .channelMemberId(channelMember.getId())
-                .level(channelMember.getLevel())
-                .point(channelMember.getPoint())
-                .todayAnswerCount(0) //답변 pr 머지후 구현 예정
-                .characterImageUri(ChannelMemberLevel.getImageByLevel(channelMember.getLevel()))
+                .channelName(channel.getName())
+                .codeName(channelMember.getMemberCodeName())
+                .profileImage(channelMember.getProfileImage())
                 .build();
     }
+
 
     private <T> Page<T> getPage(Pageable pageable, List<T> list) {
         int start = (int) pageable.getOffset();
@@ -256,5 +302,35 @@ public class ChannelService {
                 page.getTotalPages(),
                 page.hasNext()
         );
+
+    public void leaveChannel(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
+
+        channel.leaveChannel(channelMember);
+    }
+
+    public void leaveChannels(Long memberId, List<String> channelIds) {
+        for (String channelId : channelIds) {
+            leaveChannel(memberId, channelId);
+        }
+    }
+
+    public void deleteChannel(Long memberId, String channelId) {
+        UUID channelUuid = UUID.fromString(channelId);
+        Channel channel = channelRepository.findByUuid(channelUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
+
+        if (channelMember.getRole() != Role.OWNER) {
+            throw new IllegalArgumentException("채널의 개설자가 아닙니다. 채널을 삭제할 권한이 없습니다.");
+        }
+
+        channelRepository.deleteById(channelUuid);
+
     }
 }
