@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDeleteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
