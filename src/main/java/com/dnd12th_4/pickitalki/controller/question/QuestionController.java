@@ -50,6 +50,7 @@ public class QuestionController {
 
     @GetMapping
     public ResponseEntity<QuestionResponse> findTodayQuestionByChannel(
+            @PathVariable("channelId") String channelId,
             @MemberId Long memberId,
             @RequestParam("questionId") long questionId
     ) {
