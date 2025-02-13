@@ -43,7 +43,7 @@ public class KakaoAuthExchangeController {
         return Api.OK(userResponse);
     }
 
-    private UserResponse toUserResponse(String newAccessToken, String refreshToken, LocalDateTime tokenExpiration, String userName) {
+    private UserResponse toUserResponse(String newAccessToken, String refreshToken, long tokenExpiration, String userName) {
         UserResponse userResponse = UserResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)

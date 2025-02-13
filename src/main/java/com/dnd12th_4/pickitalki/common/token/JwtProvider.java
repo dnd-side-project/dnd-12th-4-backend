@@ -80,10 +80,10 @@ public class JwtProvider {
         return Long.valueOf(validateToken(token).getSubject());
     }
 
-    public LocalDateTime getTokenExpiration(String token) {
+
+    public long getTokenExpiration(String token) {
         Date expirationDate = validateToken(token).getExpiration();
-        return expirationDate.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        return expirationDate.toInstant().getEpochSecond();
     }
+
 }
