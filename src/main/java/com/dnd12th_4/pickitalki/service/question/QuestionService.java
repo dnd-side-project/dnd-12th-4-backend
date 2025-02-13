@@ -1,16 +1,24 @@
 package com.dnd12th_4.pickitalki.service.question;
 
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
 
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
+import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
 import com.dnd12th_4.pickitalki.domain.question.Question;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,15 +93,22 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionResponse> findByChannelId(Long memberId, String channelId) {
+    public QuestionShowAllResponse findByChannelId(Long memberId, String channelId, PageParamRequest pageParamRequest) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
-        List<Question> questions = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid);
 
-        return questions.stream()
+        Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Question> questionPage = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid, pageable);
+
+        return toQuestionShowAllResponse(questionPage);
+    }
+
+    private  QuestionShowAllResponse toQuestionShowAllResponse(Page<Question> questionPage) {
+
+        List<QuestionResponse> questionResponseList = questionPage.getContent().stream()
                 .map(question -> new QuestionResponse(
                         question.getWriterName(),
                         question.getQuestionNumber(),
@@ -101,6 +116,19 @@ public class QuestionService {
                         question.getCreatedAt().toString()
                 ))
                 .toList();
+
+        PageParamResponse pageParamResponse = PageParamResponse.builder()
+                .currentPage(questionPage.getNumber())
+                .size(questionPage.getSize())
+                .totalElements(questionPage.getNumberOfElements())
+                .totalPages(questionPage.getTotalPages())
+                .hasNext(questionPage.hasNext())
+                .build();
+
+        return QuestionShowAllResponse.builder()
+                .questionResponse(questionResponseList)
+                .pageParamResponse(pageParamResponse)
+                .build();
     }
 
     @Transactional(readOnly = true)

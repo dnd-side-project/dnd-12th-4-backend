@@ -1,27 +1,14 @@
 package com.dnd12th_4.pickitalki.controller.question;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateRequest;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.controller.question.dto.*;
 
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateRequest;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
-
-import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.service.question.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -72,14 +59,15 @@ public class QuestionController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<QuestionResponse>> findQuestionsByChannel(
+    public ResponseEntity<QuestionShowAllResponse> findQuestionsByChannel(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        List<QuestionResponse> questionResponses = questionService.findByChannelId(memberId, channelId);
+        QuestionShowAllResponse questionShowAllResponse = questionService.findByChannelId(memberId, channelId, pageParamRequest);
 
         return ResponseEntity.ok()
-                .body(questionResponses);
+                .body(questionShowAllResponse);
     }
 
     @PutMapping("/{questionId}")
