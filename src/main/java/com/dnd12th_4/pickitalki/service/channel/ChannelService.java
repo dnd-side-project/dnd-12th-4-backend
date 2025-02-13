@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
@@ -109,7 +110,7 @@ public class ChannelService {
                         (status == MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private ChannelShowAllResponse buildChannelShowAllResponse(ChannelMember channelMember) {
