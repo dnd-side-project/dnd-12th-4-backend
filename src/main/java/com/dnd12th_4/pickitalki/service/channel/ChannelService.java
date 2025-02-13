@@ -131,6 +131,7 @@ public class ChannelService {
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
                 .inviteCode(channel.getInviteCode())
+                .createdAt(channel.getCreatedAt().toString())
                 .build();
     }
 

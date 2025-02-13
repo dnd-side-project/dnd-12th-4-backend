@@ -27,6 +27,7 @@ import java.util.List;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
+import static java.util.Comparator.comparing;
 
 
 @RestController
@@ -92,7 +93,8 @@ public class ChannelController {
     @GetMapping("/channel-profile")
     public Api<List<ChannelShowAllResponse>> findChannelsByRole(
             @MemberId Long memberId,
-            @RequestParam("tab") String channelFilter
+            @RequestParam("tab") String channelFilter,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
@@ -104,7 +106,17 @@ public class ChannelController {
         } else {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
+
         List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
+
+        if (sort.equals("latest")) {
+            channelShowAllResponses.sort(comparing(ChannelShowAllResponse::getCreatedAt).reversed());
+        } else if (sort.equals("oldest")) {
+            channelShowAllResponses.sort(comparing(ChannelShowAllResponse::getCreatedAt));
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다. latest 또는 oldest 중 1개를 요청해주세요.");
+        }
+
         return Api.OK(channelShowAllResponses);
     }
 

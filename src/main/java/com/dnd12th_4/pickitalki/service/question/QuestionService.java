@@ -1,9 +1,7 @@
 package com.dnd12th_4.pickitalki.service.question;
 
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
-
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
-
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -84,13 +82,20 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionResponse> findByChannelId(Long memberId, String channelId) {
+    public List<QuestionResponse> findByChannelId(Long memberId, String channelId, String sort) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
-        List<Question> questions = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid);
+        List<Question> questions;
+        if (sort.equals("latest")) {
+            questions = questionRepository.findByChannel_UuidAndIsDeletedFalseOrderByCreatedAtDesc(channelUuid);
+        } else if (sort.equals("oldest")) {
+            questions = questionRepository.findByChannel_UuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid);
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다. latest 또는 oldest 중 1개를 요청해주세요.");
+        }
 
         return questions.stream()
                 .map(question -> new QuestionResponse(
@@ -140,5 +145,27 @@ public class QuestionService {
 
         question.softDelete();
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionResponse> findQuestionsByMember(Long memberId, String sort) {
+        List<Question> questions;
+
+        if (sort.equals("latest")) {
+            questions = questionRepository.findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtDesc(memberId);
+        } else if (sort.equals("oldest")) {
+            questions = questionRepository.findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtAsc(memberId);
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다. latest 또는 oldest 중 하나를 사용해주세요.");
+        }
+
+        return questions.stream()
+                .map(q -> QuestionResponse.builder()
+                        .writerName(q.getWriterName())
+                        .signalNumber(q.getQuestionNumber())
+                        .content(q.getContent())
+                        .createdAt(q.getCreatedAt().toString())
+                        .build())
+                .toList();
     }
 }
