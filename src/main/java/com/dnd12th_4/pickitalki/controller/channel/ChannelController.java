@@ -6,7 +6,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelStatusResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
@@ -73,14 +73,14 @@ public class ChannelController {
         return Api.OK(channelMemberResponse);
     }
 
-    @GetMapping("/{channelId}/members/status")
-    public Api<ChannelMemberStatusResponse> findChannelMemberStatus(
+    @GetMapping("/{channelId}/status")
+    public Api<ChannelStatusResponse> findChannelStatus(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        ChannelMemberStatusResponse channelMemberStatus = channelService.findChannelMemberStatus(memberId, channelId);
+        ChannelStatusResponse channelStatus = channelService.findChannelStatus(memberId, channelId);
 
-        return Api.OK(channelMemberStatus);
+        return Api.OK(channelStatus);
     }
 
 

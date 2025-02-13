@@ -29,9 +29,6 @@ import static java.util.Objects.isNull;
 @SuperBuilder
 public class ChannelMember extends BaseEntity {
 
-    public static final int LEVEL_GAGE = 100;
-    public static final int QUESTION_CREATE_POINT = 10;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,10 +55,6 @@ public class ChannelMember extends BaseEntity {
     private boolean isUsingDefaultProfile = true;
 
 
-    @Column(name = "point", nullable = false)
-    private int point;
-
-
     @Column(columnDefinition = "varchar(10)", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -69,25 +62,18 @@ public class ChannelMember extends BaseEntity {
     protected ChannelMember() {
     }
 
-    public ChannelMember(Channel channel, Member member, String memberCodeName, int point, Role role) {
+    public ChannelMember(Channel channel, Member member, String memberCodeName, Role role) {
         validateChannel(channel);
         this.channel = channel;
         this.member = member;
         this.memberCodeName = memberCodeName;
         this.isUsingDefaultProfile = true;
         this.profileImage = null;
-
-        this.point = point;
-
         this.role = role;
     }
 
-    public ChannelMember(Channel channel, Member member, String memberCodeName, Role role) {
-        this(channel, member, memberCodeName, 0, role);
-    }
-
     public ChannelMember(Channel channel, Member member, Role role) {
-        this(channel, member, null, 0, role);
+        this(channel, member, null, role);
     }
 
     private void validateChannel(Channel channel) {
@@ -106,18 +92,6 @@ public class ChannelMember extends BaseEntity {
 
     public boolean isSameMember(Long memberId) {
         return Objects.equals(memberId, this.member.getId());
-    }
-
-    public int getLevel() {
-        return (point / LEVEL_GAGE) + 1;
-    }
-
-    public int getPoint() {
-        return point % LEVEL_GAGE;
-    }
-
-    public void risePoint() {
-        point += QUESTION_CREATE_POINT;
     }
 
     public String getProfileImage() {

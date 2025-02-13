@@ -32,6 +32,9 @@ import static java.util.Objects.isNull;
 @SuperBuilder
 public class Channel extends BaseEntity implements Persistable<String> {
 
+    public static final int LEVEL_GAGE = 100;
+    public static final int QUESTION_CREATE_POINT = 10;
+
     @Id
     @JdbcTypeCode(SqlTypes.BINARY)
     @Column(columnDefinition = "BINARY(16)")
@@ -43,6 +46,9 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(nullable = false, length = 6, unique = true)
     private String inviteCode;
 
+    @Column(name = "point", nullable = false)
+    private int point;
+
     @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE}, fetch = FetchType.LAZY)
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
@@ -51,14 +57,15 @@ public class Channel extends BaseEntity implements Persistable<String> {
 
     protected Channel() {}
 
-    public Channel(UUID uuid, String name) {
+    public Channel(UUID uuid, String name, int point) {
         this.uuid = uuid;
         this.name = name;
+        this.point = point;
         this.inviteCode = InviteCodeGenerator.generateInviteCode(uuid);
     }
 
     public Channel(String name) {
-        this(UUID.randomUUID(), name);
+        this(UUID.randomUUID(), name, 0);
     }
 
     public void joinChannelMember(ChannelMember channelMember){
@@ -86,6 +93,18 @@ public class Channel extends BaseEntity implements Persistable<String> {
 
     public List<ChannelMember> getChannelMembers() {
         return Collections.unmodifiableList(channelMembers);
+    }
+
+    public int getLevel() {
+        return (point / LEVEL_GAGE) + 1;
+    }
+
+    public int getPoint() {
+        return point % LEVEL_GAGE;
+    }
+
+    public void risePoint() {
+        point += QUESTION_CREATE_POINT;
     }
 
     @Override
