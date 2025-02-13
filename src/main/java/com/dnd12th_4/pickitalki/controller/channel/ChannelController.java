@@ -2,17 +2,14 @@ package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
-
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
-
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
-import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
@@ -71,13 +68,9 @@ public class ChannelController {
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        List<ChannelMemberDto> channelMembers = channelService.findChannelMembers(memberId, channelId);
+        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId);
 
-        return Api.OK(ChannelMemberResponse.builder()
-                .memberCount(channelMembers.size())
-                .channelMembers(channelMembers)
-                .build()
-        );
+        return Api.OK(channelMemberResponse);
     }
 
     @GetMapping("/{channelId}/members/status")

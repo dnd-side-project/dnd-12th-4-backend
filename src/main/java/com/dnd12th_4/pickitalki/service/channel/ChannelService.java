@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.service.channel;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberStatusResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
@@ -169,20 +170,26 @@ public class ChannelService {
     }
 
     @Transactional(readOnly= true)
-    public List<ChannelMemberDto> findChannelMembers(Long memberId, String channelId) {
+    public ChannelMemberResponse findChannelMembers(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
-        return channel.getChannelMembers()
+        List<ChannelMemberDto> channelMemberDtos = channel.getChannelMembers()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
                         .nickName(channelMember.getMemberCodeName())
                         .profileImageUrl(channelMember.getMember().getProfileImageUrl())
                         .channelMemberId(channelMember.getId())
                         .build()
                 ).toList();
+
+        return ChannelMemberResponse.builder()
+                .channelMembers(channelMemberDtos)
+                .channelName(channel.getName())
+                .memberCount(channelMemberDtos.size())
+                .build();
     }
 
     @Transactional(readOnly = true)
