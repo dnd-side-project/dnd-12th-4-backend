@@ -6,6 +6,8 @@ import com.dnd12th_4.pickitalki.controller.login.dto.response.UserResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
+import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import com.dnd12th_4.pickitalki.service.login.KakaoUserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,16 +49,26 @@ public class KakaoAuthExchangeController {
 
     private UserResponse toUserResponse(Member member, String newAccessToken, String refreshToken, long tokenExpiration, String userName) {
         List<ChannelMember> channelMembers = member.getChannelMembers();
-        String channelId = (channelMembers != null && channelMembers.size() == 1)
-                ? channelMembers.get(0).getChannel().getUuid().toString()
-                : null;
+        int channelCount= 0;
+        String channelId = null;
+
+        if(channelMembers!=null){
+            channelCount = channelMembers.size();
+             channelId =  channelCount == 1
+                    ? channelMembers.get(0).getChannel().getUuid().toString()
+                    : null;
+        }
+
+        if(member.getNickName()==null&&channelCount!=0){
+            throw new ApiException(ErrorCode.NULL_POINT,"해당 유저는 이름설정 없이 방을 만들었습니다.")
+        }
 
         UserResponse userResponse = UserResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
                 .expiredAccessToken(tokenExpiration)
                 .userName(userName)
-                .channelCount(channelMembers.size())
+                .channelCount(channelCount)
                 .channelId(channelId)
                 .build();
         return userResponse;
