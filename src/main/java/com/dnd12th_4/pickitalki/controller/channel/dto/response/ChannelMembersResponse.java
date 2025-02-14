@@ -7,6 +7,5 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record ChannelMemberResponse(String channelName, long memberCount, List<ChannelMemberDto> channelMembers, PageParamResponse pageParamResponse) {
-
+public record ChannelMembersResponse(String channelName, long memberCount, List<ChannelMemberDto> channelMembers, PageParamResponse pageParamResponse) {
 }

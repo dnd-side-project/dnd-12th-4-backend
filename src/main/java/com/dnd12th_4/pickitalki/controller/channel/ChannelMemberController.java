@@ -4,10 +4,11 @@ import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDeleteRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberUpdateRequest;
-import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.request.ChannelMemberUpdateRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.request.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMembersResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
@@ -17,7 +18,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,16 +48,36 @@ public class ChannelMemberController {
     }
 
     @GetMapping("/{channelId}/members")
-    public Api<ChannelMemberResponse> findChannelMembers(
+    public Api<ChannelMembersResponse> findChannelMembers(
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
-        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId,pageable);
+        ChannelMembersResponse channelMembersResponse = channelService.findChannelMembers(memberId, channelId, pageable);
 
-        return Api.OK(channelMemberResponse);
+        return Api.OK(channelMembersResponse);
+    }
+
+    @GetMapping("/{channelId}/members/me")
+    public Api<ChannelMemberProfileResponse> findMyChannelMemberProfile(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        ChannelMemberProfileResponse channelMemberProfileResponse = channelService.findChannelMember(memberId, channelId);
+
+        return Api.OK(channelMemberProfileResponse);
+    }
+
+    @GetMapping("/{channelId}/members/today-questioner")
+    public Api<ChannelMemberProfileResponse> findTodayQuestionerProfile(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        ChannelMemberProfileResponse todayQuestionerResponse = channelService.findTodayQuestioner(memberId, channelId);
+
+        return Api.OK(todayQuestionerResponse);
     }
 
     @PatchMapping("/{channelId}/members/profile")
