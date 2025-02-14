@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.controller.login;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.KakaoUserDto;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.UserResponse;
+import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,17 +40,24 @@ public class KakaoAuthExchangeController {
 
 
         String newAccessToken = jwtProvider.createAccessToken(member.getId());
-        UserResponse userResponse = toUserResponse( newAccessToken,refreshToken,jwtProvider.getTokenExpiration(newAccessToken),member.getNickName());
+        UserResponse userResponse = toUserResponse( member, newAccessToken,refreshToken,jwtProvider.getTokenExpiration(newAccessToken),member.getNickName());
 
         return Api.OK(userResponse);
     }
 
-    private UserResponse toUserResponse(String newAccessToken, String refreshToken, long tokenExpiration, String userName) {
+    private UserResponse toUserResponse(Member member, String newAccessToken, String refreshToken, long tokenExpiration, String userName) {
+        List<ChannelMember> channelMembers = member.getChannelMembers();
+        String channelId = (channelMembers != null && channelMembers.size() == 1)
+                ? channelMembers.get(0).getChannel().getUuid().toString()
+                : null;
+
         UserResponse userResponse = UserResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
                 .expiredAccessToken(tokenExpiration)
                 .userName(userName)
+                .channelCount(channelMembers.size())
+                .channelId(channelId)
                 .build();
         return userResponse;
     }
