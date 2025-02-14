@@ -20,4 +20,7 @@ public class UserResponse {
 
     private String userName;
 
+    private Integer channelCount;
+    private String channelId = null;
+
 }
