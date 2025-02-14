@@ -55,7 +55,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MyChannelMemberShowAllResponse findAllChannelMyInfo(Long memberId, ChannelControllerEnums status, PageParamRequest pageParamRequest) {
+    public MyChannelMemberShowAllResponse findAllChannelMyInfo(Long memberId, ChannelControllerEnums status, Pageable pageable) {
 
         List<ChannelMember> myChannelMembers = channelMemberRepository.findByMemberId(memberId);
 
@@ -68,7 +68,6 @@ public class MemberService {
                 .map(MemberService::buildChannelMemberResponse)
                 .toList();
 
-        Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<MyChannelMemberResponse> page = getPage(pageable, filteredList);
 
         return MyChannelMemberShowAllResponse.builder()
@@ -100,7 +99,7 @@ public class MemberService {
 
 
     @Transactional(readOnly = true)
-    public ChannelFriendShowAllResponse findChannelFriends(Long memberId, PageParamRequest pageParamRequest) {
+    public ChannelFriendShowAllResponse findChannelFriends(Long memberId, Pageable pageable) {
 
         List<ChannelMember> meOnChannel = channelMemberRepository.findMeOnChannel(memberId);
 
@@ -116,7 +115,6 @@ public class MemberService {
                 )
                 .toList();
 
-        Pageable pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ChannelFriendResponse> page = getPage(pageable, filteredList);
 
         return ChannelFriendShowAllResponse.builder()

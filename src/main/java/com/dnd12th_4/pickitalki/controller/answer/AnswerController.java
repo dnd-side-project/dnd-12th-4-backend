@@ -2,6 +2,7 @@ package com.dnd12th_4.pickitalki.controller.answer;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerShowAllResponse;
@@ -27,12 +28,12 @@ public class AnswerController {
 
     @GetMapping("/{questionId}")
     public Api<AnswerShowAllResponse> showAnswers(
-            @RequestParam(value = "filter", defaultValue = "DESC") String filter,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort,
             @ModelAttribute @Valid PageParamRequest pageParamRequest,
             @PathVariable("questionId") Long questionId,
             @MemberId Long memberId
     ){
-        Pageable pageable = validateGetPage(filter, pageParamRequest);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
 
         AnswerShowAllResponse answerShowAllResponse = answerService.showAnswers(questionId,memberId, pageable);
         return Api.OK(answerShowAllResponse);
@@ -69,20 +70,4 @@ public class AnswerController {
         Long deletedId = answerService.delete(answerId);
         return Api.OK("삭제완료 answerId : "+deletedId);
     }
-
-    private  Pageable validateGetPage(String filter, PageParamRequest pageParamRequest) {
-
-        Pageable pageable = null;
-        if(filter.equals("DESC")){
-            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        }
-        else if(filter.equals("ASC")){
-            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.ASC, "createdAt"));
-        }
-        else{
-            throw new ApiException(ErrorCode.BAD_REQUEST,"filter값을 확인해주세요");
-        }
-        return pageable;
-    }
-
 }

@@ -63,9 +63,7 @@ public class AnswerService {
 
         Page<Answer> answerPage = answerRepository.findByQuestionIdAndIsDeletedFalse(questionId,pageable);
 
-        AnswerShowAllResponse answerShowAllResponse = toAnswerInfoResponse(question, memberId, answerPage);
-
-        return answerShowAllResponse;
+        return toAnswerInfoResponse(question, memberId, answerPage);
     }
 
 

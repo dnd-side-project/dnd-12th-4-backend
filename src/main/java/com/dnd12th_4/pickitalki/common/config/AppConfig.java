@@ -9,14 +9,14 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig {
 
     @Value("${app.base-url}")
-    private String baseUrl;
+    private static String baseUrl;
 
     @Bean
     public RestTemplate restTemplate(){
         return new RestTemplate();
     }
 
-    public String getBaseUrl() {
+    public static String getBaseUrl() {
         return baseUrl;
     }
 }

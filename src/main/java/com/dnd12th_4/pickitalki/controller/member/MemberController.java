@@ -2,6 +2,7 @@ package com.dnd12th_4.pickitalki.controller.member;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.dto.*;
 import com.dnd12th_4.pickitalki.domain.member.Member;
@@ -10,6 +11,7 @@ import com.dnd12th_4.pickitalki.service.login.MemberService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.converters.ModelConverterRegistrar;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,7 +51,8 @@ public class MemberController {
     public Api<MyChannelMemberShowAllResponse> findMyChannelMemberInfo(
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
-            @RequestParam("tab") String channelFilter
+            @RequestParam("tab") String channelFilter,
+             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
@@ -61,18 +64,20 @@ public class MemberController {
         } else {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
-
-        MyChannelMemberShowAllResponse myChannelMemberShowAllResponse = memberService.findAllChannelMyInfo(memberId, channelEnum, pageParamRequest);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        MyChannelMemberShowAllResponse myChannelMemberShowAllResponse = memberService.findAllChannelMyInfo(memberId, channelEnum, pageable);
 
         return Api.OK(myChannelMemberShowAllResponse);
     }
 
     @GetMapping("/friends")
     public Api<ChannelFriendShowAllResponse> findMyFriends(
+            @RequestParam(value = "sort", defaultValue = "latest") String sort,
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId
     ) {
-        ChannelFriendShowAllResponse channelFriendShowAllResponse = memberService.findChannelFriends(memberId, pageParamRequest);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        ChannelFriendShowAllResponse channelFriendShowAllResponse = memberService.findChannelFriends(memberId, pageable);
 
         return Api.OK(channelFriendShowAllResponse);
     }

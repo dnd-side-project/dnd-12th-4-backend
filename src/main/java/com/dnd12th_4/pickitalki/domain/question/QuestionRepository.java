@@ -25,6 +25,14 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
 
     Optional<Question> findByIdAndIsDeletedFalse(Long id);
 
+    List<Question> findByChannel_UuidAndIsDeletedFalseOrderByCreatedAtAsc(UUID channelUuid);
+    List<Question> findByChannel_UuidAndIsDeletedFalseOrderByCreatedAtDesc(UUID channelUuid);
+
+    List<Question> findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long memberId);
+
+    List<Question> findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtAsc(Long memberId);
+
+    Page<Question> findByWriter_Member_IdAndIsDeletedFalse(Long memberId,Pageable pageable);
     Page<Question> findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(UUID channelUuid, Pageable pageable);
 
 }

@@ -2,25 +2,41 @@ package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.*;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelStatusResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.MADEALL;
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
+import static java.util.Comparator.comparing;
 
 
 @RestController
@@ -42,40 +58,16 @@ public class ChannelController {
                 .body(channelResponse);
     }
 
-    @PatchMapping("/{channelId}/codeName")
-    public Api<MemberCodeNameResponse> updateMemberCodeName(
-            @MemberId Long memberId,
-            @PathVariable("channelId") String channelId,
-            @RequestParam("codeName") @Valid String codeName
-    ) {
-        MemberCodeNameResponse memberCodeNameResponse = channelService.updateCodeName(memberId, channelId, codeName);
 
-        return Api.OK(memberCodeNameResponse);
-    }
-
-    @GetMapping("/{channelId}/members")
-    public Api<ChannelMemberResponse> findChannelMembers(
-            @ModelAttribute PageParamRequest pageParamRequest,
+    @GetMapping("/{channelId}/status")
+    public Api<ChannelStatusResponse> findChannelStatus(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
-        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId, pageParamRequest);
 
-        return Api.OK(channelMemberResponse);
-//                .memberCount(channelMembers.size())
-//                .channelMembers(channelMembers)
-//                .build()
+        ChannelStatusResponse channelStatus = channelService.findChannelStatus(memberId, channelId);
 
-    }
-
-    @GetMapping("/{channelId}/members/status")
-    public Api<ChannelMemberStatusResponse> findChannelMemberStatus(
-            @MemberId Long memberId,
-            @PathVariable("channelId") String channelId
-    ) {
-        ChannelMemberStatusResponse channelMemberStatus = channelService.findChannelMemberStatus(memberId, channelId);
-
-        return Api.OK(channelMemberStatus);
+        return Api.OK(channelStatus);
     }
 
 
@@ -86,16 +78,6 @@ public class ChannelController {
     ) {
         String inviteCode = channelService.findInviteCode(memberId, channelName);
         return ResponseEntity.ok(new InviteCodeDto(inviteCode));
-    }
-
-    @PostMapping("/join")
-    public Api<ChannelJoinResponse> joinMemberToChannel(
-            @MemberId Long memberId,
-            @RequestBody InviteRequest joinRequest
-    ) {
-        ChannelJoinResponse channelJoinResponse = channelService.joinMember(memberId, joinRequest.inviteCode(), joinRequest.codeName());
-
-        return Api.OK(channelJoinResponse);
     }
 
     @GetMapping
@@ -122,7 +104,8 @@ public class ChannelController {
     public Api<ChannelShowAllResponse> findChannelsByRole(
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
-            @RequestParam("tab") String channelFilter
+            @RequestParam("tab") String channelFilter,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
@@ -134,12 +117,19 @@ public class ChannelController {
         } else {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
-        ChannelShowAllResponse channelShowAllResponse =  channelService.findAllMyChannels(memberId, channelEnum, pageParamRequest);
+
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        ChannelShowAllResponse channelShowAllResponse =  channelService.findAllMyChannels(memberId, channelEnum, pageable);
         return Api.OK(channelShowAllResponse);
     }
 
+    @DeleteMapping("/{channelId}")
+    public ResponseEntity<String> deleteChannel(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        channelService.deleteChannel(memberId, channelId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
-
-
-
-
