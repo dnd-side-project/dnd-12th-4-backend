@@ -2,11 +2,11 @@ package com.dnd12th_4.pickitalki.service.login;
 
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
-import com.dnd12th_4.pickitalki.controller.member.dto.ChannelFriendResponse;
-import com.dnd12th_4.pickitalki.controller.member.dto.ImageResponse;
-import com.dnd12th_4.pickitalki.controller.member.dto.MemberResponse;
-import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.member.dto.*;
+import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
@@ -16,6 +16,7 @@ import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,10 +55,11 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MyChannelMemberResponse> findAllChannelMyInfo(Long memberId, ChannelControllerEnums status) {
+    public MyChannelMemberShowAllResponse findAllChannelMyInfo(Long memberId, ChannelControllerEnums status, Pageable pageable) {
+
         List<ChannelMember> myChannelMembers = channelMemberRepository.findByMemberId(memberId);
 
-        return myChannelMembers.stream()
+        List<MyChannelMemberResponse> filteredList = myChannelMembers.stream()
                 .filter(channelMember ->
                         status == ChannelControllerEnums.SHOWALL ||
                                 (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER) ||
@@ -65,7 +67,15 @@ public class MemberService {
                 )
                 .map(MemberService::buildChannelMemberResponse)
                 .toList();
+
+        Page<MyChannelMemberResponse> page = getPage(pageable, filteredList);
+
+        return MyChannelMemberShowAllResponse.builder()
+                .myChannelMemberResponse(page.getContent())
+                .pageParamResponse(createPageParamResponse(page))
+                .build();
     }
+
 
     private static MyChannelMemberResponse buildChannelMemberResponse(ChannelMember channelMember) {
         return MyChannelMemberResponse.builder()
@@ -74,6 +84,7 @@ public class MemberService {
                 .codeName(channelMember.getMemberCodeName())
                 .profileImage(channelMember.getProfileImage())
                 .channelId(channelMember.getChannel().getId())
+                .countPerson(channelMember.getChannel().getChannelMembers().size())
                 .build();
     }
 
@@ -89,10 +100,11 @@ public class MemberService {
 
 
     @Transactional(readOnly = true)
-    public List<ChannelFriendResponse> findChannelFriends(Long memberId) {
+    public ChannelFriendShowAllResponse findChannelFriends(Long memberId, Pageable pageable) {
+
         List<ChannelMember> meOnChannel = channelMemberRepository.findMeOnChannel(memberId);
 
-        return meOnChannel.stream()
+        List<ChannelFriendResponse> filteredList = meOnChannel.stream()
                 .flatMap(me -> me.getChannel().getChannelMembers().stream()
                         .filter(friend -> !friend.equals(me))
                         .map(friend -> ChannelFriendResponse.builder()
@@ -103,6 +115,13 @@ public class MemberService {
                                 .build())
                 )
                 .toList();
+
+        Page<ChannelFriendResponse> page = getPage(pageable, filteredList);
+
+        return ChannelFriendShowAllResponse.builder()
+                .channelFriendResponseList(page.getContent())
+                .pageParamResponse(createPageParamResponse(page))
+                .build();
     }
 
     public ImageResponse uploadProfileImage(Long memberId, MultipartFile file) {
@@ -152,5 +171,21 @@ public class MemberService {
                 .email(member.getEmail())
                 .profileImage(member.getProfileImageUrl())
                 .build();
+    }
+
+    private <T> Page<T> getPage(Pageable pageable, List<T> list) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
+    }
+
+    private PageParamResponse createPageParamResponse(Page<?> page) {
+        return new PageParamResponse(
+                page.getNumber(),
+                page.getSize(),
+                (int) page.getTotalElements(),
+                page.getTotalPages(),
+                page.hasNext()
+        );
     }
 }

@@ -1,6 +1,8 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
@@ -11,6 +13,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllRe
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.*;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelLevel;
@@ -24,6 +27,7 @@ import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,20 +104,27 @@ public class ChannelService {
     }
 
     @Transactional
-    public List<ChannelShowAllResponse> findAllMyChannels(Long memberId, ChannelControllerEnums status) {
+    public ChannelShowAllResponse findAllMyChannels(Long memberId, ChannelControllerEnums status,  Pageable pageable) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        return member.getChannelMembers().stream()
+        List<ChannelShowResponse> filteredList = member.getChannelMembers().stream()
                 .filter(channelMember -> status == SHOWALL ||
                         (status == INVITEDALL && channelMember.getRole() == Role.MEMBER) ||
                         (status == MADEALL && channelMember.getRole() == Role.OWNER)
                 )
                 .map(this::buildChannelShowAllResponse)
-                .collect(Collectors.toList());
+                .toList();
+
+        Page<ChannelShowResponse> page = getPage(pageable, filteredList);
+
+        return ChannelShowAllResponse.builder()
+                .channelShowResponse(page.getContent())
+                .pageParamResponse(createPageParamResponse(page))
+                .build();
     }
 
-    private ChannelShowAllResponse buildChannelShowAllResponse(ChannelMember channelMember) {
+    private ChannelShowResponse buildChannelShowAllResponse(ChannelMember channelMember) {
 
         Channel channel = channelMember.getChannel();
 
@@ -125,7 +136,7 @@ public class ChannelService {
 
         long signalCount = questionRepository.countByChannelUuid(channel.getUuid());
 
-        return ChannelShowAllResponse.builder()
+        return ChannelShowResponse.builder()
                 .channelId(channel.getId())
                 .channelOwnerName(ownerName)
                 .channelRoomName(channel.getName())
@@ -175,14 +186,15 @@ public class ChannelService {
     }
 
     @Transactional(readOnly= true)
-    public ChannelMemberResponse findChannelMembers(Long memberId, String channelId) {
+    public ChannelMemberResponse findChannelMembers(Long memberId, String channelId, Pageable pageable) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
-        List<ChannelMemberDto> channelMemberDtos = channel.getChannelMembers()
+
+        List<ChannelMemberDto> filteredList = channel.getChannelMembers()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
                         .nickName(channelMember.getMemberCodeName())
                         .profileImageUrl(channelMember.getMember().getProfileImageUrl())
@@ -190,11 +202,9 @@ public class ChannelService {
                         .build()
                 ).toList();
 
-        return ChannelMemberResponse.builder()
-                .channelMembers(channelMemberDtos)
-                .channelName(channel.getName())
-                .memberCount(channelMemberDtos.size())
-                .build();
+        Page<ChannelMemberDto> page = getPage(pageable, filteredList);
+
+        return new ChannelMemberResponse(channel.getName(),page.getContent().size(), page.getContent(), createPageParamResponse(page));
     }
 
     @Transactional(readOnly = true)
@@ -258,9 +268,26 @@ public class ChannelService {
                 .channelId(channel.getId())
                 .channelMemberId(channelMember.getId())
                 .channelName(channel.getName())
+                .countPerson(channel.getChannelMembers().size())
                 .codeName(channelMember.getMemberCodeName())
                 .profileImage(channelMember.getProfileImage())
                 .build();
+    }
+
+    private <T> Page<T> getPage(Pageable pageable, List<T> list) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
+    }
+
+    private PageParamResponse createPageParamResponse(Page<?> page) {
+        return new PageParamResponse(
+                page.getNumber(),
+                page.getSize(),
+                (int) page.getTotalElements(),
+                page.getTotalPages(),
+                page.hasNext()
+        );
     }
 
     public void leaveChannel(Long memberId, String channelId) {

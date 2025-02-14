@@ -4,5 +4,5 @@ import lombok.Builder;
 
 @Builder
 public record MyChannelMemberResponse(Long channelMemberId, String channelId, String codeName, String channelName,
-                                      String profileImage) {
+                                      String profileImage,Integer countPerson) {
 }

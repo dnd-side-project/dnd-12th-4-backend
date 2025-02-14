@@ -1,5 +1,7 @@
 package com.dnd12th_4.pickitalki.domain.question;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,6 +31,9 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
     List<Question> findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long memberId);
 
     List<Question> findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtAsc(Long memberId);
+
+    Page<Question> findByWriter_Member_IdAndIsDeletedFalse(Long memberId,Pageable pageable);
+    Page<Question> findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(UUID channelUuid, Pageable pageable);
 
 }
 

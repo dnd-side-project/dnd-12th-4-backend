@@ -1,6 +1,8 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDeleteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
@@ -12,17 +14,10 @@ import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,10 +39,13 @@ public class ChannelMemberController {
 
     @GetMapping("/{channelId}/members")
     public Api<ChannelMemberResponse> findChannelMembers(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
-            @PathVariable("channelId") String channelId
+            @PathVariable("channelId") String channelId,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
-        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId,pageable);
 
         return Api.OK(channelMemberResponse);
     }

@@ -1,7 +1,14 @@
 package com.dnd12th_4.pickitalki.controller.channel;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelCreateRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.*;
+import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
+
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
+import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
@@ -11,8 +18,10 @@ import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +64,7 @@ public class ChannelController {
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId
     ) {
+
         ChannelStatusResponse channelStatus = channelService.findChannelStatus(memberId, channelId);
 
         return Api.OK(channelStatus);
@@ -91,7 +101,8 @@ public class ChannelController {
     }
 
     @GetMapping("/channel-profile")
-    public Api<List<ChannelShowAllResponse>> findChannelsByRole(
+    public Api<ChannelShowAllResponse> findChannelsByRole(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
@@ -107,17 +118,9 @@ public class ChannelController {
             throw new IllegalArgumentException("지원하지 않는 파라미터입니다. all, my-channel, invited-channel 중 1개를 요청헤주세요");
         }
 
-        List<ChannelShowAllResponse> channelShowAllResponses = channelService.findAllMyChannels(memberId, channelEnum);
-
-        if (sort.equals("latest")) {
-            channelShowAllResponses.sort(comparing(ChannelShowAllResponse::getCreatedAt).reversed());
-        } else if (sort.equals("oldest")) {
-            channelShowAllResponses.sort(comparing(ChannelShowAllResponse::getCreatedAt));
-        } else {
-            throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다. latest 또는 oldest 중 1개를 요청해주세요.");
-        }
-
-        return Api.OK(channelShowAllResponses);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        ChannelShowAllResponse channelShowAllResponse =  channelService.findAllMyChannels(memberId, channelEnum, pageable);
+        return Api.OK(channelShowAllResponse);
     }
 
     @DeleteMapping("/{channelId}")

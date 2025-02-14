@@ -1,6 +1,11 @@
 package com.dnd12th_4.pickitalki.controller.question;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
+import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
+import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
+import com.dnd12th_4.pickitalki.controller.question.dto.*;
+
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateRequest;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
@@ -9,17 +14,11 @@ import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.service.question.QuestionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,35 +48,36 @@ public class QuestionController {
     }
 
     @GetMapping("/questions")
-    public ResponseEntity<List<QuestionResponse>> findQuestionsByMember(
+    public ResponseEntity<QuestionShowAllResponse> findQuestionsByMember(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
-        List<QuestionResponse> questions = questionService.findQuestionsByMember(memberId, sort);
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+
+        QuestionShowAllResponse questionShowAllResponse = questionService.findQuestionsByMember(memberId, pageable);
 
         return ResponseEntity.ok()
-                .body(questions);
+                .body(questionShowAllResponse);
     }
 
     @GetMapping("/{channelId}/questions")
-    public ResponseEntity<List<QuestionResponse>> findQuestionsByChannel(
+    public ResponseEntity<?> findQuestionsByChannel(
+            @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
-            @RequestParam("questionId") Long questionId,
+            @RequestParam(value = "questionId", required = false) Long questionId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
-        List<QuestionResponse> questionResponses = new ArrayList<>();
+        Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
 
         if (Objects.nonNull(questionId)) {
-            QuestionResponse questionResponse = questionService.findQuestionById(memberId, questionId);
-            questionResponses.add(questionResponse);
-        } else {
-            questionResponses = questionService.findByChannelId(memberId, channelId, sort);
+            return ResponseEntity.ok(questionService.findQuestionById(memberId, questionId));
         }
 
-        return ResponseEntity.ok()
-                .body(questionResponses);
+        return ResponseEntity.ok(questionService.findByChannelId(memberId, channelId, pageable));
     }
+
 
     @GetMapping("/{channelId}/questions/{questionId}")
     public ResponseEntity<QuestionResponse> findQuestionsByQuestionId(

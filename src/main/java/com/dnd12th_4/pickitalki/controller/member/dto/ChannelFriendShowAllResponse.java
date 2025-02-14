@@ -1,4 +1,4 @@
-package com.dnd12th_4.pickitalki.controller.channel.dto.response;
+package com.dnd12th_4.pickitalki.controller.member.dto;
 
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChannelShowAllResponse {
+public class ChannelFriendShowAllResponse {
 
-    private List<ChannelShowResponse> channelShowResponse;
+    private List<ChannelFriendResponse> channelFriendResponseList;
+
     private PageParamResponse pageParamResponse;
 }
