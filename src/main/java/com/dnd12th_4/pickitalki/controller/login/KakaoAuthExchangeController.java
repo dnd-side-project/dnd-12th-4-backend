@@ -59,10 +59,6 @@ public class KakaoAuthExchangeController {
                     : null;
         }
 
-        if(member.getNickName()==null&&channelCount!=0){
-            throw new ApiException(ErrorCode.NULL_POINT,"해당 유저는 이름설정 없이 방을 만들었습니다.");
-        }
-
         UserResponse userResponse = UserResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
