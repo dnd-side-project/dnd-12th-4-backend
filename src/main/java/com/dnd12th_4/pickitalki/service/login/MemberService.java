@@ -84,6 +84,7 @@ public class MemberService {
                 .codeName(channelMember.getMemberCodeName())
                 .profileImage(channelMember.getProfileImage())
                 .channelId(channelMember.getChannel().getId())
+                .countPerson(channelMember.getChannel().getChannelMembers().size())
                 .build();
     }
 
