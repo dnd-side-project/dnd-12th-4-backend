@@ -7,7 +7,8 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDeleteReques
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteRequest;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
-import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMembersResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameResponse;
 import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
@@ -38,16 +39,36 @@ public class ChannelMemberController {
     }
 
     @GetMapping("/{channelId}/members")
-    public Api<ChannelMemberResponse> findChannelMembers(
+    public Api<ChannelMembersResponse> findChannelMembers(
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
-        ChannelMemberResponse channelMemberResponse = channelService.findChannelMembers(memberId, channelId,pageable);
+        ChannelMembersResponse channelMembersResponse = channelService.findChannelMembers(memberId, channelId, pageable);
 
-        return Api.OK(channelMemberResponse);
+        return Api.OK(channelMembersResponse);
+    }
+
+    @GetMapping("/{channelId}/members/me")
+    public Api<ChannelMemberProfileResponse> findMyChannelMemberProfile(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        ChannelMemberProfileResponse channelMemberProfileResponse = channelService.findChannelMember(memberId, channelId);
+
+        return Api.OK(channelMemberProfileResponse);
+    }
+
+    @GetMapping("/{channelId}/members/today-questioner")
+    public Api<ChannelMemberProfileResponse> findTodayQuestionerProfile(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId
+    ) {
+        ChannelMemberProfileResponse todayQuestionerResponse = channelService.findTodayQuestioner(memberId, channelId);
+
+        return Api.OK(todayQuestionerResponse);
     }
 
     @PatchMapping("/{channelId}/members/profile")

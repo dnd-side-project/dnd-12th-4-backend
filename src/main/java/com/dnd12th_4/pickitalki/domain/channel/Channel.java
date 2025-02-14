@@ -14,6 +14,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,11 +73,11 @@ public class Channel extends BaseEntity implements Persistable<String> {
     }
 
     public void joinChannelMember(ChannelMember channelMember) {
-        validateChannelMember(channelMember);
+        validateNewChannelMember(channelMember);
         channelMembers.add(channelMember);
     }
 
-    private void validateChannelMember(ChannelMember channelMember) {
+    private void validateNewChannelMember(ChannelMember channelMember) {
         if (isNull(channelMember)) {
             throw new IllegalArgumentException("채널의 회원이 존재하지 않습니다.");
         }
@@ -137,4 +141,19 @@ public class Channel extends BaseEntity implements Persistable<String> {
         return Objects.equals(uuid, other.uuid);
     }
 
+    public ChannelMember pickTodayQuestioner() {
+        String seed = uuid + "-" + java.time.LocalDate.now();
+        int index = Math.abs(getHash(seed)) % channelMembers.size();
+        return channelMembers.get(index);
+    }
+
+    private int getHash(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
+            return new BigInteger(1, hashBytes).intValue();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("오늘의 질문자 추첨 실패 - SHA-256 algorithm not found", e);
+        }
+    }
 }
