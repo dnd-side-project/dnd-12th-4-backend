@@ -22,6 +22,6 @@ public class PageParamRequest {
     }
 
     public Integer getSize() {
-        return (size != null) ? size : 5;
+        return (size != null) ? size : 100;
     }
 }

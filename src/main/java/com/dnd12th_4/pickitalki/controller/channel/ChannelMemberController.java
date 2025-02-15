@@ -13,6 +13,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.response.MemberCodeNameRe
 import com.dnd12th_4.pickitalki.controller.member.dto.MyChannelMemberResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +50,7 @@ public class ChannelMemberController {
 
     @GetMapping("/{channelId}/members")
     public Api<ChannelMembersResponse> findChannelMembers(
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
