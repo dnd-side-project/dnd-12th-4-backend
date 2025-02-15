@@ -44,13 +44,21 @@ public class AnswerService {
 
         ChannelMember channelMember = getChannelMember(member, question);
 
-        //내가 오늘 post 적었는지 안적었는지
-
+        validateTodayRespond(memberId, question);
 
         Answer answer = new Answer(question, channelMember, requestForm.answerForm(), requestForm.isAnonymous(), requestForm.anonymousName());
         answerRepository.save(answer);
 
         return toAnswerWriteResponse(answer, member);
+    }
+
+    private void validateTodayRespond(Long memberId, Question question) {
+        boolean alreadyAnswered = question.getAnswerList().stream()
+                .anyMatch(answer -> answer.getAuthor().isSameMember(memberId));
+
+        if (alreadyAnswered) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "이 사용자는 이미 오늘의 질문에 답을 했습니다.");
+        }
     }
 
     @Transactional
