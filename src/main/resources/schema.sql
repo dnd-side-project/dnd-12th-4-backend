@@ -1,4 +1,4 @@
-CREATE TABLE channels
+create TABLE if not exists `pickitalki`.channels
 (
     uuid        BINARY(16)                           NOT NULL PRIMARY KEY,
     name        VARCHAR(30)                          NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE channels
     CONSTRAINT name UNIQUE (name)
 );
 
-CREATE TABLE members
+create TABLE if not exists `pickitalki`.members
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     kakao_id          BIGINT                               NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE members
     CONSTRAINT kakao_id UNIQUE (kakao_id)
 );
 
-CREATE TABLE channel_members
+create TABLE if not exists `pickitalki`.channel_members
 (
     id                       BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid             BINARY(16)                           NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE channel_members
     CONSTRAINT channel_members_ibfk_2 FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
 );
 
-CREATE TABLE questions
+create TABLE if not exists `pickitalki`.questions
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_uuid      BINARY(16)                           NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE questions
     CONSTRAINT questions_ibfk_2 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
-CREATE TABLE answers
+create TABLE if not exists `pickitalki`.answers
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     question_id       BIGINT                               NOT NULL,
@@ -75,4 +75,5 @@ CREATE TABLE answers
     CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
-CREATE INDEX question_id ON answers (question_id);
+CREATE INDEX idx_answers_question_id ON `pickitalki`.answers (question_id);
+
