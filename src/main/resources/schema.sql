@@ -64,15 +64,15 @@ CREATE TABLE answers
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     question_id       BIGINT                               NOT NULL,
-    channel_member_id BIGINT                               NULL,                                                 -- ✅ NULL 허용
+    channel_member_id BIGINT                               NULL,
     content           VARCHAR(500)                         NOT NULL,
     is_anonymous      TINYINT(1) DEFAULT 0                 NOT NULL,
     anonymous_name    VARCHAR(10)                          NULL,
     created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
-    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ON DELETE CASCADE,             -- ✅ 질문 삭제 시 답변도 삭제
-    CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL -- ✅ 채널 멤버 삭제 시 NULL로 변경
+    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ON DELETE CASCADE,
+    CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
 CREATE INDEX question_id ON answers (question_id);
