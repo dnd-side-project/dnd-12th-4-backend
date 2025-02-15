@@ -12,12 +12,17 @@ public class Pagination {
 
     public static Pageable validateGetPage(String sort, PageParamRequest pageParamRequest) {
 
+        int size = pageParamRequest.getSize();
+        int page = pageParamRequest.getPage();
+        pageParamRequest.setSize(size);
+        pageParamRequest.setPage(page);
+
         Pageable pageable = null;
         if(sort.equals("latest")){
-            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+            pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.DESC, "createdAt"));
         }
         else if(sort.equals("oldest")){
-            pageable = PageRequest.of(pageParamRequest.getPage(), pageParamRequest.getSize(), Sort.by(Sort.Direction.ASC, "createdAt"));
+            pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC, "createdAt"));
         }
         else{
             throw new ApiException(ErrorCode.BAD_REQUEST,"sort값을 확인해주세요");

@@ -29,7 +29,7 @@ public class AnswerController {
     @GetMapping("/{questionId}")
     public Api<AnswerShowAllResponse> showAnswers(
             @RequestParam(value = "sort", defaultValue = "latest") String sort,
-            @ModelAttribute @Valid PageParamRequest pageParamRequest,
+            @ModelAttribute PageParamRequest pageParamRequest,
             @PathVariable("questionId") Long questionId,
             @MemberId Long memberId
     ){

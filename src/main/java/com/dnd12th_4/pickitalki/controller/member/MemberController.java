@@ -52,8 +52,9 @@ public class MemberController {
             @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter,
-             @RequestParam(value = "sort", defaultValue = "latest") String sort
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
+
         ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
             channelEnum = SHOWALL;
