@@ -30,7 +30,7 @@ public class Question extends BaseEntity {
     private Channel channel;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_member_id", nullable = false)
+    @JoinColumn(name = "channel_member_id", nullable = true)
     private ChannelMember writer;
 
     @Column(nullable = false, length = 100)
@@ -100,5 +100,10 @@ public class Question extends BaseEntity {
         } else {
             this.createdDate = LocalDate.now();
         }
+    }
+
+    @PreRemove
+    private void preRemove() {
+        this.writer = null; // ChannelMember 삭제 시 null로 설정
     }
 }

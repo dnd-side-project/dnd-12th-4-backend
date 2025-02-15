@@ -30,7 +30,7 @@ public class Answer extends BaseEntity {
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_member_id", nullable = false)
+    @JoinColumn(name = "channel_member_id", nullable = true)
     @JsonIgnore
     private ChannelMember author;
 
@@ -72,6 +72,11 @@ public class Answer extends BaseEntity {
        if(!question.getAnswerList().contains(this)){
            question.getAnswerList().add(this);
        }
+    }
+
+    @PreRemove
+    private void preRemove(){
+        this.author = null;
     }
 
 }
