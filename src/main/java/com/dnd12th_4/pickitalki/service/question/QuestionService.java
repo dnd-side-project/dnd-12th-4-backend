@@ -38,10 +38,9 @@ public class QuestionService {
 
     public Long save(Long memberId, String channelId, String content, boolean isAnonymous, String anonymousName) {
         UUID channelUuid = UUID.fromString(channelId);
-
-//        if (questionRepository.findTodayQuestion(channelUuid).isPresent()) {
-//            throw new IllegalStateException("이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
-//        }
+        if (questionRepository.findTodayQuestion(channelUuid).isPresent()) {
+            throw new IllegalStateException("이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
+        }
         //TODO 프론트 측에서 질문 제한을 개발중에 풀어달라 해서 잠시 주석처리 했습니다.
 
         Channel channel = channelRepository.findByUuid(channelUuid)
