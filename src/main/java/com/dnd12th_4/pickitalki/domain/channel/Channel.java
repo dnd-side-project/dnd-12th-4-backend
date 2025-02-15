@@ -52,7 +52,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(name = "point", nullable = false)
     private int point;
 
-    @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE, REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE, REMOVE},orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
 

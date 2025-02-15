@@ -351,9 +351,11 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
-        channelMemberRepository.deleteById(channelMember.getId());
+        channel.leaveChannel(channelMember);
 
     }
+    //Todo 만약 channelMember가 삭제되어 0명이 되면 기존 채널방은 어떻게 해야 되나?
+    //Todo 방장이 채널방을 나가게 되면 새로운 방장을 만들어야 되나?
 
     @Transactional
     public void leaveChannels(Long memberId, List<String> channelIds) {
