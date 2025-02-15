@@ -25,8 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.*;
 import static java.util.Objects.hash;
 import static java.util.Objects.isNull;
 
@@ -53,8 +52,9 @@ public class Channel extends BaseEntity implements Persistable<String> {
     @Column(name = "point", nullable = false)
     private int point;
 
-    @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE, REMOVE},orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ChannelMember> channelMembers = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
