@@ -65,6 +65,7 @@ public class QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
+
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
