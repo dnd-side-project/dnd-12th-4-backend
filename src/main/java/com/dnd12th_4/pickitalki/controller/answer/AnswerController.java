@@ -12,6 +12,7 @@ import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.answer.AnswerService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +30,7 @@ public class AnswerController {
     @GetMapping("/{questionId}")
     public Api<AnswerShowAllResponse> showAnswers(
             @RequestParam(value = "sort", defaultValue = "latest") String sort,
-            @ModelAttribute @Valid PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @PathVariable("questionId") Long questionId,
             @MemberId Long memberId
     ){

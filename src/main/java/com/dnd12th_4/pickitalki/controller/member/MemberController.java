@@ -8,6 +8,7 @@ import com.dnd12th_4.pickitalki.controller.member.dto.*;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.login.MemberService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.converters.ModelConverterRegistrar;
@@ -49,11 +50,12 @@ public class MemberController {
 
     @GetMapping("/channel-members")
     public Api<MyChannelMemberShowAllResponse> findMyChannelMemberInfo(
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter,
-             @RequestParam(value = "sort", defaultValue = "latest") String sort
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
+
         ChannelControllerEnums channelEnum;
         if (channelFilter.equals("all")) {
             channelEnum = SHOWALL;
@@ -73,7 +75,7 @@ public class MemberController {
     @GetMapping("/friends")
     public Api<ChannelFriendShowAllResponse> findMyFriends(
             @RequestParam(value = "sort", defaultValue = "latest") String sort,
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);

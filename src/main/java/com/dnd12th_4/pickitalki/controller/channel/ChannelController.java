@@ -11,6 +11,7 @@ import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificR
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelStatusResponse;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.service.channel.ChannelService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -93,7 +94,7 @@ public class ChannelController {
 
     @GetMapping("/channel-profile")
     public Api<ChannelShowAllResponse> findChannelsByRole(
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam("tab") String channelFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort

@@ -13,6 +13,7 @@ import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.service.question.QuestionService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,7 +64,7 @@ public class QuestionController {
 
     @GetMapping("/{channelId}/questions")
     public ResponseEntity<?> findQuestionsByChannel(
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
             @RequestParam(value = "questionId", required = false) Long questionId,
