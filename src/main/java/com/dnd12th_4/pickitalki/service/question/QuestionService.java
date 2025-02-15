@@ -73,6 +73,9 @@ public class QuestionService {
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
+                        .questionId(question.getId())
+                        .answerCount(question.getAnswerList().size())
+                        .hasRespond(getQuestionHasRespond(question,memberId))
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
@@ -80,7 +83,15 @@ public class QuestionService {
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
                         .time(formatToKoreanTime(LocalDateTime.now()))
                         .content(null)
+                        .questionId(null)
+                        .answerCount(0)
+                        .hasRespond(false)
                         .build());
+    }
+
+    private boolean getQuestionHasRespond(Question question, Long memberId) {
+        return question.getAnswerList().stream()
+                .anyMatch(it -> it.getAuthor().getMember().getId().equals(memberId));
     }
 
     private void validateMemberInChannel(Channel channel, Long memberId) {
