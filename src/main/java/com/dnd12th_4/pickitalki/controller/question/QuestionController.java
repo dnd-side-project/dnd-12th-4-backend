@@ -50,7 +50,7 @@ public class QuestionController {
 
     @GetMapping("/questions")
     public ResponseEntity<QuestionShowAllResponse> findQuestionsByMember(
-            @ModelAttribute PageParamRequest pageParamRequest,
+            @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
