@@ -16,8 +16,7 @@ import static io.micrometer.common.util.StringUtils.isBlank;
 
 @Getter
 @Entity
-@Table(name = "questions"
-      // , uniqueConstraints = {@UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_uuid", "created_date"})}
+@Table(name = "questions" ,uniqueConstraints = {@UniqueConstraint(name = "unique_channel_today_question", columnNames = {"channel_uuid", "created_date"})}
 )
 public class Question extends BaseEntity {
 
@@ -30,7 +29,7 @@ public class Question extends BaseEntity {
     @JsonIgnore
     private Channel channel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_member_id", nullable = false)
     private ChannelMember writer;
 
