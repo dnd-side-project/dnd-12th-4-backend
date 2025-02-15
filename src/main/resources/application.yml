@@ -8,7 +8,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     defer-datasource-initialization: true
     show-sql: true
   sql:
@@ -16,11 +16,13 @@ spring:
       mode: always
 
 
+
+
 kakao:
   auth-url: "https://kauth.kakao.com/oauth/authorize"
   token-url: "https://kauth.kakao.com/oauth/token"
   user-info-url: "https://kapi.kakao.com/v2/user/me"
-  redirect-uri: "http://localhost:8080/callback"
+  redirect_uri: "http://localhost:8080/callback"
   client_id: "593bbcfa93f4286bf118f1e2d31891b8"
 
 
