@@ -39,7 +39,6 @@ public class ChannelMember extends BaseEntity {
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-
     @JoinColumn(name = "member_id" ,nullable = false)
     @JsonIgnore
     private Member member;
