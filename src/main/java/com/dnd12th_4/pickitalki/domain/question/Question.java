@@ -48,7 +48,7 @@ public class Question extends BaseEntity {
     @Column(nullable = false)
     private LocalDate createdDate;
 
-    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "question",orphanRemoval = true,  fetch = FetchType.LAZY)
     private List<Answer> answerList = new ArrayList<>();
 
     protected Question() {

@@ -56,7 +56,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "channel",orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 
     protected Channel() {}

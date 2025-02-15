@@ -44,11 +44,21 @@ public class AnswerService {
 
         ChannelMember channelMember = getChannelMember(member, question);
 
+        validateTodayRespond(memberId, question);
 
         Answer answer = new Answer(question, channelMember, requestForm.answerForm(), requestForm.isAnonymous(), requestForm.anonymousName());
         answerRepository.save(answer);
 
         return toAnswerWriteResponse(answer, member);
+    }
+
+    private void validateTodayRespond(Long memberId, Question question) {
+        boolean alreadyAnswered = question.getAnswerList().stream()
+                .anyMatch(answer -> answer.getAuthor().isSameMember(memberId));
+
+        if (alreadyAnswered) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "이 사용자는 이미 오늘의 질문에 답을 했습니다.");
+        }
     }
 
     @Transactional
@@ -85,12 +95,12 @@ public class AnswerService {
     }
 
     @Transactional
-    public Long delete(Long answerId) {
+    public void delete(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "AnswerInfoResponse delete 해당 answerId는 DB에 없습니다."));
 
-        answer.softDelete();
-        return answer.getId();
+        Question question = answer.getQuestion();
+        question.getAnswerList().remove(answer);
     }
 
     private AnswerResponse toAnswerResponse(Answer answer, Long memberId) {
