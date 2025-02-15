@@ -43,7 +43,7 @@ import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 import static io.micrometer.common.util.StringUtils.isBlank;
 
-@Transactional
+
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -210,6 +210,7 @@ public class ChannelService {
         return new ChannelMembersResponse(channel.getName(),page.getContent().size(), page.getContent(), createPageParamResponse(page));
     }
 
+    @Transactional
     public ChannelMemberProfileResponse findChannelMember(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -226,7 +227,7 @@ public class ChannelService {
                 .isTodayQuestioner(channelMember.getId().equals(todayQuestioner.getId()))
                 .build();
     }
-
+    @Transactional
     public ChannelMemberProfileResponse findTodayQuestioner(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -283,6 +284,7 @@ public class ChannelService {
                 .build();
     }
 
+    @Transactional
     public ChannelStatusResponse findChannelStatus(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -300,6 +302,7 @@ public class ChannelService {
         //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
     }
 
+    @Transactional
     public MyChannelMemberResponse updateChannelMemberProfile(Long memberId, String channelId, String codeName, String imageUrl) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -340,6 +343,7 @@ public class ChannelService {
         );
     }
 
+    @Transactional
     public void leaveChannel(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -347,15 +351,18 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
-        channel.leaveChannel(channelMember);
+        channelMemberRepository.deleteById(channelMember.getId());
+
     }
 
+    @Transactional
     public void leaveChannels(Long memberId, List<String> channelIds) {
         for (String channelId : channelIds) {
             leaveChannel(memberId, channelId);
         }
     }
 
+    @Transactional
     public void deleteChannel(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
