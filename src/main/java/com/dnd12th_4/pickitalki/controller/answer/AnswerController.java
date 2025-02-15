@@ -68,7 +68,8 @@ public class AnswerController {
     public Api<String> deleteAnswer(
             @PathVariable("answerId") Long answerId
     ){
-        Long deletedId = answerService.delete(answerId);
-        return Api.OK("삭제완료 answerId : "+deletedId);
+         answerService.delete(answerId);
+
+        return Api.OK("삭제완료 answerId : "+ answerId);
     }
 }

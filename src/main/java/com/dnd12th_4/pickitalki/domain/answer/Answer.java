@@ -37,8 +37,6 @@ public class Answer extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String content;
 
-
-
     @Column(nullable = false)
     private boolean isAnonymous;
 

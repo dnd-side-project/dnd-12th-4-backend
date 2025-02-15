@@ -44,6 +44,8 @@ public class AnswerService {
 
         ChannelMember channelMember = getChannelMember(member, question);
 
+        //내가 오늘 post 적었는지 안적었는지
+
 
         Answer answer = new Answer(question, channelMember, requestForm.answerForm(), requestForm.isAnonymous(), requestForm.anonymousName());
         answerRepository.save(answer);
@@ -85,12 +87,12 @@ public class AnswerService {
     }
 
     @Transactional
-    public Long delete(Long answerId) {
+    public void delete(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "AnswerInfoResponse delete 해당 answerId는 DB에 없습니다."));
 
-        answer.softDelete();
-        return answer.getId();
+        Question question = answer.getQuestion();
+        question.getAnswerList().remove(answer);
     }
 
     private AnswerResponse toAnswerResponse(Answer answer, Long memberId) {
