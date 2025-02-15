@@ -46,12 +46,9 @@ public class AnswerService {
 
 
         Answer answer = new Answer(question, channelMember, requestForm.answerForm(), requestForm.isAnonymous(), requestForm.anonymousName());
-
-        AnswerWriteResponse answerWriteResponse = toAnswerWriteResponse(answer, member);
-
         answerRepository.save(answer);
 
-        return answerWriteResponse;
+        return toAnswerWriteResponse(answer, member);
     }
 
     @Transactional
