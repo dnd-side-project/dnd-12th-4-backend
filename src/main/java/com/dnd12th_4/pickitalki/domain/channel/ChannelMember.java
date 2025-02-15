@@ -58,6 +58,7 @@ public class ChannelMember extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
     protected ChannelMember() {
     }
 
@@ -104,6 +105,11 @@ public class ChannelMember extends BaseEntity {
         this.profileImage = profileImage;
         this.isUsingDefaultProfile = false;
     }
+
+    public void changeRole(Role role){
+        this.role=role;
+    }
+
 
     @Override
     public int hashCode() {
