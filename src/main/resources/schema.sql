@@ -1,74 +1,78 @@
-CREATE TABLE IF NOT EXISTS `pickitalki`.members
+CREATE TABLE channels
+(
+    uuid        BINARY(16)                           NOT NULL PRIMARY KEY,
+    name        VARCHAR(30)                          NOT NULL,
+    invite_code VARCHAR(6)                           NOT NULL,
+    point       INT        DEFAULT 0                 NOT NULL,
+    created_at  DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at  DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted  TINYINT(1) DEFAULT 0                 NOT NULL,
+    CONSTRAINT invite_code UNIQUE (invite_code),
+    CONSTRAINT name UNIQUE (name)
+);
+
+CREATE TABLE members
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    kakao_id          BIGINT UNIQUE NOT NULL,
-    email             VARCHAR(100) UNIQUE,
-    nick_name         VARCHAR(50)   NULL,
-    profile_image_url TEXT          NULL,
-    refresh_token     TEXT          NULL,
-    created_at        DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        DATETIME               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted        TINYINT(1)    NOT NULL DEFAULT 0
+    kakao_id          BIGINT                               NOT NULL,
+    email             VARCHAR(100)                         NULL,
+    nick_name         VARCHAR(50)                          NULL,
+    profile_image_url TEXT                                 NULL,
+    refresh_token     TEXT                                 NULL,
+    created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
+    CONSTRAINT email UNIQUE (email),
+    CONSTRAINT kakao_id UNIQUE (kakao_id)
 );
 
-CREATE TABLE IF NOT EXISTS `pickitalki`.channels
-(
-    uuid        BINARY(16) PRIMARY KEY,
-    name        VARCHAR(10) NOT NULL UNIQUE,
-    invite_code VARCHAR(6)  NOT NULL UNIQUE,
-    point       INT         NOT NULL DEFAULT 0,
-    created_at  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted  TINYINT(1)  NOT NULL DEFAULT 0
-);
-
-
-CREATE TABLE IF NOT EXISTS `pickitalki`.channel_members
+CREATE TABLE channel_members
 (
     id                       BIGINT AUTO_INCREMENT PRIMARY KEY,
-    channel_uuid             BINARY(16)  NOT NULL,
-    member_id                BIGINT      NOT NULL,
-    member_code_name         VARCHAR(20) NULL,
-    profile_image            TEXT        NULL,
-    is_using_default_profile TINYINT(1)  NOT NULL DEFAULT 1,
-    role                     VARCHAR(10) NOT NULL,
-    created_at               DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at               DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted               TINYINT(1)  NOT NULL DEFAULT 0,
-    FOREIGN KEY (channel_uuid) REFERENCES channels (uuid) ON DELETE CASCADE,
-    FOREIGN KEY (member_id) REFERENCES members (id)
+    channel_uuid             BINARY(16)                           NOT NULL,
+    member_id                BIGINT                               NOT NULL,
+    member_code_name         VARCHAR(20)                          NULL,
+    profile_image            TEXT                                 NULL,
+    is_using_default_profile TINYINT(1) DEFAULT 1                 NOT NULL,
+    role                     VARCHAR(10)                          NOT NULL,
+    created_at               DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at               DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted               TINYINT(1) DEFAULT 0                 NOT NULL,
+    CONSTRAINT channel_members_fk FOREIGN KEY (channel_uuid) REFERENCES channels (uuid) ON DELETE CASCADE,
+    CONSTRAINT channel_members_ibfk_2 FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE IF NOT EXISTS `pickitalki`.questions
+CREATE TABLE questions
 (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    channel_uuid      BINARY(16)   NOT NULL,
-    channel_member_id BIGINT       NOT NULL,
-    content           VARCHAR(255) NOT NULL,
-    question_number   BIGINT       NOT NULL,
-    is_anonymous      BOOLEAN      NOT NULL DEFAULT FALSE,
-    anonymous_name    VARCHAR(30)  NULL,
-    created_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_date      DATE         NOT NULL,
-    updated_at        DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted        TINYINT(1)   NOT NULL DEFAULT 0,
+    channel_uuid      BINARY(16)                           NOT NULL,
+    channel_member_id BIGINT                               NULL,
+    content           VARCHAR(255)                         NOT NULL,
+    question_number   BIGINT                               NOT NULL,
+    is_anonymous      TINYINT(1) DEFAULT 0                 NOT NULL,
+    anonymous_name    VARCHAR(30)                          NULL,
+    created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_date      DATE                                 NOT NULL,
+    updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
     CONSTRAINT unique_channel_today_question UNIQUE (channel_uuid, created_date),
-    FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
-    FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE CASCADE
-);
-CREATE TABLE IF NOT EXISTS `pickitalki`.answers
-(
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    question_id       BIGINT       NOT NULL,
-    channel_member_id BIGINT       NOT NULL,
-    content           VARCHAR(500) NOT NULL,
-    is_anonymous      BOOLEAN      NOT NULL DEFAULT FALSE,
-    anonymous_name    VARCHAR(30),
-    created_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted        TINYINT(1)   NOT NULL DEFAULT 0,
-    FOREIGN KEY (question_id) REFERENCES questions (id),
-    FOREIGN KEY (channel_member_id) REFERENCES channel_members (id)
+    CONSTRAINT questions_ibfk_1 FOREIGN KEY (channel_uuid) REFERENCES channels (uuid),
+    CONSTRAINT questions_ibfk_2 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
+CREATE TABLE answers
+(
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    question_id       BIGINT                               NOT NULL,
+    channel_member_id BIGINT                               NULL,                                                 -- ✅ NULL 허용
+    content           VARCHAR(500)                         NOT NULL,
+    is_anonymous      TINYINT(1) DEFAULT 0                 NOT NULL,
+    anonymous_name    VARCHAR(10)                          NULL,
+    created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
+    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ON DELETE CASCADE,             -- ✅ 질문 삭제 시 답변도 삭제
+    CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL -- ✅ 채널 멤버 삭제 시 NULL로 변경
+);
+
+CREATE INDEX question_id ON answers (question_id);
