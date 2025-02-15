@@ -176,7 +176,8 @@ public class QuestionService {
             throw new IllegalArgumentException("해당 질문을 삭제할 권한이 없습니다.");
         }
 
-        question.softDelete();
+        Channel channel = question.getChannel();
+        channel.getQuestions().remove(question);
 
     }
 
