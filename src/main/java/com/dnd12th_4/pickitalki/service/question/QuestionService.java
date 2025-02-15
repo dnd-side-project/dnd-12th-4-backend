@@ -65,6 +65,7 @@ public class QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
+
         return questionRepository.findTodayQuestion(channelUuid)
                 .map(question -> TodayQuestionResponse.builder()
                         .isExist(true)
@@ -72,6 +73,9 @@ public class QuestionService {
                         .signalCount(question.getQuestionNumber())
                         .time(formatToKoreanTime(question.getCreatedAt()))
                         .content(question.getContent())
+                        .questionId(question.getId())
+                        .answerCount(question.getAnswerList().size())
+                        .hasRespond(getQuestionHasRespond(question,memberId))
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
@@ -79,7 +83,15 @@ public class QuestionService {
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
                         .time(formatToKoreanTime(LocalDateTime.now()))
                         .content(null)
+                        .questionId(null)
+                        .answerCount(0)
+                        .hasRespond(false)
                         .build());
+    }
+
+    private boolean getQuestionHasRespond(Question question, Long memberId) {
+        return question.getAnswerList().stream()
+                .anyMatch(it -> it.getAuthor().getMember().getId().equals(memberId));
     }
 
     private void validateMemberInChannel(Channel channel, Long memberId) {
