@@ -37,9 +37,11 @@ public class TokenAuthController {
             @RequestHeader(value = "Authorization", required = false) String refreshToken,
             HttpServletResponse response) {
 
+        refreshToken = subBerar(refreshToken);
+
         Member user = kaKaoSignUpService.findUser(refreshToken);
 
-        if (jwtProvider.isTokenExpired(user.getRefreshToken())) {
+        if (jwtProvider.isTokenExpired(refreshToken)) {
             executeExpiredCookie(response, user);
 
              throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,"ResponseEntity refreshAccessToken 에러");
@@ -48,6 +50,13 @@ public class TokenAuthController {
         RefreshTokenResponse refreshTokenResponse = getRefreshTokenResponse(user);
 
         return Api.OK(refreshTokenResponse);
+    }
+
+    private  String subBerar(String refreshToken) {
+        if(refreshToken.startsWith("Bearer ")){
+            refreshToken = refreshToken.substring(7);
+        }
+        return refreshToken;
     }
 
     private RefreshTokenResponse getRefreshTokenResponse(Member user) {
