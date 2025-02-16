@@ -71,7 +71,7 @@ create TABLE if not exists `pickitalki`.answers
     created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
-    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ON DELETE CASCADE,
+    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ,
     CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
