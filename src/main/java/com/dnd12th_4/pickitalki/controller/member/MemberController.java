@@ -52,7 +52,7 @@ public class MemberController {
     public Api<MyChannelMemberShowAllResponse> findMyChannelMemberInfo(
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
-            @RequestParam("tab") String channelFilter,
+            @RequestParam(value = "tab" , defaultValue = "all") String channelFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
 

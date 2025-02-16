@@ -96,7 +96,7 @@ public class ChannelController {
     public Api<ChannelShowAllResponse> findChannelsByRole(
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
-            @RequestParam("tab") String channelFilter,
+            @RequestParam(value = "tab" , defaultValue = "all") String channelFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         ChannelControllerEnums channelEnum = getChannelEnumFromFilter(channelFilter);

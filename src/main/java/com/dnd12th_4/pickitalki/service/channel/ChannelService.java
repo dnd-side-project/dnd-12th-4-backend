@@ -112,7 +112,9 @@ public class ChannelService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        List<ChannelShowResponse> filteredList = member.getChannelMembers().stream()
+        Page<ChannelMember> channelMemberList = channelMemberRepository.findByMemberId(member.getId(), pageable);
+
+        List<ChannelShowResponse> filteredList = channelMemberList.getContent().stream()
                 .filter(channelMember -> status == SHOWALL ||
                         (status == INVITEDALL && channelMember.getRole() == Role.MEMBER) ||
                         (status == MADEALL && channelMember.getRole() == Role.OWNER)
