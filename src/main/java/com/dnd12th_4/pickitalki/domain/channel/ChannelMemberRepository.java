@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface ChannelMemberRepository  extends JpaRepository<ChannelMember,Long> {
@@ -22,4 +23,10 @@ public interface ChannelMemberRepository  extends JpaRepository<ChannelMember,Lo
     List<ChannelMember> findMeOnChannel(@Param("memberId") Long memberId);
 
     Page<ChannelMember> findByMemberId(Long memberId, Pageable pageable);
+
+    @Query("""
+        SELECT cm FROM ChannelMember cm
+        WHERE cm.channel.uuid = :channelUuid AND cm.isDeleted = false
+    """)
+    Page<ChannelMember> findByChannelUuid(@Param("channelUuid") UUID channelUuid, Pageable pageable);
 }

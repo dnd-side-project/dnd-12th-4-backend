@@ -33,7 +33,7 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
     List<Question> findByWriter_Member_IdAndIsDeletedFalseOrderByCreatedAtAsc(Long memberId);
 
     Page<Question> findByWriter_Member_IdAndIsDeletedFalse(Long memberId,Pageable pageable);
-    Page<Question> findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(UUID channelUuid, Pageable pageable);
+    Page<Question> findByChannelUuidAndIsDeletedFalse(UUID channelUuid, Pageable pageable);
 
 }
 
