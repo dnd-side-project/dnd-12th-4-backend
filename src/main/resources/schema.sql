@@ -75,5 +75,4 @@ create TABLE if not exists `pickitalki`.answers
     CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_answers_question_id ON `pickitalki`.answers (question_id);
 
