@@ -200,7 +200,9 @@ public class ChannelService {
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
 
-        List<ChannelMemberDto> filteredList = channel.getChannelMembers()
+        Page<ChannelMember> channelMemberList = channelMemberRepository.findByChannelUuid(channelUuid, pageable);
+
+        List<ChannelMemberDto> filteredList = channelMemberList.getContent()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
                         .codeName(channelMember.getMemberCodeName())
                         .profileImageUrl(channelMember.getMember().getProfileImageUrl())

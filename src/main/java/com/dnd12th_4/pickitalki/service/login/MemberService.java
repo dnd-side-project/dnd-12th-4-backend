@@ -57,9 +57,10 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyChannelMemberShowAllResponse findAllChannelMyInfo(Long memberId, ChannelControllerEnums status, Pageable pageable) {
 
-        List<ChannelMember> myChannelMembers = channelMemberRepository.findByMemberId(memberId);
+        Page<ChannelMember> pageChannelMember = channelMemberRepository.findByMemberId(memberId, pageable);
 
-        List<MyChannelMemberResponse> filteredList = myChannelMembers.stream()
+
+        List<MyChannelMemberResponse> filteredList = pageChannelMember.getContent().stream()
                 .filter(channelMember ->
                         status == ChannelControllerEnums.SHOWALL ||
                                 (status == ChannelControllerEnums.MADEALL && channelMember.getRole() == Role.OWNER) ||

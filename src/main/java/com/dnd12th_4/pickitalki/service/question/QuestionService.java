@@ -1,6 +1,5 @@
 package com.dnd12th_4.pickitalki.service.question;
 
-import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
@@ -8,7 +7,6 @@ import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
-import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
@@ -16,9 +14,7 @@ import com.dnd12th_4.pickitalki.domain.question.Question;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,7 +106,7 @@ public class QuestionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
-        Page<Question> questionPage = questionRepository.findByChannelUuidAndIsDeletedFalseOrderByCreatedAtAsc(channelUuid, pageable);
+        Page<Question> questionPage = questionRepository.findByChannelUuidAndIsDeletedFalse(channelUuid, pageable);
 
         return toQuestionShowAllResponse(questionPage);
     }
