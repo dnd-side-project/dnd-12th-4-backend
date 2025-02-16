@@ -71,7 +71,7 @@ create TABLE if not exists `pickitalki`.answers
     created_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at        DATETIME   DEFAULT CURRENT_TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     is_deleted        TINYINT(1) DEFAULT 0                 NOT NULL,
-    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ON DELETE CASCADE,
+    CONSTRAINT answers_ibfk_1 FOREIGN KEY (question_id) REFERENCES questions (id) ,
     CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
@@ -89,6 +89,7 @@ SET @create_index = IF(@index_exists = 0, 'CREATE INDEX idx_answers_question_id 
 PREPARE stmt FROM @create_index;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
 
 
 
