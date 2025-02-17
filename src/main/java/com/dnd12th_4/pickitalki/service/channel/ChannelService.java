@@ -247,7 +247,7 @@ public class ChannelService {
                 .channelMemberId(todayQuestioner.getId())
                 .codeName(todayQuestioner.getMemberCodeName())
                 .profileImageUrl(todayQuestioner.getProfileImage())
-                .isTodayQuestioner(isMyTodayQuestioner(todayQuestioner.getId(),memberId))
+                .isTodayQuestioner(isMyTodayQuestioner(todayQuestioner.getMember().getId(),memberId))
                 .build();
     }
 
