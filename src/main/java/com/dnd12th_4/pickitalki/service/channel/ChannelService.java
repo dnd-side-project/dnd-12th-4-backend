@@ -53,6 +53,7 @@ public class ChannelService {
     private final MemberRepository memberRepository;
     private final ChannelMemberRepository channelMemberRepository;
     private final QuestionRepository questionRepository;
+    private final AppConfig appConfig;
 
     @Transactional
     public ChannelResponse save(Long memberId, String channelName, String codeName) {
@@ -302,7 +303,7 @@ public class ChannelService {
                 .channelId(channel.getId())
                 .level(channel.getLevel())
                 .point(channel.getPoint())
-                .characterImageUri(AppConfig.getBaseUrl()+ChannelLevel.getImageByLevel(channel.getLevel()))
+                .characterImageUri(appConfig.getBaseUrl()+ChannelLevel.getImageByLevel(channel.getLevel()))
                 .build();
         //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
     }
