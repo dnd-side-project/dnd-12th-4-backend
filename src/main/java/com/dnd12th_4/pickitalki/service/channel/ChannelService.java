@@ -2,6 +2,7 @@ package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
+import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelJoinResponse;
@@ -123,11 +124,11 @@ public class ChannelService {
                 .map(this::buildChannelShowAllResponse)
                 .toList();
 
-        Page<ChannelShowResponse> page = getPage(pageable, filteredList);
+        Page<ChannelShowResponse> page = Pagination.getPage(pageable, filteredList);
 
         return ChannelShowAllResponse.builder()
                 .channelShowResponse(page.getContent())
-                .pageParamResponse(createPageParamResponse(page))
+                .pageParamResponse(Pagination.createPageParamResponse(page))
                 .build();
     }
 
@@ -211,9 +212,9 @@ public class ChannelService {
                         .build()
                 ).toList();
 
-        Page<ChannelMemberDto> page = getPage(pageable, filteredList);
+        Page<ChannelMemberDto> page = Pagination.getPage(pageable, filteredList);
 
-        return new ChannelMembersResponse(channel.getName(),page.getContent().size(), page.getContent(), createPageParamResponse(page));
+        return new ChannelMembersResponse(channel.getName(),page.getContent().size(), page.getContent(), Pagination.createPageParamResponse(page));
     }
 
     @Transactional
@@ -251,6 +252,7 @@ public class ChannelService {
                 .isTodayQuestioner(todayQuestioner.getMember().getId().equals(memberId))
                 .build();
     }
+
 
     private ChannelMember findTodayQuestioner(Channel channel) {
         ChannelMember todayQuestioner;
@@ -334,21 +336,6 @@ public class ChannelService {
                 .build();
     }
 
-    private <T> Page<T> getPage(Pageable pageable, List<T> list) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), list.size());
-        return new PageImpl<>(list.subList(start, end), pageable, list.size());
-    }
-
-    private PageParamResponse createPageParamResponse(Page<?> page) {
-        return new PageParamResponse(
-                page.getNumber(),
-                page.getSize(),
-                (int) page.getTotalElements(),
-                page.getTotalPages(),
-                page.hasNext()
-        );
-    }
 
     @Transactional
     public void leaveChannel(Long memberId, String channelId) {
