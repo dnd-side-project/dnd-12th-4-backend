@@ -36,6 +36,10 @@ public abstract class BaseEntity {
         this.isDeleted = true;
     }
 
+    public void softRestore() {
+        this.isDeleted = false;
+    }
+
 }
 
 

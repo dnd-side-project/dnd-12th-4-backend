@@ -19,13 +19,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static java.util.Objects.hash;
 import static java.util.Objects.isNull;
 
@@ -82,27 +83,38 @@ public class Channel extends BaseEntity implements Persistable<String> {
             throw new IllegalArgumentException("채널의 회원이 존재하지 않습니다.");
         }
 
-        boolean isAlreadyExist = channelMembers.stream()
-                .anyMatch(ch -> ch.isSameMember(channelMember.getMember().getId()));
-        if (isAlreadyExist) {
+        Optional<ChannelMember> matchedChannelMember = channelMembers.stream()
+                .filter(ch -> ch.isSameMember(channelMember.getMember().getId()))
+                .findFirst();
+
+        if (matchedChannelMember.isPresent() && channelMember.isDeleted() == true) {
+            matchedChannelMember.get().softRestore();
+        } else if (matchedChannelMember.isPresent()) {
             throw new IllegalArgumentException("이미 해당 채널에 존재하는 회원입니다.");
         }
     }
 
     public void leaveChannel(ChannelMember channelMember) {
-        if (!channelMembers.remove(channelMember)) {
-            throw new IllegalArgumentException("해당 채널에 존재하지 않는 회원입니다. 탈퇴할 수 없습니다.");
-        }
+        getChannelMembers()
+                .stream().filter(channelMember1 -> (
+                    channelMember1.getId().equals(channelMember.getId())
+                )).findFirst()
+                .orElseThrow( () -> new IllegalArgumentException("해당 채널에 존재하지 않는 회원입니다. 탈퇴할 수 없습니다."));
+
+        channelMember.softDelete();
     }
 
     public Optional<ChannelMember> findChannelMemberById(Long memberId) {
         return channelMembers.stream()
-                .filter(channelMember -> channelMember.isSameMember(memberId))
+                .filter(channelMember -> (channelMember.isSameMember(memberId)) &&
+                        (channelMember.isDeleted() == false))
                 .findFirst();
     }
 
     public List<ChannelMember> getChannelMembers() {
-        return Collections.unmodifiableList(channelMembers);
+         return channelMembers.stream()
+                .filter(channelMember -> !channelMember.isDeleted())
+                .toList();
     }
 
     public int getLevel() {
@@ -143,8 +155,8 @@ public class Channel extends BaseEntity implements Persistable<String> {
 
     public ChannelMember pickTodayQuestioner() {
         String seed = uuid + "-" + java.time.LocalDate.now();
-        int index = Math.abs(getHash(seed)) % channelMembers.size();
-        return channelMembers.get(index);
+        int index = Math.abs(getHash(seed)) % getChannelMembers().size();
+        return getChannelMembers().get(index);
     }
 
     private int getHash(String input) {
