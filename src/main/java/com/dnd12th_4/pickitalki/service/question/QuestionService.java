@@ -2,6 +2,7 @@ package com.dnd12th_4.pickitalki.service.question;
 
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
 
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
@@ -12,6 +13,9 @@ import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
 import com.dnd12th_4.pickitalki.domain.question.Question;
 import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
+import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
+import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
+import com.dnd12th_4.pickitalki.service.channel.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -31,13 +36,12 @@ public class QuestionService {
 
     private final ChannelRepository channelRepository;
     private final QuestionRepository questionRepository;
+    private final ChannelService channelService;
 
     public Long save(Long memberId, String channelId, String content, boolean isAnonymous, String anonymousName) {
         UUID channelUuid = UUID.fromString(channelId);
-        if (questionRepository.findTodayQuestion(channelUuid).isPresent()) {
-            throw new IllegalStateException("이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
-        }
 
+        validateSaveQuestion(memberId, channelId, channelUuid);
 
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
@@ -52,6 +56,17 @@ public class QuestionService {
         channel.risePoint();
 
         return question.getId();
+    }
+
+    private void validateSaveQuestion(Long memberId, String channelId, UUID channelUuid) {
+        if (questionRepository.findTodayQuestion(channelUuid).isPresent()) {
+            throw new IllegalStateException("이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
+        }
+
+        ChannelMemberProfileResponse todayQuestioner = channelService.findTodayQuestioner(memberId, channelId);
+        if(!todayQuestioner.isTodayQuestioner()){
+            throw new ApiException(ErrorCode.BAD_REQUEST,"오늘의 질문자가 아닙니다. 질문을 작성할 수 없습니다.");
+        }
     }
 
     @Transactional(readOnly = true)
