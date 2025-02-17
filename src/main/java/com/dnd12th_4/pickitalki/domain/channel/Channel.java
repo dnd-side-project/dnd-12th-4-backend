@@ -156,4 +156,8 @@ public class Channel extends BaseEntity implements Persistable<String> {
             throw new RuntimeException("오늘의 질문자 추첨 실패 - SHA-256 algorithm not found", e);
         }
     }
+
+    public void setChannelName(String channelName) {
+        this.name = channelName;
+    }
 }
