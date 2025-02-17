@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
@@ -344,8 +343,8 @@ public class ChannelService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
         channel.leaveChannel(channelMember);
+        channel.pickNewOwnerIfVacant();
         deleteIfChannelEmpty(channel, channelUuid, channelMember);
-        pickNewOwnerIfOwnerLeave(channel, channelMember);
     }
 
     private void deleteIfChannelEmpty(Channel channel, UUID channelUuid, ChannelMember channelMember) {
@@ -353,15 +352,6 @@ public class ChannelService {
             channelRepository.deleteById(channelUuid);
         }
     }
-
-    private void pickNewOwnerIfOwnerLeave(Channel channel, ChannelMember channelMember) {
-        if (channelMember.getRole() == Role.OWNER) {
-            channel.getChannelMembers()
-                    .get(new Random().nextInt(channel.getChannelMembers().size()))
-                    .changeRole(Role.OWNER);
-        }
-    }
-
 
     @Transactional
     public void leaveChannels(Long memberId, List<String> channelIds) {

@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
@@ -22,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
@@ -38,6 +41,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
 
     public static final int LEVEL_GAGE = 100;
     public static final int QUESTION_CREATE_POINT = 10;
+    public static Random RANDOM = new Random();
 
     @Id
     @JdbcTypeCode(SqlTypes.BINARY)
@@ -54,6 +58,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     private int point;
 
     @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE, REMOVE},orphanRemoval = true, fetch = FetchType.LAZY)
+    @SQLRestriction("channel_members.is_deleted = false")
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
 
@@ -87,7 +92,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
                 .filter(ch -> ch.isSameMember(channelMember.getMember().getId()))
                 .findFirst();
 
-        if (matchedChannelMember.isPresent() && channelMember.isDeleted() == true) {
+        if (matchedChannelMember.isPresent() && channelMember.isDeleted()) {
             matchedChannelMember.get().softRestore();
         } else if (matchedChannelMember.isPresent()) {
             throw new IllegalArgumentException("이미 해당 채널에 존재하는 회원입니다.");
@@ -95,19 +100,19 @@ public class Channel extends BaseEntity implements Persistable<String> {
     }
 
     public void leaveChannel(ChannelMember channelMember) {
-        getChannelMembers()
-                .stream().filter(channelMember1 -> (
-                    channelMember1.getId().equals(channelMember.getId())
-                )).findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("해당 채널에 존재하지 않는 회원입니다. 탈퇴할 수 없습니다."));
+        ChannelMember leaveMember = channelMembers
+                .stream().filter(existChannelMember ->
+                        (existChannelMember.getId().equals(channelMember.getId()) && !existChannelMember.isDeleted())
+                ).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 채널에 존재하지 않는 회원입니다. 탈퇴할 수 없습니다."));
 
-        channelMember.softDelete();
+        leaveMember.softDelete();
     }
 
     public Optional<ChannelMember> findChannelMemberById(Long memberId) {
         return channelMembers.stream()
                 .filter(channelMember -> (channelMember.isSameMember(memberId)) &&
-                        (channelMember.isDeleted() == false))
+                        (!channelMember.isDeleted()))
                 .findFirst();
     }
 
@@ -166,6 +171,23 @@ public class Channel extends BaseEntity implements Persistable<String> {
             return new BigInteger(1, hashBytes).intValue();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("오늘의 질문자 추첨 실패 - SHA-256 algorithm not found", e);
+        }
+    }
+
+    public void pickNewOwnerIfVacant() {
+        Optional<ChannelMember> owner = channelMembers.stream()
+                .filter(cm -> (!cm.isDeleted() && cm.getRole() == Role.OWNER))
+                .findFirst();
+
+        if (owner.isEmpty()) {
+            List<ChannelMember> members = channelMembers.stream()
+                    .filter(cm -> (!cm.isDeleted() && cm.getRole() == Role.MEMBER))
+                    .collect(Collectors.toList());
+
+            int randomIdx = RANDOM.nextInt(members.size());
+
+            members.get(randomIdx)
+                    .changeRole(Role.OWNER);
         }
     }
 }
