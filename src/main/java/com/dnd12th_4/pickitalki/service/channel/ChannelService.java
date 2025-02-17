@@ -1,7 +1,6 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
-import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
@@ -30,7 +29,6 @@ import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -345,19 +343,18 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
-
         channel.leaveChannel(channelMember);
-
-        validateOwnerAndPersonCount(channel, channelUuid, channelMember);
+        deleteIfChannelEmpty(channel, channelUuid, channelMember);
+        pickNewOwnerIfOwnerLeave(channel, channelMember);
     }
 
-    private void validateOwnerAndPersonCount(Channel channel, UUID channelUuid, ChannelMember channelMember) {
-
+    private void deleteIfChannelEmpty(Channel channel, UUID channelUuid, ChannelMember channelMember) {
         if (channel.getChannelMembers().isEmpty()) {
             channelRepository.deleteById(channelUuid);
-            return;
         }
+    }
 
+    private void pickNewOwnerIfOwnerLeave(Channel channel, ChannelMember channelMember) {
         if (channelMember.getRole() == Role.OWNER) {
             channel.getChannelMembers()
                     .get(new Random().nextInt(channel.getChannelMembers().size()))
