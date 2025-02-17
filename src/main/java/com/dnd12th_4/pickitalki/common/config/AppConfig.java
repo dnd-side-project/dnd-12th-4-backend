@@ -16,7 +16,7 @@ public class AppConfig {
         return new RestTemplate();
     }
 
-    public static String getBaseUrl() {
+    public String getBaseUrl() {
         return baseUrl;
     }
 }
