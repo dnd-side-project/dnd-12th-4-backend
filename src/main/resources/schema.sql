@@ -75,4 +75,23 @@ create TABLE if not exists `pickitalki`.answers
     CONSTRAINT answers_ibfk_3 FOREIGN KEY (channel_member_id) REFERENCES channel_members (id) ON DELETE SET NULL
 );
 
+-- 1. 기존 인덱스 여부 확인 후 조건부 생성
+SET @index_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.statistics
+    WHERE table_schema = DATABASE()
+      AND table_name = 'answers'
+      AND index_name = 'idx_answers_question_id'
+);
+
+-- 2. 인덱스가 없으면 생성
+SET @create_index = IF(@index_exists = 0, 'CREATE INDEX idx_answers_question_id ON `pickitalki`.`answers` (`question_id`);', 'SELECT ''Index exists'';');
+PREPARE stmt FROM @create_index;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+
+
+
+
 
