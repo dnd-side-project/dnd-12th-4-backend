@@ -16,8 +16,6 @@ spring:
       mode: always
 
 
-
-
 kakao:
   auth-url: "https://kauth.kakao.com/oauth/authorize"
   token-url: "https://kauth.kakao.com/oauth/token"
@@ -33,3 +31,5 @@ jwt:
 
 app:
   base-url: "http://ec2-52-79-242-171.ap-northeast-2.compute.amazonaws.com:8080"
+
+
