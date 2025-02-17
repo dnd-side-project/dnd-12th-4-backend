@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.service.login;
 
+import com.dnd12th_4.pickitalki.common.token.SHA256Util;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.KakaoUserDto;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.domain.member.MemberRepository;
@@ -45,11 +46,9 @@ public class KaKaoSignUpService {
 
     public Member findUser(String token) {
 
-        if(token.startsWith("Bearer ")){
-            token = token.substring(7);
-        }
+        String hashedRefreshToken = SHA256Util.hash(token);
 
-        return memberRepository.findByRefreshToken(token)
-                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "Member findUser 48번째줄 에러"));
+        return memberRepository.findByRefreshToken(hashedRefreshToken)
+                .orElseThrow(() -> new ApiException(TokenErrorCode.INVALID_TOKEN, "refreshToken 을 가진 사용자는 없습니다. 위치 : findUser"));
     }
 }

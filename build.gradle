@@ -57,6 +57,9 @@ dependencies {
 	//swagger-ui
 	//http://localhost:8080/swagger-ui/index.html  << 반드시 이 url 로 접속
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+	//BcryptUtil
+	implementation 'org.mindrot:jbcrypt:0.4'
 }
 
 tasks.named('test') {

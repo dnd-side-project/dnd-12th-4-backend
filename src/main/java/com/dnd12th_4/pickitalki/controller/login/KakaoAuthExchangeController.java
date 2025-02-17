@@ -1,20 +1,19 @@
 package com.dnd12th_4.pickitalki.controller.login;
 
+import com.dnd12th_4.pickitalki.common.token.SHA256Util;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.KakaoUserDto;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.UserResponse;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
-import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
-import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import com.dnd12th_4.pickitalki.service.login.KaKaoSignUpService;
 import com.dnd12th_4.pickitalki.service.login.KakaoUserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -29,17 +28,18 @@ public class KakaoAuthExchangeController {
     @GetMapping("/kakao/exchange")
     public Api<UserResponse> kakaoCallback(
             @Parameter(hidden = true)
-            @RequestHeader(value = "Authorization", required = false) String accessToken) {
+            @RequestHeader(value = "Authorization", required = false) String accessToken)  {
 
         KakaoUserDto kakaoUser = kakaoUserService.getUserInfo(accessToken);
 
         Member memberEntity = kaKaoSignUpService.registerOrLoginKakaoUser(kakaoUser);
 
-        String refreshToken = memberEntity.getRefreshToken() != null ?
-                memberEntity.getRefreshToken() : jwtProvider.createRefreshToken();
-        memberEntity.setRefreshToken(refreshToken);
-        Member member = kaKaoSignUpService.saveUserEntity(memberEntity);
+        String refreshToken = jwtProvider.createRefreshToken();
 
+        String hashedRefreshToken = SHA256Util.hash(refreshToken);
+        memberEntity.setRefreshToken(hashedRefreshToken);
+
+        Member member = kaKaoSignUpService.saveUserEntity(memberEntity);
 
         String newAccessToken = jwtProvider.createAccessToken(member.getId());
         UserResponse userResponse = toUserResponse( member, newAccessToken,refreshToken,jwtProvider.getTokenExpiration(newAccessToken),member.getNickName());
