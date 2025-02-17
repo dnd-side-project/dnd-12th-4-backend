@@ -238,16 +238,17 @@ public class ChannelService {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 오늘의 질문자를 응답할 수 없습니다."));
-        channel.findChannelMemberById(memberId)
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 오늘의 질문자를 조회할 권한이 없습니다."));
 
         ChannelMember todayQuestioner = findTodayQuestioner(channel);
+
 
         return ChannelMemberProfileResponse.builder()
                 .channelMemberId(todayQuestioner.getId())
                 .codeName(todayQuestioner.getMemberCodeName())
                 .profileImageUrl(todayQuestioner.getProfileImage())
-                .isTodayQuestioner(true)
+                .isTodayQuestioner(channelMember.getMember().getId().equals(memberId))
                 .build();
     }
 
