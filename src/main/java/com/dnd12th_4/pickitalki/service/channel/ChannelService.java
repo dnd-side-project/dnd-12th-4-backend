@@ -29,6 +29,7 @@ import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.SHOWALL;
 import static io.micrometer.common.util.StringUtils.isBlank;
 
-
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -68,7 +69,11 @@ public class ChannelService {
         }
 
         channel.joinChannelMember(channelMember);
-        channel = channelRepository.save(channel);
+        try {
+            channel = channelRepository.save(channel);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("이미 존재하는 채널명입니다. 채널을 생성할 수 없습니다.");
+        }
 
         return new ChannelResponse(channel.getUuid().toString(), channelName, channel.getInviteCode());
     }
@@ -378,4 +383,24 @@ public class ChannelService {
         channelRepository.deleteById(channelUuid);
     }
 
+    public String updateChannelName(Long memberId, String channelId, String channelName) {
+        Channel channel = channelRepository.findByUuid(UUID.fromString(channelId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다. 채널명을 변경할 수 없습니다."));
+
+        ChannelMember channelMember = channel.findChannelMemberById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널명을 변경할 수 없습니다."));
+
+        if (channelMember.getRole()!=Role.OWNER) {
+            throw new IllegalArgumentException("채널명을 수정할 권한이 없습니다. 채널의 Owner만 변경 가능합니다.");
+        }
+
+        try {
+            channel.setChannelName(channelName);
+            channelRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("기존에 이미 존재하는 채널명입니다. 채널명을 변경할 수 없습니다.");
+        }
+
+        return channel.getName();
+    }
 }

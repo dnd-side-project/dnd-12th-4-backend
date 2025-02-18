@@ -174,6 +174,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
         }
     }
 
+
     public void pickNewOwnerIfVacant() {
         Optional<ChannelMember> owner = channelMembers.stream()
                 .filter(cm -> (!cm.isDeleted() && cm.getRole() == Role.OWNER))
@@ -189,5 +190,9 @@ public class Channel extends BaseEntity implements Persistable<String> {
             members.get(randomIdx)
                     .changeRole(Role.OWNER);
         }
+    }
+
+    public void setChannelName(String channelName) {
+        this.name = channelName;
     }
 }

@@ -5,6 +5,7 @@ import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.InviteCodeDto;
 import com.dnd12th_4.pickitalki.controller.channel.dto.request.ChannelCreateRequest;
+import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelNameUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelSpecificResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +40,20 @@ import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums
 public class ChannelController {
 
     private final ChannelService channelService;
+
+    @PutMapping("/{channelId}/channelName")
+    public ResponseEntity<ChannelNameUpdateResponse> updateChannelName(
+            @MemberId Long memberId,
+            @PathVariable("channelId") String channelId,
+            @RequestParam("channelName") @Valid String channelName
+    ) {
+        String updatedName = channelService.updateChannelName(memberId, channelId, channelName);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ChannelNameUpdateResponse.builder()
+                        .updatedName(updatedName)
+                        .build());
+    }
 
     @PostMapping
     public ResponseEntity<ChannelResponse> makeChannel(
