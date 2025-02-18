@@ -2,27 +2,31 @@ package com.dnd12th_4.pickitalki.controller.question;
 
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
-import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
-import com.dnd12th_4.pickitalki.controller.question.dto.*;
-
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateRequest;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateRequest;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
 import com.dnd12th_4.pickitalki.service.question.QuestionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -63,7 +67,7 @@ public class QuestionController {
     }
 
     @GetMapping("/{channelId}/questions")
-    public ResponseEntity<?> findQuestionsByChannel(
+    public ResponseEntity<Object> findQuestionsByChannel(
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,

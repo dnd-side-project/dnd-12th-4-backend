@@ -4,7 +4,6 @@ import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
-
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
@@ -26,7 +25,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -64,8 +62,8 @@ public class QuestionService {
         }
 
         ChannelMemberProfileResponse todayQuestioner = channelService.findTodayQuestioner(memberId, channelId);
-        if(!todayQuestioner.isTodayQuestioner()){
-            throw new ApiException(ErrorCode.BAD_REQUEST,"오늘의 질문자가 아닙니다. 질문을 작성할 수 없습니다.");
+        if (!todayQuestioner.isTodayQuestioner()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "오늘의 질문자가 아닙니다. 질문을 작성할 수 없습니다.");
         }
     }
 
@@ -86,7 +84,7 @@ public class QuestionService {
                         .content(question.getContent())
                         .questionId(question.getId())
                         .answerCount(question.getAnswerList().size())
-                        .hasRespond(getQuestionHasRespond(question,memberId))
+                        .hasRespond(getQuestionHasRespond(question, memberId))
                         .build())
                 .orElseGet(() -> TodayQuestionResponse.builder()
                         .isExist(false)
@@ -129,13 +127,14 @@ public class QuestionService {
     private QuestionShowAllResponse toQuestionShowAllResponse(Page<Question> questionPage) {
 
         List<QuestionResponse> questionResponseList = questionPage.getContent().stream()
-                .map(question -> new QuestionResponse(
-                        question.getWriterName(),
-                        question.getQuestionNumber(),
-                        question.getContent(),
-                        question.getCreatedAt().toString()
-                ))
-                .toList();
+                .map(question -> QuestionResponse.builder()
+                        .writerName(question.getWriterName())
+                        .signalNumber(question.getQuestionNumber())
+                        .content(question.getContent())
+                        .replyCount(question.getAnswerList().size())
+                        .createdAt(question.getCreatedAt().toString())
+                        .build()
+                ).toList();
 
         PageParamResponse pageParamResponse = PageParamResponse.builder()
                 .currentPage(questionPage.getNumber())
@@ -158,10 +157,12 @@ public class QuestionService {
         question.getChannel().findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 읽을 수 있는 회원이 아닙니다. 이 질문의 채널에 참여해야합니다."));
 
+
         return QuestionResponse.builder()
                 .writerName(question.getWriterName())
                 .signalNumber(question.getQuestionNumber())
                 .content(question.getContent())
+                .replyCount(question.getAnswerList().size())
                 .createdAt(question.getCreatedAt().toString())
                 .build();
     }
