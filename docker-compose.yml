@@ -13,4 +13,4 @@ services:
       MYSQL_DATABASE: pickitalki
       MYSQL_USER: myuser
       MYSQL_PASSWORD: userpassword
-      TZ: Asia/Seoul
+      TZ: UTC
