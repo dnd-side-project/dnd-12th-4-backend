@@ -3,10 +3,9 @@ package com.dnd12th_4.pickitalki.presentation.exceptionhandler;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCodeIfs;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
-
 import org.springframework.dao.DataAccessException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 @Order(value = Integer.MIN_VALUE) // 예외 우선순위가 가장 높다
 public class ApiExceptionHandler {
@@ -60,6 +60,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> databaseException(
             DataAccessException exception
     ) {
+        log.error("❌ [HTTP 500] Internal Server Error: ", exception);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
