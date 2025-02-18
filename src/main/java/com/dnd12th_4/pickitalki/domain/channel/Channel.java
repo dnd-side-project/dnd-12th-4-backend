@@ -58,7 +58,7 @@ public class Channel extends BaseEntity implements Persistable<String> {
     private int point;
 
     @OneToMany(mappedBy = "channel", cascade = {PERSIST, MERGE, REMOVE},orphanRemoval = true, fetch = FetchType.LAZY)
-    @SQLRestriction("channel_members.is_deleted = false")
+    @SQLRestriction("is_deleted = false")
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
 

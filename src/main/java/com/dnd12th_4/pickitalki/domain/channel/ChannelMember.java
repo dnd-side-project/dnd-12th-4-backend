@@ -25,7 +25,7 @@ import static java.util.Objects.hash;
 import static java.util.Objects.isNull;
 
 @Getter
-@SQLRestriction("channel_members.is_deleted = false")
+@SQLRestriction("is_deleted = false")
 @Table(name = "channel_members")
 @Entity
 @SuperBuilder
