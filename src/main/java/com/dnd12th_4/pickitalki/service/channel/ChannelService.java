@@ -205,7 +205,7 @@ public class ChannelService {
         List<ChannelMemberDto> filteredList = channelMemberList.getContent()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
                         .codeName(channelMember.getMemberCodeName())
-                        .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                        .profileImageUrl(channelMember.getProfileImage())
                         .channelMemberId(channelMember.getId())
                         .build()
                 ).toList();
@@ -228,7 +228,7 @@ public class ChannelService {
         return ChannelMemberProfileResponse.builder()
                 .channelMemberId(channelMember.getId())
                 .codeName(channelMember.getMemberCodeName())
-                .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                .profileImageUrl(channelMember.getProfileImage())
                 .isTodayQuestioner(channelMember.getId().equals(todayQuestioner.getId()))
                 .build();
     }
@@ -309,7 +309,6 @@ public class ChannelService {
                 .point(channel.getPoint())
                 .characterImageUri(appConfig.getBaseUrl() + ChannelLevel.getImageByLevel(channel.getLevel()))
                 .build();
-        //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
     }
 
     @Transactional
