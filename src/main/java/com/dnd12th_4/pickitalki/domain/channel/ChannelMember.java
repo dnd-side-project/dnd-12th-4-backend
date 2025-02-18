@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ import static java.util.Objects.hash;
 import static java.util.Objects.isNull;
 
 @Getter
+@SQLRestriction("is_deleted = false")
 @Table(name = "channel_members")
 @Entity
 @SuperBuilder

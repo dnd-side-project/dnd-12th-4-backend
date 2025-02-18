@@ -27,6 +27,7 @@ import com.dnd12th_4.pickitalki.domain.question.QuestionRepository;
 import com.dnd12th_4.pickitalki.presentation.error.ErrorCode;
 import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import io.micrometer.common.util.StringUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import static com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums.INVITEDALL;
@@ -158,19 +158,19 @@ public class ChannelService {
                 .build();
     }
 
-    @Transactional(readOnly= true)
+    @Transactional(readOnly = true)
     public String findInviteCode(Long memberId, String channelName) {
         Channel channel = channelRepository.findByName(channelName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 초대코드를 응답할 수 없습니다."));
 
 
-       channel.findChannelMemberById(memberId)
+        channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 초대코드를 열람할 권한이 없습니다."));
         return channel.getInviteCode();
 
     }
 
-    @Transactional(readOnly= true)
+    @Transactional(readOnly = true)
     public ChannelSpecificResponse findChannelByChannelName(Long memberId, String channelName) {
         Channel channel = channelRepository.findByName(channelName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
@@ -196,7 +196,7 @@ public class ChannelService {
 
     }
 
-    @Transactional(readOnly= true)
+    @Transactional(readOnly = true)
     public ChannelMembersResponse findChannelMembers(Long memberId, String channelId, Pageable pageable) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
@@ -210,14 +210,14 @@ public class ChannelService {
         List<ChannelMemberDto> filteredList = channelMemberList.getContent()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
                         .codeName(channelMember.getMemberCodeName())
-                        .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                        .profileImageUrl(channelMember.getProfileImage())
                         .channelMemberId(channelMember.getId())
                         .build()
                 ).toList();
 
         Page<ChannelMemberDto> page = Pagination.getPage(pageable, filteredList);
 
-        return new ChannelMembersResponse(channel.getName(),page.getContent().size(), page.getContent(), Pagination.createPageParamResponse(page));
+        return new ChannelMembersResponse(channel.getName(), page.getContent().size(), page.getContent(), Pagination.createPageParamResponse(page));
     }
 
     @Transactional
@@ -233,10 +233,11 @@ public class ChannelService {
         return ChannelMemberProfileResponse.builder()
                 .channelMemberId(channelMember.getId())
                 .codeName(channelMember.getMemberCodeName())
-                .profileImageUrl(channelMember.getMember().getProfileImageUrl())
+                .profileImageUrl(channelMember.getProfileImage())
                 .isTodayQuestioner(channelMember.getId().equals(todayQuestioner.getId()))
                 .build();
     }
+
     @Transactional
     public ChannelMemberProfileResponse findTodayQuestioner(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
@@ -245,15 +246,18 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 오늘의 질문자를 조회할 권한이 없습니다."));
 
-        ChannelMember todayQuestioner = findTodayQuestioner(channel);
+        try {
+            ChannelMember todayQuestioner = findTodayQuestioner(channel);
 
-
-        return ChannelMemberProfileResponse.builder()
-                .channelMemberId(todayQuestioner.getId())
-                .codeName(todayQuestioner.getMemberCodeName())
-                .profileImageUrl(todayQuestioner.getProfileImage())
-                .isTodayQuestioner(todayQuestioner.getMember().getId().equals(memberId))
-                .build();
+            return ChannelMemberProfileResponse.builder()
+                    .channelMemberId(todayQuestioner.getId())
+                    .codeName(todayQuestioner.getMemberCodeName())
+                    .profileImageUrl(todayQuestioner.getProfileImage())
+                    .isTodayQuestioner(todayQuestioner.getMember().getId().equals(memberId))
+                    .build();
+        } catch (EntityNotFoundException e) {
+            throw new IllegalArgumentException("오늘의 질문자가 탈퇴하였습니다. 회원 정보를 제공할 수 없습니다.");
+        }
     }
 
 
@@ -266,7 +270,6 @@ public class ChannelService {
         } else {
             todayQuestioner = channel.pickTodayQuestioner();
         }
-
         return todayQuestioner;
     }
 
@@ -309,9 +312,8 @@ public class ChannelService {
                 .channelId(channel.getId())
                 .level(channel.getLevel())
                 .point(channel.getPoint())
-                .characterImageUri(appConfig.getBaseUrl()+ChannelLevel.getImageByLevel(channel.getLevel()))
+                .characterImageUri(appConfig.getBaseUrl() + ChannelLevel.getImageByLevel(channel.getLevel()))
                 .build();
-        //TODO 멤버의 조회 시에 오늘 채널 몇개 중에 몇개의 응답을 했는지 정보 반환하는 api필요
     }
 
     @Transactional
@@ -348,26 +350,16 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
-
         channel.leaveChannel(channelMember);
-
-        validateOwnerAndPersonCount(channel, channelUuid, channelMember);
+        channel.pickNewOwnerIfVacant();
+        deleteIfChannelEmpty(channel, channelUuid, channelMember);
     }
 
-    private void validateOwnerAndPersonCount(Channel channel, UUID channelUuid, ChannelMember channelMember) {
-
+    private void deleteIfChannelEmpty(Channel channel, UUID channelUuid, ChannelMember channelMember) {
         if (channel.getChannelMembers().isEmpty()) {
             channelRepository.deleteById(channelUuid);
-            return;
-        }
-
-        if (channelMember.getRole() == Role.OWNER) {
-            channel.getChannelMembers()
-                    .get(new Random().nextInt(channel.getChannelMembers().size()))
-                    .changeRole(Role.OWNER);
         }
     }
-
 
     @Transactional
     public void leaveChannels(Long memberId, List<String> channelIds) {
