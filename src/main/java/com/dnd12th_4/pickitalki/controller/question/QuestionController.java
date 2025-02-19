@@ -56,11 +56,13 @@ public class QuestionController {
     public ResponseEntity<QuestionShowAllResponse> findQuestionsByMember(
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
+            @RequestParam(value = "tab", defaultValue = "all") String questionFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
+        QuestionControllerEnums questionFilterEnum = QuestionControllerEnums.from(questionFilter);
 
-        QuestionShowAllResponse questionShowAllResponse = questionService.findQuestionsByMember(memberId, pageable);
+        QuestionShowAllResponse questionShowAllResponse = questionService.findQuestionsByMember(memberId, pageable, questionFilterEnum);
 
         return ResponseEntity.ok()
                 .body(questionShowAllResponse);

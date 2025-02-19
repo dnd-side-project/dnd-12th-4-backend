@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.service.question;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
+import com.dnd12th_4.pickitalki.controller.question.QuestionControllerEnums;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
 import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
@@ -194,9 +195,25 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public QuestionShowAllResponse findQuestionsByMember(Long memberId, Pageable pageable) {
+    public QuestionShowAllResponse findQuestionsByMember(Long memberId, Pageable pageable, QuestionControllerEnums questionFilterEnum) {
+        Page<Question> questionPage;
 
-        Page<Question> questionPage = questionRepository.findByWriter_Member_IdAndIsDeletedFalse(memberId, pageable);
+        switch (questionFilterEnum) {
+            case ALL:
+                questionPage = questionRepository.findByChannelMembers_Member_IdAndIsDeletedFalse(memberId, pageable);
+                break;
+
+            case MY_QUESTIONS:
+                questionPage = questionRepository.findByWriter_Member_IdAndIsDeletedFalse(memberId, pageable);
+                break;
+
+            case OTHERS:
+                questionPage = questionRepository.findByChannelMembers_Member_IdAndWriter_Member_IdNotAndIsDeletedFalse(memberId, pageable);
+                break;
+
+            default:
+                throw new IllegalArgumentException("지원하지 않는 questionFilter 값입니다: " + questionFilterEnum);
+        }
 
         return QuestionShowAllResponse.builder()
                 .questionResponse(toQuestionResponseList(questionPage))
@@ -205,15 +222,14 @@ public class QuestionService {
     }
 
     private List<QuestionResponse> toQuestionResponseList(Page<Question> questionPage) {
-
-        List<QuestionResponse> questionResponseList = questionPage.getContent().stream()
+        return questionPage.getContent().stream()
                 .map(q -> QuestionResponse.builder()
+                        .questionId(q.getId())
                         .writerName(q.getWriterName())
                         .signalNumber(q.getQuestionNumber())
                         .content(q.getContent())
                         .createdAt(q.getCreatedAt().toString())
-                        .build())
-                .toList();
-        return questionResponseList;
+                        .build()
+                ).toList();
     }
 }
