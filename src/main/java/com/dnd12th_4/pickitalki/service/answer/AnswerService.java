@@ -1,10 +1,13 @@
 package com.dnd12th_4.pickitalki.service.answer;
 
-import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
-import com.dnd12th_4.pickitalki.controller.answer.dto.response.*;
+import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerQuestionDTO;
+import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerResponse;
+import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerShowAllResponse;
+import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerUpdateResponse;
+import com.dnd12th_4.pickitalki.controller.answer.dto.response.AnswerWriteResponse;
 import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.answer.AnswerRepository;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
@@ -19,9 +22,7 @@ import com.dnd12th_4.pickitalki.presentation.exception.ApiException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -113,6 +114,7 @@ public class AnswerService {
         return AnswerResponse.builder()
                 .id(answer.getId())
                 .codeName(codeName)
+                .writerProfileImage(answer.getAuthor().getProfileImage())
                 .content(answer.getContent())
                 .updatedAt(answer.getUpdatedAt())
                 .createdAt(answer.getCreatedAt())
@@ -132,6 +134,7 @@ public class AnswerService {
                 .createdAt(question.getCreatedAt())
                 .updatedAt(question.getUpdatedAt())
                 .codeName(question.getWriterName())
+                .writerProfileImage(question.getWriter().getProfileImage())
                 .content(question.getContent())
                 .build();
 
