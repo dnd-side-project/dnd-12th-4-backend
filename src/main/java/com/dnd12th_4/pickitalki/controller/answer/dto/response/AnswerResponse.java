@@ -16,6 +16,7 @@ public class AnswerResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String writerProfileImage;
     private Long id;
     private String content;
     private boolean isMyAnswer;

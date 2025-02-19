@@ -130,6 +130,7 @@ public class QuestionService {
         List<QuestionResponse> questionResponseList = questionPage.getContent().stream()
                 .map(question -> QuestionResponse.builder()
                         .writerName(question.getWriterName())
+                        .writerProfileImage(question.getWriter().getProfileImage())
                         .signalNumber(question.getQuestionNumber())
                         .content(question.getContent())
                         .replyCount(question.getAnswerList().size())
@@ -161,6 +162,7 @@ public class QuestionService {
 
         return QuestionResponse.builder()
                 .writerName(question.getWriterName())
+                .writerProfileImage(question.getWriter().getProfileImage())
                 .signalNumber(question.getQuestionNumber())
                 .content(question.getContent())
                 .replyCount(question.getAnswerList().size())
@@ -225,6 +227,7 @@ public class QuestionService {
         return questionPage.getContent().stream()
                 .map(q -> QuestionResponse.builder()
                         .questionId(q.getId())
+                        .writerProfileImage(q.getWriter().getProfileImage())
                         .writerName(q.getWriterName())
                         .signalNumber(q.getQuestionNumber())
                         .content(q.getContent())
