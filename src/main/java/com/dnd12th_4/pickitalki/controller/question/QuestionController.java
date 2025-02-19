@@ -69,18 +69,13 @@ public class QuestionController {
     }
 
     @GetMapping("/{channelId}/questions")
-    public ResponseEntity<Object> findQuestionsByChannel(
+    public ResponseEntity<QuestionShowAllResponse> findQuestionsByChannel(
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
-            @RequestParam(value = "questionId", required = false) Long questionId,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
-
-        if (Objects.nonNull(questionId)) {
-            return ResponseEntity.ok().body(questionService.findQuestionById(memberId, questionId));
-        }
 
         return ResponseEntity.ok().body(questionService.findByChannelId(memberId, channelId, pageable));
     }
