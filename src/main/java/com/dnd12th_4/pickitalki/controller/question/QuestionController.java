@@ -79,10 +79,10 @@ public class QuestionController {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
 
         if (Objects.nonNull(questionId)) {
-            return ResponseEntity.ok(questionService.findQuestionById(memberId, questionId));
+            return ResponseEntity.ok().body(questionService.findQuestionById(memberId, questionId));
         }
 
-        return ResponseEntity.ok(questionService.findByChannelId(memberId, channelId, pageable));
+        return ResponseEntity.ok().body(questionService.findByChannelId(memberId, channelId, pageable));
     }
 
 
