@@ -28,13 +28,13 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
 
     // 내가 속한 모든 채널에서의 질문들 (ALL)
     @Query("SELECT q FROM Question q WHERE q.channel.uuid IN " +
-            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId) " +
+            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId AND cm.isDeleted = false) " +
             "AND q.isDeleted = false")
     Page<Question> findByChannelMembers_Member_IdAndIsDeletedFalse(@Param("memberId") Long memberId, Pageable pageable);
 
     // 내가 속한 모든 채널에서의 다른 채널원들의 질문들 (OTHERS)
     @Query("SELECT q FROM Question q WHERE q.channel.uuid IN " +
-            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId) " +
+            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId AND cm.isDeleted = false) " +
             "AND q.writer.member.id <> :memberId " +
             "AND q.isDeleted = false")
     Page<Question> findByChannelMembers_Member_IdAndWriter_Member_IdNotAndIsDeletedFalse(@Param("memberId") Long memberId, Pageable pageable);
