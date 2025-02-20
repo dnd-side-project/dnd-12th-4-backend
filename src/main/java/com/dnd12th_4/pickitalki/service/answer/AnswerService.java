@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.service.answer;
 
+import com.dnd12th_4.pickitalki.common.converter.DateTimeUtil;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerRequest;
 import com.dnd12th_4.pickitalki.controller.answer.dto.request.AnswerUpdateRequest;
@@ -116,8 +117,8 @@ public class AnswerService {
                 .codeName(codeName)
                 .writerProfileImage(answer.getAuthor().getProfileImage())
                 .content(answer.getContent())
-                .updatedAt(answer.getUpdatedAt())
-                .createdAt(answer.getCreatedAt())
+                .updatedAt(DateTimeUtil.toUtcString(answer.getUpdatedAt()))
+                .createdAt(DateTimeUtil.toUtcString(answer.getCreatedAt()))
                 .isMyAnswer(isMyAnswer)
                 .build();
     }
@@ -131,8 +132,8 @@ public class AnswerService {
     private AnswerShowAllResponse toAnswerInfoResponse(Question question, Long memberId, Page<Answer> answerPage) {
 
         AnswerQuestionDTO questionDTO = AnswerQuestionDTO.builder()
-                .createdAt(question.getCreatedAt())
-                .updatedAt(question.getUpdatedAt())
+                .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
+                .updatedAt(DateTimeUtil.toUtcString(question.getUpdatedAt()))
                 .codeName(question.getWriterName())
                 .writerProfileImage(question.getWriter().getProfileImage())
                 .content(question.getContent())

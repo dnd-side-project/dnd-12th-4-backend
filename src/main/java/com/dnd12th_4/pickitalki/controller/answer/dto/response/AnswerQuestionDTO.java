@@ -16,8 +16,8 @@ public class AnswerQuestionDTO {
 
     private String codeName;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     private String writerProfileImage;
     private String content;
