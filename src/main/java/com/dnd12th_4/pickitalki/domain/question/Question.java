@@ -93,10 +93,15 @@ public class Question extends BaseEntity {
         this.content = content;
     }
 
-    @PostLoad
-    public void postLoad() {
-        this.createdDate = this.createdAt.toLocalDate();  // ✅ 조회 시 `createdAt`에서 날짜 부분만 추출
+    @PrePersist
+    public void prePersist() {
+        if (createdAt != null) {
+            this.createdDate = createdAt.toLocalDate();
+        } else {
+            this.createdDate = LocalDate.now();
+        }
     }
+
     @PreRemove
     private void preRemove() {
         this.writer = null; // ChannelMember 삭제 시 null로 설정
