@@ -3,13 +3,7 @@ package com.dnd12th_4.pickitalki.controller.question;
 import com.dnd12th_4.pickitalki.common.annotation.MemberId;
 import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateRequest;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionCreateResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateRequest;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.*;
 import com.dnd12th_4.pickitalki.service.question.QuestionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -75,17 +69,17 @@ public class QuestionController {
 
 
     @GetMapping("/{channelId}/questions/{questionId}")
-    public ResponseEntity<QuestionResponse> findQuestionsByQuestionId(
+    public ResponseEntity<QuestionOneResponse> findQuestionsByQuestionId(
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
             @PathVariable("questionId") Long questionId
     ) {
 
-        QuestionResponse questionResponse = questionService.findQuestionById(memberId, questionId);
+        QuestionOneResponse questionOneResponse = questionService.findQuestionById(memberId, questionId);
 
 
         return ResponseEntity.ok()
-                .body(questionResponse);
+                .body(questionOneResponse);
     }
 
     @GetMapping("/{channelId}/questions/today")

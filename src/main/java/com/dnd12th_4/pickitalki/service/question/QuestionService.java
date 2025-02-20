@@ -4,10 +4,7 @@ import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
 import com.dnd12th_4.pickitalki.controller.question.QuestionControllerEnums;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionShowAllResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.QuestionUpdateResponse;
-import com.dnd12th_4.pickitalki.controller.question.dto.TodayQuestionResponse;
+import com.dnd12th_4.pickitalki.controller.question.dto.*;
 import com.dnd12th_4.pickitalki.domain.channel.Channel;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelRepository;
@@ -170,14 +167,15 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public QuestionResponse findQuestionById(Long memberId, Long questionId) {
+    public QuestionOneResponse findQuestionById(Long memberId, Long questionId) {
         Question question = questionRepository.findByIdAndIsDeletedFalse(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 찾을 수 없습니다."));
         question.getChannel().findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 읽을 수 있는 회원이 아닙니다. 이 질문의 채널에 참여해야합니다."));
 
+        boolean hasMyAnswer = isHasMyAnswer(memberId, question);
 
-        return QuestionResponse.builder()
+        QuestionResponse questionResponse = QuestionResponse.builder()
                 .writerName(question.getWriterName())
                 .writerProfileImage(question.getWriter().getProfileImage())
                 .signalNumber(question.getQuestionNumber())
@@ -185,6 +183,19 @@ public class QuestionService {
                 .replyCount(question.getAnswerList().size())
                 .createdAt(question.getCreatedAt().toString())
                 .build();
+
+        return QuestionOneResponse.builder()
+                .questionResponse(questionResponse)
+                .hasMyAnswer(hasMyAnswer)
+                .build();
+    }
+
+    private  boolean isHasMyAnswer(Long memberId, Question question) {
+        if(question.getWriter().isSameMember(memberId)) return true;
+
+        boolean hasMyReply = question.getAnswerList().stream()
+                 .anyMatch(it -> it.getAuthor().getMember().getId().equals(memberId));
+        return hasMyReply;
     }
 
     public QuestionUpdateResponse updateQuestion(Long memberId, Long questionId, String content) {
@@ -234,6 +245,7 @@ public class QuestionService {
                 throw new IllegalArgumentException("지원하지 않는 questionFilter 값입니다: " + questionFilterEnum);
         }
 
+
         return QuestionShowAllResponse.builder()
                 .questionResponse(toQuestionResponseList(questionPage))
                 .pageParamResponse(Pagination.createPageParamResponse(questionPage))
@@ -241,6 +253,7 @@ public class QuestionService {
     }
 
     private List<QuestionResponse> toQuestionResponseList(Page<Question> questionPage) {
+
         return questionPage.getContent().stream()
                 .map(q -> QuestionResponse.builder()
                         .questionId(q.getId())
