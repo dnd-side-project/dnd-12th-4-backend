@@ -185,10 +185,12 @@ public class Channel extends BaseEntity implements Persistable<String> {
                     .filter(cm -> (!cm.isDeleted() && cm.getRole() == Role.MEMBER))
                     .collect(Collectors.toList());
 
-            int randomIdx = RANDOM.nextInt(members.size());
+            if (members.isEmpty()) {
+                return;
+            }
 
-            members.get(randomIdx)
-                    .changeRole(Role.OWNER);
+            int randomIdx = RANDOM.nextInt(members.size());
+            members.get(randomIdx).changeRole(Role.OWNER);
         }
     }
 

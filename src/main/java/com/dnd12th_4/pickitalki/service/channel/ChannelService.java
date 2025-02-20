@@ -350,9 +350,13 @@ public class ChannelService {
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
 
+
         channel.leaveChannel(channelMember);
+
         channel.pickNewOwnerIfVacant();
+
         deleteIfChannelEmpty(channel, channelUuid, channelMember);
+
     }
 
     private void deleteIfChannelEmpty(Channel channel, UUID channelUuid, ChannelMember channelMember) {
