@@ -35,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -153,7 +154,7 @@ public class ChannelService {
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
                 .inviteCode(channel.getInviteCode())
-                .createdAt(channel.getCreatedAt().toString())
+                .createdAt(channel.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
                 .build();
     }
 
