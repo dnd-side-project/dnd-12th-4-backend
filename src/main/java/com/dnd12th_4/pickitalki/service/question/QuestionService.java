@@ -57,7 +57,7 @@ public class QuestionService {
 
     private void validateSaveQuestion(Long memberId, String channelId, UUID channelUuid) {
         if (questionRepository.findTodayQuestion(channelUuid).isPresent()) {
-            throw new IllegalStateException("이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
+            throw new ApiException(ErrorCode.BAD_REQUEST,"이미 오늘의 질문이 존재합니다. 질문을 생성할 수 없습니다.");
         }
 
         ChannelMemberProfileResponse todayQuestioner = channelService.findTodayQuestioner(memberId, channelId);
@@ -79,7 +79,7 @@ public class QuestionService {
                         .isExist(true)
                         .writer(question.getWriterName())
                         .signalCount(question.getQuestionNumber())
-                        .time(DateTimeUtil.toUtcString(question.getCreatedAt()))
+                        .time(DateTimeUtil.toKstString(question.getCreatedAt()))
                         .content(question.getContent())
                         .questionId(question.getId())
                         .answerCount(question.getAnswerList().size())
@@ -89,7 +89,7 @@ public class QuestionService {
                         .isExist(false)
                         .writer(null)
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
-                        .time(DateTimeUtil.toUtcString(LocalDateTime.now()))
+                        .time(DateTimeUtil.toKstString(LocalDateTime.now()))
                         .content(null)
                         .questionId(null)
                         .answerCount(0)
@@ -150,7 +150,7 @@ public class QuestionService {
                         .signalNumber(question.getQuestionNumber())
                         .content(question.getContent())
                         .replyCount(question.getAnswerList().size())
-                        .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
+                        .createdAt(DateTimeUtil.toKstString(question.getCreatedAt()))
                         .build()
                 ).toList();
 
@@ -185,7 +185,7 @@ public class QuestionService {
                 .signalNumber(question.getQuestionNumber())
                 .content(question.getContent())
                 .replyCount(question.getAnswerList().size())
-                .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
+                .createdAt(DateTimeUtil.toKstString(question.getCreatedAt()))
                 .build();
 
         return QuestionOneResponse.builder()
@@ -264,7 +264,7 @@ public class QuestionService {
                         .writerName(q.getWriterName())
                         .signalNumber(q.getQuestionNumber())
                         .content(q.getContent())
-                        .createdAt(DateTimeUtil.toUtcString(q.getCreatedAt()))
+                        .createdAt(DateTimeUtil.toKstString(q.getCreatedAt()))
 
                         .build()
                 ).toList();
