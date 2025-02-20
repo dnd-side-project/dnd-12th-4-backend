@@ -143,6 +143,7 @@ public class QuestionService {
 
         List<QuestionResponse> questionResponseList = questionPage.getContent().stream()
                 .map(question -> QuestionResponse.builder()
+                        .questionId(question.getId())
                         .writerName(question.getWriterName())
                         .writerProfileImage(question.getWriter().getProfileImage())
                         .signalNumber(question.getQuestionNumber())
@@ -177,6 +178,7 @@ public class QuestionService {
         boolean hasMyAnswer = isHasMyAnswer(memberId, question);
 
         QuestionResponse questionResponse = QuestionResponse.builder()
+                .questionId(questionId)
                 .writerName(question.getWriterName())
                 .writerProfileImage(question.getWriter().getProfileImage())
                 .signalNumber(question.getQuestionNumber())
