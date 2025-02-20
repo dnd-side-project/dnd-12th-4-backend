@@ -77,7 +77,6 @@ public class QuestionController {
 
         QuestionOneResponse questionOneResponse = questionService.findQuestionById(memberId, questionId);
 
-
         return ResponseEntity.ok()
                 .body(questionOneResponse);
     }

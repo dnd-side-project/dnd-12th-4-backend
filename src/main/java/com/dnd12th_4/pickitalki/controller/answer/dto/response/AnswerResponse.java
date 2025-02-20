@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class AnswerResponse {
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     private String writerProfileImage;
     private Long id;

@@ -1,5 +1,6 @@
 package com.dnd12th_4.pickitalki.service.question;
 
+import com.dnd12th_4.pickitalki.common.converter.DateTimeUtil;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.dto.response.ChannelMemberProfileResponse;
@@ -78,7 +79,7 @@ public class QuestionService {
                         .isExist(true)
                         .writer(question.getWriterName())
                         .signalCount(question.getQuestionNumber())
-                        .time(formatToKoreanTime(question.getCreatedAt()))
+                        .time(DateTimeUtil.toUtcString(question.getCreatedAt()))
                         .content(question.getContent())
                         .questionId(question.getId())
                         .answerCount(question.getAnswerList().size())
@@ -88,7 +89,7 @@ public class QuestionService {
                         .isExist(false)
                         .writer(null)
                         .signalCount(questionRepository.findMaxQuestionNumber(channelUuid) + 1)
-                        .time(formatToKoreanTime(LocalDateTime.now()))
+                        .time(DateTimeUtil.toUtcString(LocalDateTime.now()))
                         .content(null)
                         .questionId(null)
                         .answerCount(0)
@@ -149,7 +150,7 @@ public class QuestionService {
                         .signalNumber(question.getQuestionNumber())
                         .content(question.getContent())
                         .replyCount(question.getAnswerList().size())
-                        .createdAt(question.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
+                        .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
                         .build()
                 ).toList();
 
@@ -184,7 +185,7 @@ public class QuestionService {
                 .signalNumber(question.getQuestionNumber())
                 .content(question.getContent())
                 .replyCount(question.getAnswerList().size())
-                .createdAt(question.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
+                .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
                 .build();
 
         return QuestionOneResponse.builder()
@@ -263,7 +264,8 @@ public class QuestionService {
                         .writerName(q.getWriterName())
                         .signalNumber(q.getQuestionNumber())
                         .content(q.getContent())
-                        .createdAt(q.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
+                        .createdAt(DateTimeUtil.toUtcString(q.getCreatedAt()))
+
                         .build()
                 ).toList();
     }
