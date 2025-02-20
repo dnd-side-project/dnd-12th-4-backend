@@ -117,8 +117,8 @@ public class AnswerService {
                 .codeName(codeName)
                 .writerProfileImage(answer.getAuthor().getProfileImage())
                 .content(answer.getContent())
-                .updatedAt(DateTimeUtil.toUtcString(answer.getUpdatedAt()))
-                .createdAt(DateTimeUtil.toUtcString(answer.getCreatedAt()))
+                .updatedAt(DateTimeUtil.toKstString(answer.getUpdatedAt()))
+                .createdAt(DateTimeUtil.toKstString(answer.getCreatedAt()))
                 .isMyAnswer(isMyAnswer)
                 .build();
     }
@@ -132,8 +132,8 @@ public class AnswerService {
     private AnswerShowAllResponse toAnswerInfoResponse(Question question, Long memberId, Page<Answer> answerPage) {
 
         AnswerQuestionDTO questionDTO = AnswerQuestionDTO.builder()
-                .createdAt(DateTimeUtil.toUtcString(question.getCreatedAt()))
-                .updatedAt(DateTimeUtil.toUtcString(question.getUpdatedAt()))
+                .createdAt(DateTimeUtil.toKstString(question.getCreatedAt()))
+                .updatedAt(DateTimeUtil.toKstString(question.getUpdatedAt()))
                 .codeName(question.getWriterName())
                 .writerProfileImage(question.getWriter().getProfileImage())
                 .content(question.getContent())
