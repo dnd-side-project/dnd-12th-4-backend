@@ -41,5 +41,37 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
 
     Page<Question> findByChannelUuidAndIsDeletedFalse(UUID channelUuid, Pageable pageable);
 
+
+    // 내가 속한 특정 채널에서의 질문들 (ALL)
+    @Query("SELECT q FROM Question q WHERE q.channel.uuid = :channelUuid " +
+            "AND q.channel.uuid IN " +
+            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId AND cm.isDeleted = false) " +
+            "AND q.isDeleted = false")
+    Page<Question> findByChannelUuidAndChannelMembers_Member_IdAndIsDeletedFalse(
+            @Param("channelUuid") UUID channelUuid,
+            @Param("memberId") Long memberId,
+            Pageable pageable);
+
+    // 내가 속한 특정 채널에서의 다른 채널원들의 질문들 (OTHERS)
+    @Query("SELECT q FROM Question q WHERE q.channel.uuid = :channelUuid " +
+            "AND q.channel.uuid IN " +
+            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId AND cm.isDeleted = false) " +
+            "AND q.writer.member.id <> :memberId " +
+            "AND q.isDeleted = false")
+    Page<Question> findByChannelUuidAndChannelMembers_Member_IdAndWriter_Member_IdNotAndIsDeletedFalse(
+            @Param("channelUuid") UUID channelUuid,
+            @Param("memberId") Long memberId,
+            Pageable pageable);
+
+    // 내가 속한 특정 채널에서 내가 작성한 질문들 (MINE)
+    @Query("SELECT q FROM Question q WHERE q.channel.uuid = :channelUuid " +
+            "AND q.channel.uuid IN " +
+            "(SELECT cm.channel.uuid FROM ChannelMember cm WHERE cm.member.id = :memberId AND cm.isDeleted = false) " +
+            "AND q.writer.member.id = :memberId " +
+            "AND q.isDeleted = false")
+    Page<Question> findByChannelUuidAndWriter_Member_IdAndIsDeletedFalse(
+            @Param("channelUuid") UUID channelUuid,
+            @Param("memberId") Long memberId,
+            Pageable pageable);
 }
 

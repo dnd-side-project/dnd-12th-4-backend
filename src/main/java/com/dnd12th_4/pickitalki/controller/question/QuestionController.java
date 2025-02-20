@@ -16,16 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 import java.util.Objects;
 
@@ -73,11 +65,12 @@ public class QuestionController {
             @Parameter(hidden = true) @ModelAttribute PageParamRequest pageParamRequest,
             @MemberId Long memberId,
             @PathVariable("channelId") String channelId,
+            @RequestParam(value = "tab", defaultValue = "all") String questionFilter,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         Pageable pageable = Pagination.validateGetPage(sort, pageParamRequest);
-
-        return ResponseEntity.ok().body(questionService.findByChannelId(memberId, channelId, pageable));
+        QuestionControllerEnums questionFilterEnum = QuestionControllerEnums.from(questionFilter);
+        return ResponseEntity.ok().body(questionService.findByChannelId(memberId, channelId, pageable, questionFilterEnum));
     }
 
 
