@@ -149,7 +149,7 @@ public class QuestionService {
                         .signalNumber(question.getQuestionNumber())
                         .content(question.getContent())
                         .replyCount(question.getAnswerList().size())
-                        .createdAt(question.getCreatedAt().toString())
+                        .createdAt(question.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
                         .build()
                 ).toList();
 
@@ -184,7 +184,7 @@ public class QuestionService {
                 .signalNumber(question.getQuestionNumber())
                 .content(question.getContent())
                 .replyCount(question.getAnswerList().size())
-                .createdAt(question.getCreatedAt().toString())
+                .createdAt(question.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
                 .build();
 
         return QuestionOneResponse.builder()
@@ -263,7 +263,7 @@ public class QuestionService {
                         .writerName(q.getWriterName())
                         .signalNumber(q.getQuestionNumber())
                         .content(q.getContent())
-                        .createdAt(q.getCreatedAt().toString())
+                        .createdAt(q.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
                         .build()
                 ).toList();
     }
