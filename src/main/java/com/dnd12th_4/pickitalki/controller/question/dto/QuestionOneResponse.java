@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class QuestionOneResponse {
     private QuestionResponse questionResponse;
     private boolean hasMyAnswer;
+    private boolean isMySignal;
 }

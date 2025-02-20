@@ -109,7 +109,6 @@ public class ChannelService {
         channelMember = channelMemberRepository.save(channelMember);
 
         return new ChannelJoinResponse(channel.getId(), channel.getName(), channelMember.getMemberCodeName());
-
     }
 
     @Transactional

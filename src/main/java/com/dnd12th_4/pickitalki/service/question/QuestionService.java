@@ -173,6 +173,7 @@ public class QuestionService {
         question.getChannel().findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 질문을 읽을 수 있는 회원이 아닙니다. 이 질문의 채널에 참여해야합니다."));
 
+        boolean isMySignal = question.getWriter().isSameMember(memberId);
         boolean hasMyAnswer = isHasMyAnswer(memberId, question);
 
         QuestionResponse questionResponse = QuestionResponse.builder()
@@ -187,15 +188,14 @@ public class QuestionService {
         return QuestionOneResponse.builder()
                 .questionResponse(questionResponse)
                 .hasMyAnswer(hasMyAnswer)
+                .isMySignal(isMySignal)
                 .build();
     }
 
     private  boolean isHasMyAnswer(Long memberId, Question question) {
-        if(question.getWriter().isSameMember(memberId)) return true;
 
-        boolean hasMyReply = question.getAnswerList().stream()
+        return question.getAnswerList().stream()
                  .anyMatch(it -> it.getAuthor().getMember().getId().equals(memberId));
-        return hasMyReply;
     }
 
     public QuestionUpdateResponse updateQuestion(Long memberId, Long questionId, String content) {
