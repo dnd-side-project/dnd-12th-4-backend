@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 @SuperBuilder
@@ -31,12 +33,12 @@ public abstract class BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Seoul")); // KST 기준으로 저장
+        this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();  // ✅ LocalDateTime으로 변환
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Seoul")); // KST 기준으로 저장
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();  // ✅ LocalDateTime으로 변환
     }
 
     public void softDelete() {
