@@ -8,8 +8,8 @@ public enum QuestionControllerEnums {
     public static QuestionControllerEnums from(String filter) {
         return switch (filter) {
             case "all" -> ALL;
-            case "my-questions" -> MY_QUESTIONS;
-            case "others" -> OTHERS;
+            case "my-questions", "my-signal" -> MY_QUESTIONS;
+            case "others", "friend-signal" -> OTHERS;
             default -> throw new IllegalArgumentException("지원하지 않는 questionFilter 값입니다.");
         };
     }

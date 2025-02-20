@@ -114,13 +114,30 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public QuestionShowAllResponse findByChannelId(Long memberId, String channelId, Pageable pageable) {
+    public QuestionShowAllResponse findByChannelId(Long memberId, String channelId, Pageable pageable, QuestionControllerEnums questionFilterEnum) {
         UUID channelUuid = UUID.fromString(channelId);
         Channel channel = channelRepository.findByUuid(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
-        Page<Question> questionPage = questionRepository.findByChannelUuidAndIsDeletedFalse(channelUuid, pageable);
+        Page<Question> questionPage;
+
+        switch (questionFilterEnum) {
+            case ALL:
+                questionPage = questionRepository.findByChannelUuidAndChannelMembers_Member_IdAndIsDeletedFalse(channelUuid, memberId, pageable);
+                break;
+
+            case MY_QUESTIONS:
+                questionPage = questionRepository.findByChannelUuidAndWriter_Member_IdAndIsDeletedFalse(channelUuid, memberId,pageable);
+                break;
+
+            case OTHERS:
+                questionPage = questionRepository.findByChannelUuidAndChannelMembers_Member_IdAndWriter_Member_IdNotAndIsDeletedFalse(channelUuid,memberId, pageable);
+                break;
+
+            default:
+                throw new IllegalArgumentException("지원하지 않는 questionFilter 값입니다: " + questionFilterEnum);
+        }
 
         return toQuestionShowAllResponse(questionPage);
     }
