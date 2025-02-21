@@ -34,7 +34,7 @@ public class KakaoAuthExchangeController {
 
         Member memberEntity = kaKaoSignUpService.registerOrLoginKakaoUser(kakaoUser);
 
-        String refreshToken = jwtProvider.createRefreshToken();
+        String refreshToken = jwtProvider.createRefreshToken(memberEntity.getId());
 
         String hashedRefreshToken = SHA256Util.hash(refreshToken);
         memberEntity.setRefreshToken(hashedRefreshToken);

@@ -2,6 +2,7 @@ package com.dnd12th_4.pickitalki.controller.login;
 
 import com.dnd12th_4.pickitalki.common.cookie.CookieProvider;
 import com.dnd12th_4.pickitalki.common.token.JwtProvider;
+import com.dnd12th_4.pickitalki.common.token.SHA256Util;
 import com.dnd12th_4.pickitalki.controller.login.dto.response.RefreshTokenResponse;
 import com.dnd12th_4.pickitalki.domain.member.Member;
 import com.dnd12th_4.pickitalki.presentation.api.Api;
@@ -46,10 +47,19 @@ public class TokenAuthController {
 
              throw new ApiException(TokenErrorCode.EXPIRED_TOKEN,"ResponseEntity refreshAccessToken 에러");
         }
+        String newRefreshToken = makeNewRefreshToken(user);
 
-        RefreshTokenResponse refreshTokenResponse = getRefreshTokenResponse(user);
+        RefreshTokenResponse refreshTokenResponse = getRefreshTokenResponse(user, newRefreshToken);
 
         return Api.OK(refreshTokenResponse);
+    }
+
+    private String makeNewRefreshToken(Member user) {
+        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
+        String hashedRefreshToken = SHA256Util.hash(newRefreshToken);
+        user.setRefreshToken(hashedRefreshToken);
+        kaKaoSignUpService.saveUserEntity(user);
+        return newRefreshToken;
     }
 
     private  String subBerar(String refreshToken) {
@@ -59,20 +69,19 @@ public class TokenAuthController {
         return refreshToken;
     }
 
-    private RefreshTokenResponse getRefreshTokenResponse(Member user) {
+    private RefreshTokenResponse getRefreshTokenResponse(Member user, String newRefreshToken) {
 
         String newAccessToken = jwtProvider.createAccessToken(user.getId());
 
         RefreshTokenResponse refreshTokenResponse = RefreshTokenResponse.builder()
                 .expiredAccessToken(jwtProvider.getTokenExpiration(newAccessToken))
                 .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .build();
         return refreshTokenResponse;
     }
 
     private void executeExpiredCookie(HttpServletResponse response, Member user) {
-        Cookie cookie = cookieProvider.makeExpiredCookie("refreshToken", null);
-        response.addCookie(cookie);
 
         user.setRefreshToken(null);
         kaKaoSignUpService.saveUserEntity(user);
