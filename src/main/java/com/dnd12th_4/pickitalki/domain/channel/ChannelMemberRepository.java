@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Repository
 public interface ChannelMemberRepository  extends JpaRepository<ChannelMember,Long> {
-    List<ChannelMember> findByMemberId(Long memberId);
 
     @Query("""
     SELECT cm FROM ChannelMember cm
@@ -20,13 +19,13 @@ public interface ChannelMemberRepository  extends JpaRepository<ChannelMember,Lo
     JOIN FETCH c.channelMembers friends
     WHERE cm.member.id = :memberId
 """)
-    List<ChannelMember> findMeOnChannel(@Param("memberId") Long memberId);
+    List<ChannelMember> findMeOnChannelAndIsDeletedFalse(@Param("memberId") Long memberId);
 
-    Page<ChannelMember> findByMemberId(Long memberId, Pageable pageable);
+    Page<ChannelMember> findByMemberIdAndIsDeletedFalse(Long memberId, Pageable pageable);
 
     @Query("""
         SELECT cm FROM ChannelMember cm
         WHERE cm.channel.uuid = :channelUuid AND cm.isDeleted = false
     """)
-    Page<ChannelMember> findByChannelUuid(@Param("channelUuid") UUID channelUuid, Pageable pageable);
+    Page<ChannelMember> findByChannelUuidAndIsDeletedFalse(@Param("channelUuid") UUID channelUuid, Pageable pageable);
 }

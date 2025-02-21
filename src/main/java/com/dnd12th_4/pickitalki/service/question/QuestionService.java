@@ -40,7 +40,7 @@ public class QuestionService {
 
         validateSaveQuestion(memberId, channelId, channelUuid);
 
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채널을 찾을 수 없습니다. 새 시그널을 생성할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 질문을 생성할 권한이 없습니다."));
@@ -69,7 +69,7 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public TodayQuestionResponse findTodayQuestion(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 
@@ -114,7 +114,7 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public QuestionShowAllResponse findByChannelId(Long memberId, String channelId, Pageable pageable, QuestionControllerEnums questionFilterEnum) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널이 존재하지 않습니다. 오늘의 시그널 정보를 찾을 수 없습니다."));
         validateMemberInChannel(channel, memberId);
 

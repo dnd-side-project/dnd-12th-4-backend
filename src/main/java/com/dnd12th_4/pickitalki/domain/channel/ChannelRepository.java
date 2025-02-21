@@ -9,10 +9,10 @@ import java.util.UUID;
 @Repository
 public interface ChannelRepository extends JpaRepository<Channel,UUID> {
 
-    Optional<Channel> findByUuid(UUID uuid);
+    Optional<Channel> findByUuidAndIsDeletedFalse(UUID uuid);
 
-    Optional<Channel> findByInviteCode(String inviteCode);
+    Optional<Channel> findByInviteCodeAndIsDeletedFalse(String inviteCode);
 
-    Optional<Channel> findByName(String name);
+    Optional<Channel> findByNameAndIsDeletedFalse(String name);
 
 }

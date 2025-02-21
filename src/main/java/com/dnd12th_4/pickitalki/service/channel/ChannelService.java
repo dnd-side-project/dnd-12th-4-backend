@@ -1,6 +1,7 @@
 package com.dnd12th_4.pickitalki.service.channel;
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
+import com.dnd12th_4.pickitalki.common.converter.DateTimeUtil;
 import com.dnd12th_4.pickitalki.common.pagination.Pagination;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.channel.dto.ChannelMemberDto;
@@ -35,7 +36,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,7 +81,7 @@ public class ChannelService {
 
     @Transactional
     public MemberCodeNameResponse updateCodeName(Long memberId, String channelId, String codeName) {
-        Channel channel = channelRepository.findByUuid(UUID.fromString(channelId))
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(UUID.fromString(channelId))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다. 코드네임을 변경할 수 없습니다."));
 
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
@@ -96,7 +96,7 @@ public class ChannelService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 채널에 참여할 수 없습니다."));
 
-        Channel channel = channelRepository.findByInviteCode(inviteCode)
+        Channel channel = channelRepository.findByInviteCodeAndIsDeletedFalse(inviteCode)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "해당 초대코드에 맞는 채널을 찾을 수 없습니다."));
 
         ChannelMember channelMember;
@@ -117,7 +117,7 @@ public class ChannelService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 회원입니다. 참여한 채널들을 조회할 수 없습니다."));
 
-        Page<ChannelMember> channelMemberList = channelMemberRepository.findByMemberId(member.getId(), pageable);
+        Page<ChannelMember> channelMemberList = channelMemberRepository.findByMemberIdAndIsDeletedFalse(member.getId(), pageable);
 
         List<ChannelShowResponse> filteredList = channelMemberList.getContent().stream()
                 .filter(channelMember -> status == SHOWALL ||
@@ -130,7 +130,7 @@ public class ChannelService {
         Page<ChannelShowResponse> page = Pagination.getPage(pageable, filteredList);
 
         return ChannelShowAllResponse.builder()
-                .channelShowResponse(page.getContent())
+                .channelShowResponse(page.getContent()) // Use the modified list
                 .pageParamResponse(Pagination.createPageParamResponse(page))
                 .build();
     }
@@ -154,13 +154,13 @@ public class ChannelService {
                 .countPerson((long) channel.getChannelMembers().size())
                 .signalCount(signalCount)
                 .inviteCode(channel.getInviteCode())
-                .createdAt(channel.getCreatedAt().atZone(ZoneId.of("UTC")).toString())
+                .createdAt(DateTimeUtil.toKstString(channel.getCreatedAt()))
                 .build();
     }
 
     @Transactional(readOnly = true)
     public String findInviteCode(Long memberId, String channelName) {
-        Channel channel = channelRepository.findByName(channelName)
+        Channel channel = channelRepository.findByNameAndIsDeletedFalse(channelName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 초대코드를 응답할 수 없습니다."));
 
 
@@ -172,7 +172,7 @@ public class ChannelService {
 
     @Transactional(readOnly = true)
     public ChannelSpecificResponse findChannelByChannelName(Long memberId, String channelName) {
-        Channel channel = channelRepository.findByName(channelName)
+        Channel channel = channelRepository.findByNameAndIsDeletedFalse(channelName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId);
 
@@ -199,13 +199,13 @@ public class ChannelService {
     @Transactional(readOnly = true)
     public ChannelMembersResponse findChannelMembers(Long memberId, String channelId, Pageable pageable) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
 
 
-        Page<ChannelMember> channelMemberList = channelMemberRepository.findByChannelUuid(channelUuid, pageable);
+        Page<ChannelMember> channelMemberList = channelMemberRepository.findByChannelUuidAndIsDeletedFalse(channelUuid, pageable);
 
         List<ChannelMemberDto> filteredList = channelMemberList.getContent()
                 .stream().map(channelMember -> ChannelMemberDto.builder()
@@ -223,7 +223,7 @@ public class ChannelService {
     @Transactional
     public ChannelMemberProfileResponse findChannelMember(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 회원정보를 응답할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 회원정보들을 조회할 권한이 없습니다."));
@@ -241,7 +241,7 @@ public class ChannelService {
     @Transactional
     public ChannelMemberProfileResponse findTodayQuestioner(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 오늘의 질문자를 응답할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 오늘의 질문자를 조회할 권한이 없습니다."));
@@ -276,7 +276,7 @@ public class ChannelService {
     @Transactional(readOnly = true)
     public ChannelSpecificResponse findChannelByChannelId(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 채널을 찾을 수 없습니다. 채널정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 해당 멤버가 참여해 있지 않습니다. 채널정보를 조회할 권한이 없습니다."));
@@ -302,7 +302,7 @@ public class ChannelService {
     @Transactional
     public ChannelStatusResponse findChannelStatus(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 채널의 상태정보를 응답할 수 없습니다."));
         channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("채널에 해당 회원이 존재하지 않습니다. 채널의 상태정보를 조회할 권한이 없습니다."));
@@ -319,7 +319,7 @@ public class ChannelService {
     @Transactional
     public MyChannelMemberResponse updateChannelMemberProfile(Long memberId, String channelId, String codeName, String imageUrl) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 회원정보를 수정할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 회원정보를 수정할 권한이 없습니다."));
@@ -345,7 +345,7 @@ public class ChannelService {
     @Transactional
     public void leaveChannel(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
@@ -375,7 +375,7 @@ public class ChannelService {
     @Transactional
     public void deleteChannel(Long memberId, String channelId) {
         UUID channelUuid = UUID.fromString(channelId);
-        Channel channel = channelRepository.findByUuid(channelUuid)
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(channelUuid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널을 찾을 수 없습니다. 탈퇴할 수 없습니다."));
         ChannelMember channelMember = channel.findChannelMemberById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채널에 참여해 있지 않습니다. 탈퇴할 수 없습니다."));
@@ -388,7 +388,7 @@ public class ChannelService {
     }
 
     public String updateChannelName(Long memberId, String channelId, String channelName) {
-        Channel channel = channelRepository.findByUuid(UUID.fromString(channelId))
+        Channel channel = channelRepository.findByUuidAndIsDeletedFalse(UUID.fromString(channelId))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다. 채널명을 변경할 수 없습니다."));
 
         ChannelMember channelMember = channel.findChannelMemberById(memberId)

@@ -2,11 +2,9 @@ package com.dnd12th_4.pickitalki.service.login;
 
 
 import com.dnd12th_4.pickitalki.common.config.AppConfig;
-import com.dnd12th_4.pickitalki.common.dto.request.PageParamRequest;
 import com.dnd12th_4.pickitalki.common.dto.response.PageParamResponse;
 import com.dnd12th_4.pickitalki.controller.channel.ChannelControllerEnums;
 import com.dnd12th_4.pickitalki.controller.member.dto.*;
-import com.dnd12th_4.pickitalki.domain.answer.Answer;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMember;
 import com.dnd12th_4.pickitalki.domain.channel.ChannelMemberRepository;
 import com.dnd12th_4.pickitalki.domain.channel.Role;
@@ -57,7 +55,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyChannelMemberShowAllResponse findAllChannelMyInfo(Long memberId, ChannelControllerEnums status, Pageable pageable) {
 
-        Page<ChannelMember> pageChannelMember = channelMemberRepository.findByMemberId(memberId, pageable);
+        Page<ChannelMember> pageChannelMember = channelMemberRepository.findByMemberIdAndIsDeletedFalse(memberId, pageable);
 
 
         List<MyChannelMemberResponse> filteredList = pageChannelMember.getContent().stream()
@@ -103,7 +101,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public ChannelFriendShowAllResponse findChannelFriends(Long memberId, Pageable pageable) {
 
-        List<ChannelMember> meOnChannel = channelMemberRepository.findMeOnChannel(memberId);
+        List<ChannelMember> meOnChannel = channelMemberRepository.findMeOnChannelAndIsDeletedFalse(memberId);
 
         List<ChannelFriendResponse> filteredList = meOnChannel.stream()
                 .flatMap(me -> me.getChannel().getChannelMembers().stream()
