@@ -39,8 +39,9 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(Long userId) {
         return Jwts.builder()
+                .setSubject(userId.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(key, SignatureAlgorithm.HS256)
