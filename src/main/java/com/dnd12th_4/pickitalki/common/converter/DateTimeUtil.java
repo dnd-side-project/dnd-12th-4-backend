@@ -3,6 +3,7 @@ package com.dnd12th_4.pickitalki.common.converter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class DateTimeUtil {
@@ -18,4 +19,5 @@ public class DateTimeUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dateTime.atZone(ZoneId.of("Asia/Seoul")).format(formatter);
     }
+
 }
